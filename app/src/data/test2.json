@@ -1,0 +1,302 @@
+[
+  {
+    "id": 26,
+    "question": "Your agent has a log_workout tool that accepts exercise_type (string), value (number), and measurement (string). Production monitoring shows the agent frequently passes mismatched combinations-using measurement: \"reps\" for cardio exercises like running, or measurement: \"miles\" for strength exercises like bench press. Your exercises naturally divide into two categories: cardio (measured in time or distance) and strength (measured in reps and sets). 23% of tool calls have invalid combinations. What approach would most effectively reduce these errors?",
+    "options": {
+      "A": "Implement server-side validation returning descriptive errors for invalid combinations, allowing the agent to retry with corrections.",
+      "B": "Add enum constraints on measurement limiting values to \"minutes\", \"miles\", \"reps\", or \"sets\" to prevent arbitrary measurement strings.",
+      "C": "Add explicit examples to the tool description showing valid combinations (e.g., \"For running: use minutes or miles. For push-ups: use reps\") with constraints for each exercise category.",
+      "D": "Split into log_cardio_workout (with duration_minutes or distance_miles parameters) and log_strength_workout (with reps and sets parameters)."
+    },
+    "answer": "D",
+    "explanation": "A. Implement server-side validation returning descriptive errors for invalid combinations, allowing the\nagent to retry with corrections. Incorrect.\n\nThis catches errors after they occur but does not prevent them, leading to wasted turns and inefficiency.\n\nB. Add enum constraints on measurement limiting values to \"minutes\", \"miles\", \"reps\", or \"sets\" to prevent\narbitrary measurement strings. Incorrect.\n\nThis restricts values but does not prevent invalid combinations (e.g., still allows \"miles\" for bench press).\n\nC. Add explicit examples to the tool description showing valid combinations (e.g., \"For running: use minutes\nor miles. For push-ups: use reps\") with constraints for each exercise category. Incorrect.\n\nHelpful guidance, but not enforceable--agents can still make mistakes.\n\nD. Split into log_cardio_workout (with duration_minutes or distance_miles parameters) and\nlog_strength_workout (with reps and sets parameters). Correct.\n\nThis enforces correctness at the schema level by eliminating invalid parameter combinations entirely,\nsignificantly reducing errors."
+  },
+  {
+    "id": 27,
+    "question": "Your MCP server includes archive_file(file_id) and delete_file(file_id) tools. Production logs show the agent calls delete_file when users ask to \"remove old backups,\" policy requires archiving backup files. Both tools currently have minimal descriptions: \"Archives a file\" and \"Deletes a file.\" Which change most directly improves tool selection?",
+    "options": {
+      "A": "Add a confirmation step that requires users to type \"CONFIRM DELETE\" before delete_file executes.",
+      "B": "Implement server-side validation that rejects delete_file calls for files tagged as backups, returning an error message suggesting archive_file.",
+      "C": "Expand tool descriptions to clarify use cases, adding guidance like \"Do not use for backup files\" to delete_file.",
+      "D": "Add few-shot examples to the system prompt demonstrating that requests involving \"backup\" or \"old\" should use archive_file."
+    },
+    "answer": "C",
+    "explanation": "A. Add a confirmation step that requires users to type \"CONFIRM DELETE\" before delete_file executes. \nIncorrect.\n\nThis prevents accidental execution but does not improve the agent's tool selection decision.\n\nB. Implement server-side validation that rejects delete_file calls for files tagged as backups, returning an\nerror message suggesting archive_file. Incorrect.\n\nThis enforces policy after the wrong choice is made but does not directly improve initial selection.\n\nC. Expand tool descriptions to clarify use cases, adding guidance like \"Do not use for backup files\" to\ndelete_file. Correct.\n\nClear, specific descriptions directly influence the agent's tool selection reasoning, making it less likely to\nchoose the wrong tool.\n\nD. Add few-shot examples to the system prompt demonstrating that requests involving \"backup\" or \"old\"\nshould use archive_file. Incorrect.\n\nHelpful, but less direct and less reliable than improving the tool descriptions themselves."
+  },
+  {
+    "id": 28,
+    "question": "Your CRM agent's delete_contact tool handles requests like \"delete the duplicate entry for Acme Corp.\" The database contains similarly named records (e.g., \"Acme Corp,\" \"Acme Corporation,\" \"ACME Corp Inc.\"), and analytics show 8% of deletions are reversed within 24 hours due to misidentified records. Users have also complained that the current multi-step confirmation flow adds too much friction to routine cleanup tasks. Which approach most effectively reduces the error rate while maintaining workflow efficiency?",
+    "options": {
+      "A": "Present matched records with differentiating fields and require single-click confirmation of the intended target before executing deletion.",
+      "B": "Require users to supply the exact record ID from the CRM Interface rather than using natural language references to contact names.",
+      "C": "Deploy automated duplicate detection that identifies and merges probable duplicates, removing the need for manual deletion requests.",
+      "D": "Implement soft-delete with a 30-day recovery window so users can undo mistakes without slowing down the deletion workflow."
+    },
+    "answer": "A",
+    "explanation": "A. Present matched records with differentiating fields and require single-click confirmation of the intended\ntarget before executing deletion. Correct.\n\nThis directly addresses ambiguity by showing clear distinctions between similar records while keeping the\nworkflow fast with a lightweight confirmation step.\n\nB. Require users to supply the exact record ID from the CRM interface rather than using natural language\nreferences to contact names. Incorrect.\n\nThis reduces errors but adds significant friction and hurts usability for routine tasks.\n\nC. Deploy automated duplicate detection that identifies and merges probable duplicates, removing the\nneed for manual deletion requests. Incorrect.\n\nHelpful as a separate improvement, but it doesn't solve incorrect deletions during manual requests.\n\nD. Implement soft-delete with a 30-day recovery window so users can undo mistakes without slowing down\nthe deletion workflow. Incorrect.\n\nThis mitigates impact after errors occur but does not reduce the error rate itself."
+  },
+  {
+    "id": 29,
+    "question": "After Implementing tool use with strict schema definitions, JSON syntax errors are eliminated, but 5% of extractions still have valid JSON with empty arrays or null values for required fields like citations and methodology. Spot-checking reveals that source documents contain this information, but in varied formats--Inline citations vs. bibliographies, methodology sections vs. details embedded in Introductions. What's the most effective way to address these failures?",
+    "options": {
+      "A": "Modify your schema to make citations and methodology optional, and flag Incomplete records for manual review rather than falling validation.",
+      "B": "Build a regex-based post-processing layer that scans source documents for citation patterns and methodology keywords, populating empty fields when the model falls to extract.",
+      "C": "Add few-shot examples demonstrating extractions from documents with varied structures--showing how to identify citations in different formats and locate methodology details across section types.",
+      "D": "Implement retry logic that re-sends requests when validation detects empty required fields."
+    },
+    "answer": "C",
+    "explanation": "A. Modify your schema to make citations and methodology optional, and flag incomplete records for\nmanual review rather than failing validation. Incorrect.\n\nThis lowers data quality standards and avoids solving the extraction problem.\n\nB. Build a regex-based post-processing layer that scans source documents for citation patterns and\nmethodology keywords, populating empty fields when the model fails to extract. Incorrect.\n\nRegex approaches are brittle and unreliable across varied formats, especially for complex structures like\nmethodology.\n\nC. Add few-shot examples demonstrating extractions from documents with varied structures--showing\nhow to identify citations in different formats and locate methodology details across section types. \nCorrect.\n\nThis directly improves the model's ability to generalize across diverse document formats, addressing the root\ncause of missed extractions.\n\nD. Implement retry logic that re-sends requests when validation detects empty required fields. \nIncorrect.\n\nRetries without improving guidance will likely produce the same incomplete outputs."
+  },
+  {
+    "id": 30,
+    "question": "The system processes product reviews using tool use with a defined schema: rating (integer 1-5), pros (string array), cons (string array), and overall_sentiment (enum: positive, ne Testing reveals two issues with brief or ambiguous reviews (-20% of the dataset): (1) for reviews like \"Great product!\", Claude fabricates specific pros and cons rather than Indica Information isn't explicitly stated, and (2) for sarcastic reviews like \"Well that was.. interesting\", Claude picks sentiment arbitrarily since there's no option for ambiguous cases. W modification best addresses both issues?",
+    "options": {
+      "A": "Make pros and cons optional fields, and add \"neutral\" and \"unclear\" to the sentiment enum",
+      "B": "Allow empty arrays for pros/cons as valid output, and add \"unclear\" ss the sentiment enum",
+      "C": "Add an extraction_confidence field (0.0-1.0) for each value, and filter outputs where any confidence falls below a threshold.",
+      "D": "Allow null values for pros/cons, and add \"unclear\" to the sentiment earum."
+    },
+    "answer": "B",
+    "explanation": "A. Make pros and cons optional fields, and add \"neutral\" and \"unclear\" to the sentiment enum Incorrect.\nMaking fields optional can lead to inconsistent outputs, and \"neutral\" doesn't solve ambiguity--it's different\nfrom \"unclear\".\n\nB. Allow empty arrays for pros/cons as valid output, and add \"unclear\" as the sentiment enum Correct.\nThis prevents fabrication by allowing explicitly empty outputs when no details are present, and \"unclear\"\nhandles ambiguous or sarcastic sentiment appropriately.\n\nC. Add an extraction_confidence field (0.0�1.0) for each value, and filter outputs where any confidence falls\nbelow a threshold. Incorrect.\nThis adds complexity but doesn't prevent fabrication or resolve ambiguity in outputs.\n\nD. Allow null values for pros/cons, and add \"unclear\" to the sentiment enum. Incorrect.\nNulls are less consistent than empty arrays for structured outputs and can complicate downstream\nprocessing."
+  },
+  {
+    "id": 31,
+    "question": "Your extraction system implements automatic retries when validation fails. On each retry, the specific validation error is appended to the prompt. This retry-with-error-feedback approach resolves most failures within 2-3 attempts. For which failure pattern would additional retries be LEAST effective?",
+    "options": {
+      "A": "The model extracts \"et al.\" for co-authors when the full list exists only in an external document not in the input",
+      "B": "The model extracts citation counts as locale-formatted strings (\"1234\") when the schema requires integers",
+      "C": "The model extracts dates as ISO 8601 datetime strings (\"2003-03-15T00:00:00Z\") when the schema requires only the date portion.",
+      "D": "The model extracts keywords as a nested object organized by category when the schema requires a flat array of strings"
+    },
+    "answer": "A",
+    "explanation": "A. The model extracts \"et al.\" for co-authors when the full list exists only in an external document not in\nthe input Correct.\n\nRetries won't help because the required information is not present in the input context. The model cannot\nrecover missing data through repeated attempts.\n\nB. The model extracts citation counts as locale-formatted strings (\"1234\") when the schema requires\nintegers Incorrect.\n\nThis is a formatting issue that can be corrected through retries with validation feedback.\n\nC. The model extracts dates as ISO 8601 datetime strings (\"2003-03-15T00:00:00Z\") when the schema\nrequires only the date portion (YYYY-MM-DD) Incorrect.\n\nAlso a format mismatch, which retries can fix easily.\n\nD. The model extracts keywords as a nested object organized by category when the schema requires a flat\narray of strings Incorrect.\n\nThis is a structural mismatch that can typically be corrected with retry feedback."
+  },
+  {
+    "id": 32,
+    "question": "Your invoice extraction uses tool use with strict JSON schemas. JSON syntax errors never occur, but 12% of extractions fail semantic validation--for example, line Item amounts don't extracted total, or vendor IDs don't match valid formats. These failures currently route to manual review. What's the most effective approach to reduce manual review volume while m accuracy?",
+    "options": {
+      "A": "Retry the extraction up to 3 times when validation fallis, accepting the first result that passes validation.",
+      "B": "Implement post-processing logic that automatically corrects common amors, such as recalculating totais from line items when sums don't match.",
+      "C": "When validation falls, make a follow-up request with the document, extraction, and validation errors for model correction.",
+      "D": "Add stricter schema constraints with detailed field descriptions to prevent the model from generating invalid values initially."
+    },
+    "answer": "C",
+    "explanation": "A. Retry the extraction up to 3 times when validation fails, accepting the first result that passes validation.\n Incorrect.\n\nRetries without targeted feedback often repeat the same mistakes and don't reliably fix semantic\ninconsistencies.\n\nB. Implement post-processing logic that automatically corrects common errors, such as recalculating\ntotals from line items when sums don't match. Incorrect.\n\nWhile useful for specific cases, this is narrow and brittle, and doesn't address broader validation failures like\nincorrect IDs.\n\nC. When validation fails, make a follow-up request with the document, extraction, and validation errors for\nmodel correction. Correct.\n\nThis provides targeted feedback, enabling the model to fix specific issues, significantly reducing manual\nreview while maintaining accuracy.\n\nD. Add stricter schema constraints with detailed field descriptions to prevent the model from generating\ninvalid values initially. Incorrect.\n\nSchema improvements help upfront, but they cannot fully prevent semantic errors like mismatched totals."
+  },
+  {
+    "id": 33,
+    "question": "Your team is extracting structured data from 50,000 legacy legal contracts under a two-week deadline. Initial testing with 500 sample documents shows 82% pass JSON schema first attempt, while the remaining 18% fall due to diverse issues--missing required fields, malformed dates, and incorrectly identified parties. Documents that fail typically need refinements targeting their specific failure modes before extraction succeeds. Which batch processing strategy is the most cost-efficient while still meeting the deadline?",
+    "options": {
+      "A": "Split documents into 10 sequential batches of 5,000 each, analysing results and refining prompts between batches to improve extraction quality progressively.",
+      "B": "Submit all 50,000 documents via batch API, then submit failed extractions in successive batches--refining prompts between each batch--until all documents pass validation.",
+      "C": "Use the real-time API for all 50,000 documents since the batch API's 24-hour processing window creates unacceptable deadline risk.",
+      "D": "Process 2,000 sample documents via real time API to identify failure patterns and refine prompts, then batch process all 50,000 with the optimized prompts."
+    },
+    "answer": "B",
+    "explanation": "A. Split documents into 10 sequential batches of 5,000 each, analysing results and refining prompts\nbetween batches to improve extraction quality progressively. Incorrect.\n\nThis introduces unnecessary sequential delays and reduces throughput, risking the deadline.\n\nB. Submit all 50,000 documents via batch API, then submit failed extractions in successive batches--\nrefining prompts between each batch--until all documents pass validation. Correct.\n\nThis maximizes throughput and parallelism upfront, ensuring the deadline is met. Then it uses targeted\niterative refinement only on failures, making it cost-efficient while handling diverse failure modes effectively.\n\nC. Use the real-time API for all 50,000 documents since the batch API's 24-hour processing window\ncreates unacceptable deadline risk. Incorrect.\n\nThis is unnecessarily expensive and not required given batch processing capabilities.\n\nD. Process 2,000 sample documents via real-time API to identify failure patterns and refine prompts, then\nbatch process all 50,000 with the optimized prompts. Incorrect.\n\nWhile proactive, this assumes failure patterns generalize well, which the scenario suggests they don't--since\nfailures are diverse and require case-specific refinements."
+  },
+  {
+    "id": 34,
+    "question": "Your extraction pipeline processes contracts that frequently include amendments. When a contract contains both original terms and later amendments (e.g., original clause specifies \"30-day payment terms\" while Amendment 1 changes this to \"45 days\"), the model inconsistently extracts one value or the other with no indication of which applies. What's the most effective approach to improve extraction accuracy for documents with amendments?",
+    "options": {
+      "A": "Preprocess documents with a classifier that identifies and removes superseded sections before the main extraction step.",
+      "B": "Implement post-extraction validation using pattern matching to detect amendments and flag those extractions for manual review.",
+      "C": "Redesign the schema so amended fields capture multiple values, each with source location and effective date.",
+      "D": "Add prompt instructions to always extract the most recent amendment value and ignore superseded original terms."
+    },
+    "answer": "C",
+    "explanation": "A. Preprocess documents with a classifier that identifies and removes superseded sections before the main\nextraction step. Incorrect.\n\nThis is brittle and risky--accurately identifying and removing superseded clauses is complex and may lead to\nloss of important context.\n\nB. Implement post-extraction validation using pattern matching to detect amendments and flag those\nextractions for manual review. Incorrect.\n\nThis increases manual review but does not improve extraction accuracy or resolve ambiguity.\n\nC. Redesign the schema so amended fields capture multiple values, each with source location and effective\ndate. Correct.\n\nThis preserves both original and amended values with context, enabling accurate interpretation and avoiding\nambiguity about which value applies.\n\nD. Add prompt instructions to always extract the most recent amendment value and ignore superseded\noriginal terms. Incorrect.\n\nThis relies on model judgment, which is inconsistent, and loses traceability of how values changed over time."
+  },
+  {
+    "id": 35,
+    "question": "Your system must extract event details from calendar invitations and output JSON that strictly conforms to a schema with fields for title, date, time, location, and attendees. Downstream reject any malformed or non- conformant JSON. What approach provides the most reliable schema compliance?",
+    "options": {
+      "A": "Define a tool with your target schema as input parameters and have Claude call it with the extracted data.",
+      "B": "Pre-fill Claude's response with an opening brace to force JSON output, then complete and parse the response.",
+      "C": "Append instructions like \"Output only valid JSON matching the schema exactly\" and implement retry logic to re-prompt when JSON parsing fails.",
+      "D": "Include detailed JSON formatting instructions and the target schema in your prompt, then parse Claude's text response as JSON."
+    },
+    "answer": "A",
+    "explanation": "A. Define a tool with your target schema as input parameters and have Claude call it with the extracted\ndata. Correct.\n\nTool use enforces strict schema compliance at generation time, ensuring valid, structured JSON that\ndownstream systems can reliably consume.\n\nB. Pre-fill Claude's response with an opening brace to force JSON output, then complete and parse the\nresponse. Incorrect.\n\nThis is a fragile workaround and does not guarantee valid or schema-compliant JSON.\n\nC. Append instructions like \"Output only valid JSON matching the schema exactly\" and implement retry\nlogic to re-prompt when JSON parsing fails. Incorrect.\n\nHelpful but not reliable--models can still produce malformed or non-conformant JSON.\n\nD. Include detailed JSON formatting instructions and the target schema in your prompt, then parse\nClaude's text response as JSON. Incorrect.\n\nPrompt-based formatting alone cannot guarantee strict compliance, especially in edge cases."
+  },
+  {
+    "id": 36,
+    "question": "Your schema includes a skills: string[] field. Production monitoring reveals three consistency issues: (1) compound phrases like \"Python and SQL\" are sometimes kept as one entry, sometimes split; (2) implied but unstated skills occasionally appear in extractions; (3) similar documents produce wildly different array lengths (5-10 vs 40+ entries). Your prompt currently says \"Extract skills mentioned.\" What's the most effective improvement?",
+    "options": {
+      "A": "Add constraints: \"Extract 10-20 skills maximum, one skill per entry, only explicitly named skills.\"",
+      "B": "Add post-extraction normalization that maps skills to a canonical taxonomy and deduplicates similar entries.",
+      "C": "Enrich the schema to [scondidering] to capture extraction metadata.",
+      "D": "Add few-shot examples demonstrating compound phrase handling, explicit mention criteria, and appropriate entry granularity."
+    },
+    "answer": "D",
+    "explanation": "A. Add constraints: \"Extract 10�20 skills maximum, one skill per entry, only explicitly named skills.\" \nIncorrect.\n\nThis enforces limits but is arbitrary and may exclude valid skills or still leave ambiguity in how to split\nphrases.\n\nB. Add post-extraction normalization that maps skills to a canonical taxonomy and deduplicates similar\nentries. Incorrect.\nHelpful downstream, but it does not fix inconsistent extraction behavior at the source.\n\nC. Enrich the schema to capture extraction metadata. Incorrect.\nAdds complexity but does not directly address inconsistency in skill identification and formatting.\n\nD. Add few-shot examples demonstrating compound phrase handling, explicit mention criteria, and\nappropriate entry granularity. Correct.\n\nExamples directly guide the model on how to split, what to include, and the expected level of detail,\naddressing all three issues effectively."
+  },
+  {
+    "id": 37,
+    "question": "Your pipeline uses a tool called extract_metadata with a JSON schema for paper details. You've also defined lookup_citations and verify_doi tools for enrichment. During testing, you notice that when users include requests like \"extract the metadata and tell me how cited it is,\" Claude sometimes calls lookup_citations first, which fails because it needs the DOI that extract_metadata would provide. What's the most effective way to ensure structured metadata extraction happens first?",
+    "options": {
+      "A": "Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") and process the enrichment requests in subsequent turns after receiving the extracted metadata.",
+      "B": "Set tool choice to \"any\" so Claude must use a tool, combined with system prompt instructions prioritizing extract_metadata.",
+      "C": "Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") for every API call in the pipeline, ensuring Claude always extracts metadata before any enrichment can occur.",
+      "D": "Set tool choice to \"auto\" and reorder the tool definitions so extract_metadata appears first in the tools array, since Claude prioritizes earlier-listed tools."
+    },
+    "answer": "A",
+    "explanation": "A. Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") and process the enrichment requests in\nsubsequent turns after receiving the extracted metadata. Correct.\n\nThis enforces the correct execution order, ensuring required data (like DOI) is available before dependent\ntools are called.\n\nB. Set tool choice to \"any\" so Claude must use a tool, combined with system prompt instructions\nprioritizing extract_metadata. Incorrect.\n\nThis does not guarantee ordering--Claude may still choose the wrong tool first.\n\nC. Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") for every API call in the pipeline,\nensuring Claude always extracts metadata before any enrichment can occur. Incorrect.\n\nThis is too rigid and prevents legitimate use of other tools in later steps.\n\nD. Set tool choice to \"auto\" and reorder the tool definitions so extract_metadata appears first in the tools\narray, since Claude prioritizes earlier-listed tools. Incorrect.\n\nTool ordering does not reliably control selection or execution order."
+  },
+  {
+    "id": 38,
+    "question": "Your system has been operating with 100% human review for 3 months. Analysis shows that extractions with model confidence >90% have 97% accuracy overall. To reduce reviewer workload, you plan to automate high- confidence extractions. Before deploying, what validation step is most critical?",
+    "options": {
+      "A": "Verify that 97% accuracy meets requirements for all downstream systems that consume the extracted data.",
+      "B": "Analyze accuracy by document type and field to verify high-confidence extractions perform consistently across all segments, not just in aggregate.",
+      "C": "Compare accuracy at different confidence thresholds (85%, 90%, 95%) to find the optimal cutoff that maximizes automation while minimizing errors.",
+      "D": "Run a two-week pilot routing 25% of high-confidence extractions directly to downstream systems and monitor error reports."
+    },
+    "answer": "B",
+    "explanation": "A. Verify that 97% accuracy meets requirements for all downstream systems that consume the extracted\ndata. Incorrect.\n\nImportant, but it doesn't ensure the confidence signal is reliable across different cases--it only checks\noverall acceptability.\n\nB. Analyze accuracy by document type and field to verify high-confidence extractions perform consistently\nacross all segments, not just in aggregate. Correct.\n\nAggregate accuracy can hide weak spots. You need to ensure confidence >90% is trustworthy across all\nsegments, otherwise automation may introduce systematic errors.\n\nC. Compare accuracy at different confidence thresholds (85%, 90%, 95%) to find the optimal cutoff that\nmaximizes automation while minimizing errors. Incorrect.\n\nUseful for tuning, but only after confirming the confidence signal is consistent and reliable across segments.\n\nD. Run a two-week pilot routing 25% of high-confidence extractions directly to downstream systems and\nmonitor error reports. Incorrect.\n\nA pilot is valuable, but deploying without validating segment-level reliability first introduces avoidable risk."
+  },
+  {
+    "id": 39,
+    "question": "Your extraction system uses tool_use with a JSON schema containing 12 fields and detailed descriptions, totaling approximately 2,500 tokens for the complete tool definition. Processing documents under 150K tokens yields 98% accuracy. For documents between 175-190K tokens, accuracy drops to 71%, with information from the final third consistently missed. The model's context window is 200K tokens. What is the most likely cause?",
+    "options": {
+      "A": "Tool definitions consume input context tokens. Combined with system prompts and document content, the total approaches the context limit, degrading end-of-document processing.",
+      "B": "Very long documents exceed the model's effective attention span regardless of context limits, causing accuracy degradation for content farther from the prompt instructions.",
+      "C": "The model distributes attention proportionally across input length, causing fields mentioned only once near the document's end to receive insufficient processing focus.",
+      "D": "Schemas exceeding 8-10 fields increase decision complexity during parameter generation, reducing extraction accuracy independent of document length."
+    },
+    "answer": "A",
+    "explanation": "A. Tool definitions consume input context tokens. Combined with system prompts and document content,\n\nthe total approaches the context limit, degrading end-of-document processing. Correct.\n\nThe tool schema (~2,500 tokens) plus system prompts and large documents push total input close to the\n200K context limit, causing truncation or reduced attention to the final portion--hence missed information in\nthe last third.\n\nB. Very long documents exceed the model's effective attention span regardless of context limits, causing\naccuracy degradation for content farther from the prompt instructions. Incorrect.\n\nWhile attention can vary, the sharp drop near the context boundary strongly indicates a context limit issue,\nnot general attention decay.\n\nC. The model distributes attention proportionally across input length, causing fields mentioned only once\nnear the document's end to receive insufficient processing focus. Incorrect.\n\nThis is a weaker effect and does not explain the consistent failure in the final third tied to document size\nthresholds.\n\nD. Schemas exceeding 8�10 fields increase decision complexity during parameter generation, reducing\nextraction accuracy independent of document length. Incorrect.\n\nSchema size is constant across cases; it does not explain why accuracy drops only for longer documents."
+  },
+  {
+    "id": 40,
+    "question": "Your extraction pipeline processes invoices and extracts line items, subtotals, tax amounts, and grand totals. During evaluation, you discover that in 18% of extractions, the sum of extracted line item amounts doesn't match the extracted grand total--sometimes due to OCR errors in the source document, sometimes due to extraction mistakes by the model. Downstream accounting systems reject records with mismatched totals. What's the most effective approach to improve extraction reliability?",
+    "options": {
+      "A": "Add a \"calculated total\" field where the model sums extracted line items alongside a \"stated_total\" field. Flag records for human review when values differ.",
+      "B": "Extract line items and totals independently, then use a separate validation model to reconcile discrepancies by determining which extracted values are most likely correct.",
+      "C": "Add few-shot examples demonstrating invoices where extracted line items sum correctly to the stated total, encouraging the model to produce mathematically consistent extractions.",
+      "D": "Implement post-processing that automatically adjusts line item amounts proportionally when their sum doesn't match the stated total."
+    },
+    "answer": "A",
+    "explanation": "A. Add a \"calculated total\" field where the model sums extracted line items alongside a \"stated_total\"\nfield. Flag records for human review when values differ. Correct.\n\nThis preserves both sources of truth and enables reliable validation. Discrepancies can be flagged explicitly,\nimproving accuracy without silently altering financial data.\n\nB. Extract line items and totals independently, then use a separate validation model to reconcile\ndiscrepancies by determining which extracted values are most likely correct. Incorrect.\n\nThis adds complexity and uncertainty--\"guessing\" which value is correct can introduce errors in financial\ndata.\n\nC. Add few-shot examples demonstrating invoices where extracted line items sum correctly to the stated\ntotal, encouraging the model to produce mathematically consistent extractions. Incorrect.\n\nHelpful but insufficient--does not handle OCR errors or real inconsistencies in source documents.\n\nD. Implement post-processing that automatically adjusts line item amounts proportionally when their sum\ndoesn't match the stated total. Incorrect.\n\nThis modifies financial data artificially, which is risky and unacceptable for accounting accuracy."
+  },
+  {
+    "id": 41,
+    "question": "Your extraction system processes two document types: standard monthly reports (archived after processing) and urgent exception reports (must trigger business alerts within 30 minutes of receipt). Both use the same JSON schema. You want to minimize API costs while meeting latency requirements. How should you architect the processing pipeline?",
+    "options": {
+      "A": "Submit all documents to the Batch API with custom ids for tracking. When results arrive, immediately process urgent documents and trigger delayed alerts for exceptions.",
+      "B": "Submit all documents to the real-time Messages API to ensure consistent processing latency across document types.",
+      "C": "Queue all documents and submit hourly batches, flagging urgent documents for expedited handling when batch results return.",
+      "D": "Route standard reports to the Batch API for 50% cost savings, and route urgent exception reports to the real-time Messages API."
+    },
+    "answer": "D",
+    "explanation": "A. Submit all documents to the Batch API with custom ids for tracking. When results arrive, immediately\nprocess urgent documents and trigger delayed alerts for exceptions. Incorrect.\n\nBatch processing introduces delays that can exceed the 30-minute requirement, making it unsuitable for\nurgent reports.\n\nB. Submit all documents to the real-time Messages API to ensure consistent processing latency across\ndocument types. Incorrect.\n\nThis meets latency needs but is unnecessarily expensive for standard reports that don't require real-time\nprocessing.\n\nC. Queue all documents and submit hourly batches, flagging urgent documents for expedited handling\nwhen batch results return. Incorrect.\n\nHourly batching further increases delay and cannot meet urgent processing requirements.\n\nD. Route standard reports to the Batch API for 50% cost savings, and route urgent exception reports to the\nreal-time Messages API. Correct.\n\nThis balances cost efficiency and latency requirements, ensuring urgent reports are processed quickly while\noptimizing cost for non-urgent ones."
+  },
+  {
+    "id": 42,
+    "question": "The extraction pipeline receives documents of varying types--some are invoices, others are contracts, and some are receipts. You've defined separate extraction tools, each with its own schema tailored to the document type. During testing, you observe that with tool_choice: \"auto\", Claude sometimes returns conversational text instead of calling an extraction tool, causing downstream parsing failures. You need guaranteed structured output without knowing the document type in advance. What's the most effective approach?",
+    "options": {
+      "A": "Consolidate all document types into a single unified-schema extraction tool and force that tool.",
+      "B": "Keep tool_choice: \"auto\" with system prompt instructions requiring tool use.",
+      "C": "Set tool_choice: \"any\" with all extraction tools defined.",
+      "D": "Add a preliminary classification call, then make a second call with tool_choice forced to the identified extraction tool."
+    },
+    "answer": "C",
+    "explanation": "A. Consolidate all document types into a single unified-schema extraction tool and force that tool. \nIncorrect.\n\nThis reduces extraction accuracy and creates an overly complex schema that doesn't fit all document types\nwell.\n\nB. Keep tool_choice: \"auto\" with system prompt instructions requiring tool use. Incorrect.\n\nInstructions alone are not enforceable, which is exactly why the issue occurs.\n\nC. Set tool_choice: \"any\" with all extraction tools defined. Correct.\n\nThis guarantees that a tool will always be called, eliminating conversational text responses. While tool\nselection may not always be perfect, it ensures structured output every time, which is the primary\nrequirement.\n\nD. Add a preliminary classification call, then make a second call with tool_choice forced to the identified\nextraction tool. Incorrect.\n\nWhile more precise, this adds extra latency and complexity. The question prioritizes guaranteed structured\noutput, which C achieves more directly."
+  },
+  {
+    "id": 43,
+    "question": "Monitoring shows 12% of extractions fall Pydantic validation with specific errors like \"expected float for quantity, got '2 to 3\". Retrying these requests without modification produces failures. What's the most effective approach to recover from these validation failures?",
+    "options": {
+      "A": "Set temperature to 0 to eliminate output variability and ensure consistent formatting",
+      "B": "Send a follow-up request including the validation error, asking the model to correct its output",
+      "C": "Pre-process source documents to standardize problematic formats before sending them for extraction",
+      "D": "Implement a secondary pipeline using a larger model tier to reprocess documents that fail validation"
+    },
+    "answer": "B",
+    "explanation": "A. Set temperature to 0 to eliminate output variability and ensure consistent formatting Incorrect.\nThis reduces randomness but won't fix systematic extraction errors like misinterpreting ranges (\"2 to 3\").\n\nB. Send a follow-up request including the validation error, asking the model to correct its output \nCorrect.\n\nProviding specific validation feedback allows the model to correct the exact issue (e.g., convert \"2 to 3\" into a\nvalid float), making recovery highly effective.\n\nC. Pre-process source documents to standardize problematic formats before sending them for extraction\n Incorrect.\nHelpful in some cases, but not scalable or sufficient for diverse real-world variations.\n\nD. Implement a secondary pipeline using a larger model tier to reprocess documents that fail validation \nIncorrect.\n\nMore expensive and not necessary--targeted correction is more efficient and effective."
+  },
+  {
+    "id": 44,
+    "question": "After three months of weekly sessions, your conversation history has grown to 85,000 tokens. When users ask \"What did we conclude about the theme of isolation?\", the assistant provides generic literary analysis rather than referencing the group's specific insights from earlier sessions. Discussions often build on previous meetings' conclusions, so maintaining narrative context is important. What's the most effective approach?",
+    "options": {
+      "A": "Add structured XML tags to mark significant discussion conclusions throughout the conversation history.",
+      "B": "Use semantic embedding to index the full conversation history and retrieve only relevant past exchanges for each user query, replacing the linear conversation format with retrieved segments.",
+      "C": "Implement rolling window truncation to keep only the most recent 25,000 tokens.",
+      "D": "Implement progressive summarization where older conversation blocks are replaced with concise summaries that explicitly extract key conclusions, decisions, and recurring themes, keeping recent exchanges verbatim."
+    },
+    "answer": "D",
+    "explanation": "A. Add structured XML tags to mark significant discussion conclusions throughout the conversation\nhistory. Incorrect.\n\nTagging helps organization, but it doesn't solve the context length limitation or ensure relevant retrieval at\nquery time.\n\nB. Use semantic embedding to index the full conversation history and retrieve only relevant past\nexchanges for each user query, replacing the linear conversation format with retrieved segments. \nIncorrect.\n\nPowerful for retrieval, but replacing the conversation entirely loses narrative continuity, which is important\nfor ongoing discussions.\n\nC. Implement rolling window truncation to keep only the most recent 25,000 tokens. Incorrect.\n\nThis discards earlier insights, which are critical for referencing past conclusions.\n\nD. Implement progressive summarization where older conversation blocks are replaced with concise\n\nsummaries that explicitly extract key conclusions, decisions, and recurring themes, keeping recent\nexchanges verbatim. Correct.\n\nThis preserves long-term context and key insights while staying within token limits, enabling the assistant to\nreference past conclusions effectively."
+  },
+  {
+    "id": 45,
+    "question": "After a 40-minute session helping plan a dinner party, the conversation has grown to 78,000 tokens. The history includes: (1) the user mentioning a guest has a severe shellfish allergy, (2) measurements for scaling recipes to 8 servings, (3) the user's clarification that \"room temperature butter\" means 68�F in their kitchen, and (4) general back-and-forth about meal timing and presentation. You need to implement context management before the window limit is reached. What approach best balances information preservation with token reduction?",
+    "options": {
+      "A": "Summarize the entire conversation history into a concise summary capturing main topics discussed, then append new messages going forward.",
+      "B": "Implement a sliding window retaining only the most recent 20,000 tokens relying on users to re-state important information when relevant.",
+      "C": "Store the full conversation externally and use semantic search to retrieve relevant portions for each turn, loading only matching segments into context.",
+      "D": "Extract critical structured data (allergies, serving counts, user-defined terms) into a compact reference section, summarize general discussion, and retain recent exchanges verbatim."
+    },
+    "answer": "D",
+    "explanation": "A. Summarize the entire conversation history into a concise summary capturing main topics discussed, then\nappend new messages going forward. Incorrect.\n\nThis risks losing critical details like allergies and precise measurements that must remain exact.\n\nB. Implement a sliding window retaining only the most recent 20,000 tokens relying on users to re-state\nimportant information when relevant. Incorrect.\n\nThis discards essential context (e.g., allergy info), which is unsafe and unreliable.\n\nC. Store the full conversation externally and use semantic search to retrieve relevant portions for each\nturn, loading only matching segments into context. Incorrect.\n\nHelpful for retrieval, but may miss important persistent constraints (like allergies) if not explicitly retrieved\nevery time.\n\nD. Extract critical structured data (allergies, serving counts, user-defined terms) into a compact reference\nsection, summarize general discussion, and retain recent exchanges verbatim. Correct.\n\nThis preserves high-priority facts exactly, reduces tokens efficiently, and maintains conversational\ncontinuity."
+  },
+  {
+    "id": 46,
+    "question": "You're Implementing a feature where users refine their playlist preferences through multiple conversation turns. After deploying, you notice Claude's responses don't reflect what us earlier in the same conversation--for example, a user says they love jazz, but two messages later Claude asks what genres they enjoy. What is the most likely cause?",
+    "options": {
+      "A": "The model's context window has been exceeded by the conversation length",
+      "B": "The Claude API requires a session_id parameter that you haven't configured",
+      "C": "Claude requires a vector database connection to maintain conversation memory",
+      "D": "Your application isn't including prior messages in the messages array"
+    },
+    "answer": "D",
+    "explanation": "A. The model's context window has been exceeded by the conversation length Incorrect.\n This would only happen in very long conversations, and the issue appears early within just a few turns.\n B. The Claude API requires a session_id parameter that you haven't configured Incorrect.\n There is no required session_id--context must be explicitly managed by the application.\n C. Claude requires a vector database connection to maintain conversation memory Incorrect.\n A vector database is optional for retrieval, not required for basic conversation memory.\n D. Your application isn't including prior messages in the messages array Correct.\n Claude does not retain memory between calls--if previous messages aren't included, it cannot recall earlier\n user preferences."
+  },
+  {
+    "id": 47,
+    "question": "Your fitness coaching assistant uses a system prompt with detailed conditional logic: \"If the user mentions being a beginner, provide step-by-step form instructions. If they use term 'progressive overload' or 'superset', respond concisely. If they ask about injury history, always recommend consulting a physician.\" During evaluation, you find the assistant correct explicit expertise declarations but struggles when users don't clearly state their level-often defaulting to overly detailed responses regardless of contextual cues like technical te Which change to the system prompt would most directly address this failure to pick up on implicit expertise signals?",
+    "options": {
+      "A": "Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise, mirroring their terminology.\" Keep only the safety-critical conditional abou consultations.",
+      "B": "Add more conditional branches to cover additional expertise signals, such as \"If user mentions specific rep ranges or asks about periodization, treat as advanced.\"",
+      "C": "Implement a pre-conversation intake that asks users to rate their experience level, then inject that rating into the system prompt as context for all subsequent responses.",
+      "D": "Add an explicit instruction for the model to ask a clarifying question about experience level whenever the user's expertise isn't immediately clear from their first message."
+    },
+    "answer": "A",
+    "explanation": "A. Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise,\nmirroring their terminology.\" Keep only the safety-critical conditional about consultations. Correct.\nThis shifts from brittle rule-based logic to a flexible heuristic, enabling the model to infer expertise from\n\nsubtle cues like terminology and tone.\n\nB. Add more conditional branches to cover additional expertise signals, such as \"If user mentions specific\nrep ranges or asks about periodization, treat as advanced.\" Incorrect.\nThis increases complexity and brittleness--edge cases will still be missed.\n\nC. Implement a pre-conversation intake that asks users to rate their experience level, then inject that\nrating into the system prompt as context for all subsequent responses. Incorrect.\nUseful, but doesn't solve the issue of interpreting implicit signals during conversation.\n\nD. Add an explicit instruction for the model to ask a clarifying question about experience level whenever\nthe user's expertise isn't immediately clear from their first message. Incorrect.\nThis adds friction and interrupts flow instead of improving implicit understanding."
+  },
+  {
+    "id": 48,
+    "question": "During initial testing, you notice that Claude doesn't seem to remember vocabulary words from earlier in the conversation. When a student asks \"Can you quiz me on those words?\", responds as if no words have been discussed. What is the most likely explanation?",
+    "options": {
+      "A": "Your system prompt needs explicit instructions telling Claude to remember information from earlier turns.",
+      "B": "You're not including prior messages in each API request--the stateless API doesn't retain conversation history.",
+      "C": "You need to enable conversation persistence by passing a session ID parameter with each API call.",
+      "D": "The model's context window has filled up, causing earlier conversation content to be dropped."
+    },
+    "answer": "B",
+    "explanation": "A. Your system prompt needs explicit instructions telling Claude to remember information from earlier\nturns. Incorrect.\nInstructions alone don't give the model memory--context must be provided with each request.\n\nB. You're not including prior messages in each API request--the stateless API doesn't retain conversation\nhistory. Correct.\nClaude is stateless. If earlier messages aren't passed in the request, it has no awareness of prior vocabulary.\n\nC. You need to enable conversation persistence by passing a session ID parameter with each API call. \nIncorrect.\n\nThere's no required session ID--memory is handled by including past messages.\n\nD. The model's context window has filled up, causing earlier conversation content to be dropped. \nIncorrect.\n\nThis would only happen in very long conversations, not typical early testing scenarios."
+  },
+  {
+    "id": 49,
+    "question": "Your home renovation planning assistant uses a system prompt defining an expert contractor persona with specific guidelines: always ask about budget, suggest alternatives at multiple price points, and confirm timeline requirements. During testing, responses follow these guidelines for turns 1-4, but by turn 7, the assistant gives generic advice without asking about budget or timeline. The conversation totals only 2,500 tokens. What is the most likely cause?",
+    "options": {
+      "A": "System prompts only establish initial behavior and don't persist across all turns.",
+      "B": "The system prompt is only sent with the first API request.",
+      "C": "The assistant's accumulated responses are diluting the system prompt's influence.",
+      "D": "The model's attention on system prompt instructions naturally weakens as turns accumulate."
+    },
+    "answer": "C",
+    "explanation": "A. System prompts only establish initial behavior and don't persist across all turns. Incorrect.\nSystem prompts do persist as long as they are included in each request.\n\nB. The system prompt is only sent with the first API request. Incorrect.\nIf this were the case, the behavior would degrade immediately after the first turn--not gradually by turn 7.\n\nC. The assistant's accumulated responses are diluting the system prompt's influence. Correct.\nAs the conversation grows, the model must balance more context. Even within a small token count, recent\nconversational patterns can outweigh earlier instructions, causing drift from the original system prompt.\n\nD. The model's attention on system prompt instructions naturally weakens as turns accumulate. \nIncorrect.\n\nThis is too vague--it's not just \"natural weakening,\" but specifically the increasing influence of\nconversational context relative to the system prompt."
+  },
+  {
+    "id": 50,
+    "question": "Users report that during extended conversations, the AI loses track of specific topics, examples, and preferences they mentioned earlier in the session. Your current implementation uses a sliding window that keeps only the most recent 25 message pairs to stay within context limits. What's the most effective approach to maintain awareness of earlier conversation content while managing context size?",
+    "options": {
+      "A": "Replace the sliding window with a hybrid approach: summarize older messages while keeping recent messages verbatim.",
+      "B": "Implement vector similarity search over the full conversation history, retrieving relevant past messages for each user query.",
+      "C": "Increase the window size to 50 message pairs to retain more conversation history before truncation.",
+      "D": "Add a separate API call each turn to summarize messages being dropped, prepending this running summary to the conversation."
+    },
+    "answer": "A",
+    "explanation": "A. Replace the sliding window with a hybrid approach: summarize older messages while keeping recent\nmessages verbatim. Correct.\n\nThis preserves long-term context in a compressed form while keeping recent interactions intact, maintaining\ncontinuity without exceeding token limits.\n\nB. Implement vector similarity search over the full conversation history, retrieving relevant past messages\nfor each user query. Incorrect.\n\nWhile powerful, this is more complex and better suited for large-scale or cross-session retrieval, not\nnecessarily the most direct fix for in-session context loss.\n\nC. Increase the window size to 50 message pairs to retain more conversation history before truncation. \nIncorrect.\n\nThis only delays the issue and increases token usage without fundamentally solving it.\n\nD. Add a separate API call each turn to summarize messages being dropped, prepending this running\nsummary to the conversation. Incorrect.\n\nThis can lead to summary drift and compounding errors, reducing reliability over time."
+  }
+]

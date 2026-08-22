@@ -1,0 +1,302 @@
+[
+  {
+    "id": 76,
+    "question": "The coordinator agent has AgentDefinitions configured for all four specialized subagents, each with appropriate descriptions, prompts, and tool restrictions. During testing, you notice the coordinator correctly reasons about when to delegate--it generates messages like \"I'll ask the web search agent to find sources on this topic\"--but no subagent execution ever occurs. The coordinator then proceeds as if the delegation happened and continues with incomplete information. Logs show no errors. What is the most likely cause?",
+    "options": {
+      "A": "The coordinator's max_tokens setting is too low, causing the Task tool invocation to be truncated before the subagent type parameter can be specified.",
+      "B": "The coordinator's allowedTools configuration doesn't include \"Task\", so while it can reason about delegation, it cannot invoke the tool required to spawn subagents.",
+      "C": "Subagent context isolation means task descriptions from the coordinator don't automatically reach subagents; you need to configure explicit context forwarding in ClaudeAgentOptions.",
+      "D": "The AgentDefinitions are configured correctly, but the coordinator's system prompt doesn't explicitly list the available subagent types, preventing the model from knowing they can be invoked."
+    },
+    "answer": "B",
+    "explanation": "A. The coordinator's max_tokens setting is too low, causing the Task tool invocation to be truncated before\n the subagent type parameter can be specified. Incorrect.\n\n If this were the cause, you'd typically see partial tool calls or parsing errors in logs--not silent absence of tool\n execution.\n\n B. The coordinator's allowedTools configuration doesn't include \"Task\", so while it can reason about\n delegation, it cannot invoke the tool required to spawn subagents. Correct.\n\n This exactly matches the symptom: the model plans to delegate (reasoning is fine), but cannot execute the\n tool call, so no subagent runs and no errors appear at the reasoning level.\n\n C. Subagent context isolation means task descriptions from the coordinator don't automatically reach\n subagents; you need to configure explicit context forwarding in ClaudeAgentOptions. Incorrect.\n\n This would affect what subagents receive, not whether they are spawned at all.\n\n D. The AgentDefinitions are configured correctly, but the coordinator's system prompt doesn't explicitly\n list the available subagent types, preventing the model from knowing they can be invoked. Incorrect.\n\n The model is clearly aware of delegation (it verbalizes it), so discovery is not the issue--execution capability\n is.\n\n Key idea: reasoning about tools permission to use tools; missing tool authorization leads to silent non-\n execution."
+  },
+  {
+    "id": 77,
+    "question": "Production reviews reveal inconsistent handling of uncertainty in final reports. Sometimes conflicting subagent findings are synthesized into a single confident statement (losing nuance), while other times reports over-hedge with excessive qualifications (becoming unhelpful). When the web search agent returns \"industry analysts estimate $50B market size (methodology varies)\" and the document analysis agent returns \"peer-reviewed study estimates $35B (�$7B, 95% CI),\" the coordinator either picks one arbitrarily or produces vague statements like \"the market may be $35B-$50B depending on factors.\" What systematic approach best addresses this?",
+    "options": {
+      "A": "Implement a confidence calibration layer that normalizes subagent uncertainty expressions to standardized probability scores (0.0-1.0), then weight-average findings by their calibrated confidence.",
+      "B": "Instruct the synthesis agent to structure reports with explicit sections distinguishing well-established findings from contested ones, preserving original source characterizations and methodological context.",
+      "C": "Configure subagents to only report findings meeting a high-confidence threshold, filtering uncertain information before it reaches the coordinator.",
+      "D": "Add a verification subagent that cross-references findings across sources, only passing claims to synthesis that are corroborated by at least two independent sources."
+    },
+    "answer": "B",
+    "explanation": "A. Implement a confidence calibration layer that normalizes subagent uncertainty expressions to\nstandardized probability scores (0.0-1.0), then weight-average findings by their calibrated confidence. \nIncorrect.\n\nThis forces incompatible uncertainty types (market estimates, confidence intervals, analyst opinions) into a\nsingle numeric scale, which can distort meaning and oversimplify fundamentally different methodologies.\n\nB. Instruct the synthesis agent to structure reports with explicit sections distinguishing well-established\nfindings from contested ones, preserving original source characterizations and methodological context. \nCorrect.\n\nThis directly addresses the root problem: loss of nuance. It preserves multiple viewpoints, uncertainty types,\nand methodological differences, while still producing a coherent, structured report instead of collapsing\neverything into a misleading single value or vague range.\n\nC. Configure subagents to only report findings meeting a high-confidence threshold, filtering uncertain\ninformation before it reaches the coordinator. Incorrect.\n\nThis removes the very uncertainty signals needed for proper synthesis and biases outputs toward false\ncertainty.\n\nD. Add a verification subagent that cross-references findings across sources, only passing claims to\nsynthesis that are corroborated by at least two independent sources. Incorrect.\n\nThis is too restrictive for domains like market sizing where disagreement is meaningful and expected, not a\nsign of invalid data."
+  },
+  {
+    "id": 78,
+    "question": "You've configured the system so that all four subagents have access to the complete set of 18 tools. During testing, agents frequently call tools outside their specialization--the synthesis agent attempts web searches, and the report generator tries to analyze documents. What is the primary cause of this poor tool selection behavior?",
+    "options": {
+      "A": "Choosing from 18 tools instead of 4-5 relevant ones increases decision complexity beyond reliable selection thresholds.",
+      "B": "The agents' role descriptions in their system prompts conflict with having access to tools outside that role.",
+      "C": "The tool definitions consume too much context window space, leaving insufficient room for task content.",
+      "D": "The coordinator cannot track which capabilities each subagent has, leading to misrouted tasks."
+    },
+    "answer": "A",
+    "explanation": "A. Choosing from 18 tools instead of 4�5 relevant ones increases decision complexity beyond reliable\nselection thresholds. Correct.\n\nThis is the core issue: as the number of available tools grows, especially across multiple unrelated domains,\nthe model's tool selection accuracy degrades due to increased choice entropy and decision load. Even if\neach tool is well-described, having too many options in the same context makes it harder for the model to\nreliably pick the correct one, leading to cross-role tool misuse.\n\nWhy the others are not correct:\n\nB. Role-description conflict Incorrect\nRole prompts influence behavior, but they don't inherently break tool selection when tools are available.\n\nC. Context window usage Incorrect\nThere's no indication of truncation or missing tool definitions--this is a selection problem, not a capacity\nproblem.\n\nD. Coordinator tracking issue Incorrect\nThe failure happens at the subagent decision level, not because the coordinator lacks awareness of tools."
+  },
+  {
+    "id": 79,
+    "question": "The coordinator provides detailed step-by-step instructions to the web search subagent, specifying exact search queries, source priorities, and date filters. Production monitoring reveals three issues: (1) the subagent reports \"insufficient results\" rather than trying alternative approaches when pre-specified searches fail, (2) research quality drops for emerging topics that don't match expected patterns, and (3) the subagent rarely surfaces valuable tangential sources. What's the most effective way to improve subagent adaptability?",
+    "options": {
+      "A": "Specify research goals and quality criteria (coverage breadth, source diversity, recency) rather than procedural steps, letting the subagent determine its search strategy.",
+      "B": "Add explicit fallback directives to the detailed instructions: \"If specified searches yield fewer than N results, attempt alternative query formulations before reporting failure.\"",
+      "C": "Remove procedural details entirely, delegating with simple goals like \"research X thoroughly\" and relying on the subagent's general capabilities.",
+      "D": "Implement a topic classification step where the coordinator categorizes requests as \"well-defined\" or \"exploratory\" and uses different instruction styles for each category."
+    },
+    "answer": "A",
+    "explanation": "A. Specify research goals and quality criteria (coverage breadth, source diversity, recency) rather than\nprocedural steps, letting the subagent determine its search strategy. Correct.\n\nThis is the most effective fix because it shifts from over-constrained instructions (procedural control) to\nobjective-driven autonomy, allowing the subagent to adapt when initial queries fail and to explore tangential\nbut relevant sources.\n\nB. Add explicit fallback directives to the detailed instructions: \"If specified searches yield fewer than N\nresults, attempt alternative query formulations before reporting failure.\" Incorrect.\n\nThis helps slightly, but it still locks behavior into predefined contingencies and doesn't generalize to novel or\nemerging topics.\n\nC. Remove procedural details entirely, delegating with simple goals like \"research X thoroughly\" and\nrelying on the subagent's general capabilities. Incorrect.\n\nToo vague--removing structure entirely reduces reliability and makes output quality inconsistent.\n\nD. Implement a topic classification step where the coordinator categorizes requests as \"well-defined\" or\n\"exploratory\" and uses different instruction styles for each category. Incorrect.\nThis adds complexity and still relies on rigid instruction modes rather than enabling adaptive search behavior."
+  },
+  {
+    "id": 80,
+    "question": "The synthesis agent receives summarized findings from the web search and document analysis agents, then passes a consolidated summary to the report generator. During testing, you discover the generated reports make factual claims without proper citations--the report generator cannot attribute statements to their original sources because that metadata was lost during the summarization steps. What's the most effective approach to ensure proper source attribution in the final reports?",
+    "options": {
+      "A": "Have each agent output structured data separating content summaries from source metadata (URLs, document names, page numbers).",
+      "B": "Have the report generator query the web search agent to re-locate sources for claims in the final report.",
+      "C": "Skip summarization and pass full raw outputs from web search and document analysis directly to the report generator.",
+      "D": "Instruct the synthesis agent to embed source references inline within its summary text using a consistent citation format."
+    },
+    "answer": "A",
+    "explanation": "A. Have each agent output structured data separating content summaries from source metadata (URLs,\ndocument names, page numbers). Correct.\n\nThis is the most reliable solution because it preserves provenance as first-class data, ensuring citations are\nnever lost during summarization. The report generator can then deterministically map claims back to their\noriginal sources.\n\nB. Have the report generator query the web search agent to re-locate sources for claims in the final report.\n Incorrect.\n\nThis is inefficient and unreliable because it requires reverse-matching claims to sources, which can be\nambiguous or fail entirely.\n\nC. Skip summarization and pass full raw outputs from web search and document analysis directly to the\nreport generator. Incorrect.\n\nThis avoids the problem but is not scalable and leads to context bloat and degraded performance.\n\nD. Instruct the synthesis agent to embed source references inline within its summary text using a\nconsistent citation format. Incorrect.\n\nThis helps, but it still risks losing or breaking attribution during downstream transformations and does not\nenforce structured traceability."
+  },
+  {
+    "id": 81,
+    "question": "A user is expanding the research system beyond its single web search agent by adding specialized data sources. They add a financial API agent that returns structured JSON with revenue, margins, and growth rates; a news monitoring agent that returns prose summaries of recent developments; and a patent analysis agent that returns structured lists of technology areas. The synthesis agent combines these into executive briefings. Currently, it converts everything to bullet points, causing financial comparisons to lose tabular clarity and news summaries to lose narrative flow. What change would most improve briefing quality?",
+    "options": {
+      "A": "Update the synthesis agent to render each content type appropriately--financial data as tables, news as prose",
+      "B": "Standardize all subagent outputs to JSON with fields for claim, evidence, source, and confidence",
+      "C": "Add a format conversion layer between subagents and synthesis that transforms all outputs to a common intermediate representation",
+      "D": "Standardize all subagent outputs to prose summaries with inline citations"
+    },
+    "answer": "A",
+    "explanation": "A. Update the synthesis agent to render each content type appropriately--financial data as tables, news as\n prose Correct.\n\n This works because it preserves the native structure of each data type at the point where it matters most\n (final synthesis). Financial data remains comparable in tabular form, news retains narrative coherence, and\n patents stay structured as categorized lists. The key improvement is that the synthesis layer becomes\n format-aware instead of flattening everything into bullets, which is exactly what was causing quality loss.\n\n Why the others are not correct:\n\n B. Standardize all subagent outputs to JSON with fields for claim, evidence, source, and confidence \n Incorrect\n\n This forces unrelated data types into a single schema and strips meaningful presentation structure like tables\n and narratives.\n\n C. Add a format conversion layer between subagents and synthesis Incorrect\n\n This risks over-normalization into a lowest-common-denominator format, reducing expressiveness.\n\n D. Standardize all subagent outputs to prose summaries with inline citations Incorrect\n\n This removes structure from financial and analytical data, reducing precision and comparability."
+  },
+  {
+    "id": 82,
+    "question": "When the agent calls lookup order and receives order details showing the item was purchased 45 days ago, how does the agentic loop determine whether to call process refund escalate to human next?",
+    "options": {
+      "A": "The agent executes the remaining steps in a tool sequence planned at the start of the request.",
+      "B": "The order details are added to the conversation and the model reasons about which action to take.",
+      "C": "The agent follows a pre-configured decision tree mapping order attributes to specific tool calls.",
+      "D": "The orchestration layer automatically routes to the next tool based on the order's status field."
+    },
+    "answer": "B",
+    "explanation": "B. The order details are added to the conversation and the model reasons about which action to take. \nCorrect.\n\nIn an agentic loop, tool results (like \"purchased 45 days ago\") are fed back into the model's context, and the\nmodel re-evaluates the situation dynamically. It then decides whether to proceed with process_refund,\nescalate to a human, or take another action based on policy and the updated information.\n\nWhy the others are not correct:\nA. Fixed tool sequence planned at the start Incorrect\nAgentic systems are not static workflows; they adapt after each observation.\nC. Pre-configured decision tree Incorrect\nThis is rule-based automation, not LLM-driven reasoning.\nD. Orchestration layer automatically routes next tool call Incorrect\nThat removes the model's reasoning role and turns it into deterministic routing."
+  },
+  {
+    "id": 83,
+    "question": "The agent verifies customer identity through a multi-step process before resetting passwords. During testing, you notice that after the customer answers the third verification question, the agent asks them to provide their name again, as if the earlier exchange never happened. What's the most likely cause of this behavior?",
+    "options": {
+      "A": "Claude's memory retention is limited to two conversational turns by default, requiring explicit configuration to extend it.",
+      "B": "The prompt lacks instructions telling Claude to remember information across multiple exchanges.",
+      "C": "The verification tool is clearing the agent's internal state after each successful validation step.",
+      "D": "The conversation history isn't being passed in subsequent API requests."
+    },
+    "answer": "D",
+    "explanation": "A. Claude's memory retention is limited to two conversational turns by default, requiring explicit\nconfiguration to extend it. Incorrect.\n\nThere is no fixed \"two-turn memory limit\" like this; context is determined by what the application sends, not a\nbuilt-in short memory window.\n\nB. The prompt lacks instructions telling Claude to remember information across multiple exchanges. \nIncorrect.\n\nSystem prompts don't control memory persistence. The model does not \"forget\" within context unless\ninformation is missing from input.\n\nC. The verification tool is clearing the agent's internal state after each successful validation step. \nIncorrect.\n\nTools do not automatically reset conversational context unless explicitly designed to do so--and that would\nbe an application-level bug, not the most likely general cause.\n\nD. The conversation history isn't being passed in subsequent API requests. Correct.\n\nThis is the most likely cause. The model is stateless, so if prior messages aren't included in each request, it\nbehaves as if earlier verification steps never happened--leading to repeated questions like asking for the\nname again."
+  },
+  {
+    "id": 84,
+    "question": "When implementing your lookup_order MCP tool, the backend sometimes returns errors (e.g., \"Order not found\" or temporary database failures). What is the correct pattern for communicating these errors back to the agent?",
+    "options": {
+      "A": "Log the error server-side and return an empty result to avoid confusing the model",
+      "B": "Throw an exception from the tool handler so the agent framework can catch and log it",
+      "C": "Return the error message in the tool result content with the isError flag set to true",
+      "D": "Return a success response with a \"status\" field indicating the error type"
+    },
+    "answer": "C",
+    "explanation": "A. Log the error server-side and return an empty result to avoid confusing the model Incorrect.\nThis hides critical failure information, making it impossible for the agent to distinguish \"no data\" from \"system\nfailure.\"\n\nB. Throw an exception from the tool handler so the agent framework can catch and log it Incorrect.\nExceptions are useful internally, but the agent still needs a structured tool response; raw exceptions don't\nreliably propagate useful context to the model.\n\nC. Return the error message in the tool result content with the isError flag set to true Correct.\nThis is the proper MCP pattern: the tool explicitly signals failure using isError: true, while still providing a\nreadable error message so the agent can decide whether to retry, escalate, or inform the user.\n\nD. Return a success response with a \"status\" field indicating the error type Incorrect.\nThis is misleading because it treats failures as successful responses, which confuses downstream reasoning\nand tool orchestration."
+  },
+  {
+    "id": 85,
+    "question": "Evaluation shows 94% extraction accuracy on short meeting transcripts (<30 minutes) but only 68% on longer transcripts (>60 minutes) where discussions meander and key information is scattered throughout. Transcripts of both lengths fit within the model's context window. What pattern most effectively improves accuracy on complex, lengthy documents?",
+    "options": {
+      "A": "Add few-shot examples demonstrating correct extraction from lengthy meetings with scattered Information.",
+      "B": "Split lengthy transcripts Into chunks, extract from each chunk separately, then merge and deduplicate the results.",
+      "C": "Upgrade to a more capable model tier for the extraction task,",
+      "D": "Add a pre-extraction step where the model summarizes key discussions and conclusions before performing structured extraction."
+    },
+    "answer": "B",
+    "explanation": "A. Add few-shot examples demonstrating correct extraction from lengthy meetings with scattered\ninformation. Incorrect.\n\nExamples help somewhat, but they do not fundamentally solve the challenge of maintaining attention and\nconsistency across long, meandering documents.\n\nB. Split lengthy transcripts into chunks, extract from each chunk separately, then merge and deduplicate\nthe results. Correct.\n\nChunking reduces cognitive load per extraction pass and improves recall of scattered details. Merging and\ndeduplication then reconstruct the final structured output more reliably than processing the entire long\ntranscript in one pass.\n\nC. Upgrade to a more capable model tier for the extraction task. Incorrect.\n\nA stronger model may help marginally, but the core issue is long-document attention and information\ndistribution, which chunking addresses more directly and efficiently.\n\nD. Add a pre-extraction step where the model summarizes key discussions and conclusions before\nperforming structured extraction. Incorrect.\n\nSummarization can omit details needed for extraction, especially when important information is scattered or\nmentioned briefly."
+  },
+  {
+    "id": 86,
+    "question": "Your system has been running for 3 weeks and human reviewers have corrected 847 extractions. Analysis reveals a recurring pattern: when recipes use informal measurements like \"a handful\" or \"a splash,\" the model either invents specific amounts or leaves fields empty--accounting for 23% of all corrections. How should you use this feedback to improve extraction accuracy?",
+    "options": {
+      "A": "Update your JSON schema to add a \"measurement_type\" enum field (precise/informal).",
+      "B": "Add few-shot examples to your prompt demonstrating correct handling of informal measurements-- extracting them verbatim rather than converting or omitting them.",
+      "C": "Implement a post-processing layer that uses pattern matching to detect informal measurement phrases in source text and automatically populate values when the extraction is empty.",
+      "D": "Fine-tune the model on the 847 corrected extractions."
+    },
+    "answer": "B",
+    "explanation": "A. Update your JSON schema to add a \"measurement_type\" enum field (precise/informal). Incorrect.\n\nThis may help classify outputs, but it does not teach the model how to correctly extract informal\nmeasurements instead of hallucinating or omitting them.\n\nB. Add few-shot examples to your prompt demonstrating correct handling of informal measurements--\nextracting them verbatim rather than converting or omitting them. Correct.\n\nThis directly targets the observed failure mode by showing the model the desired behavior on real edge cases,\nimproving consistency without forcing unsupported normalization.\n\nC. Implement a post-processing layer that uses pattern matching to detect informal measurement phrases\nin source text and automatically populate values when the extraction is empty. Incorrect.\n\nPattern matching is brittle and does not address cases where the model invents incorrect quantities instead\nof leaving fields empty.\n\nD. Fine-tune the model on the 847 corrected extractions. Incorrect.\n\nFine-tuning is expensive and unnecessary for a narrow, well-defined extraction issue that can be effectively\ncorrected through targeted prompting examples.\n\nKey idea: use real correction data to create targeted few-shot examples that teach the desired extraction\nbehavior on recurring edge cases."
+  },
+  {
+    "id": 87,
+    "question": "Production monitoring shows that follow-up queries like \"summarize what we learned about market trends\" consistently take 40+ seconds. Investigation reveals the coordinator spawns the synthesis subagent for each summarization request, passing 80K+ tokens of accumulated findings. The coordinator already has these findings in its context from orchestrating the research. What's the most effective way to improve response time for these follow-up summaries?",
+    "options": {
+      "A": "Enable prompt caching on the synthesis subagent to reduce the overhead of repeatedly transferring the same research findings.",
+      "B": "Have the coordinator handle straightforward summarization requests directly using its existing context, reserving subagent spawning for complex analy",
+      "C": "Spawn the synthesis subagent with reduced context and have it request specific findings from the coordinator on-demand.",
+      "D": "Pre-generate and cache summaries at multiple granularities whenever new findings accumulate."
+    },
+    "answer": "B",
+    "explanation": "A. Enable prompt caching on the synthesis subagent to reduce the overhead of repeatedly transferring the\nsame research findings. Incorrect.\n\nCaching helps with repeated prompt transfer costs, but it still requires spawning the subagent and processing\na huge context for relatively simple follow-up summaries.\n\nB. Have the coordinator handle straightforward summarization requests directly using its existing context,\nreserving subagent spawning for complex analysis tasks. Correct.\n\nThis avoids unnecessary orchestration overhead. Since the coordinator already possesses the accumulated\nfindings in-context, simple summarization can be done immediately without rehydrating 80K+ tokens into\nanother agent call.\n\nC. Spawn the synthesis subagent with reduced context and have it request specific findings from the\ncoordinator on-demand. Incorrect.\n\nThis adds coordination complexity and multiple back-and-forth exchanges, which can increase latency rather\nthan reduce it.\n\nD. Pre-generate and cache summaries at multiple granularities whenever new findings accumulate. \nIncorrect.\n\nUseful for some systems, but over-engineered here and inefficient if many summaries are never requested."
+  },
+  {
+    "id": 88,
+    "question": "The document analysis agent has a single analyze_document tool that takes a document and a free-text instruction parameter. During evaluation, requests like \"extract the key financial metrics\" often return narrative summaries, while \"summarize the methodology\" sometimes returns raw data tables. The synthesis agent reports that 35% of analysis results require re-requests with clarified instructions. What's the most effective way to improve reliability?",
+    "options": {
+      "A": "Enhance the tool description with detailed examples showing how different instruction phrasings should map to different output formats",
+      "B": "Keep the single tool but add an analysis_type enum parameter requiring explicit selection between extraction, summarization, and verification modes",
+      "C": "Split the generic tool into purpose-specific tools - extract_data_points, summarize_content, verify_claim_against_source - each with defined input/output contracts",
+      "D": "Have the coordinator pre-classify each analysis request before passing instructions to the document analysis agent"
+    },
+    "answer": "C",
+    "explanation": "A. Enhance the tool description with detailed examples showing how different instruction phrasings should\nmap to different output formats Incorrect.\n\nExamples help somewhat, but the core problem is that the tool itself is overloaded with multiple\nresponsibilities and ambiguous behavior.\n\nB. Keep the single tool but add an analysis_type enum parameter requiring explicit selection between\nextraction, summarization, and verification modes Incorrect.\n\nThis improves clarity, but the tool still mixes fundamentally different workflows and output contracts into one\ninterface.\n\nC. Split the generic tool into purpose-specific tools -- extract_data_points, summarize_content,\nverify_claim_against_source -- each with defined input/output contracts Correct.\n\nThis most effectively improves reliability because each tool has a clear purpose, constrained behavior, and\npredictable output format, dramatically reducing ambiguity and re-requests.\n\nD. Have the coordinator pre-classify each analysis request before passing instructions to the document\nanalysis agent Incorrect.\n\nThis shifts ambiguity upstream but does not solve the underlying problem of a single overloaded tool with\ninconsistent outputs."
+  },
+  {
+    "id": 89,
+    "question": "The system routes documents with extraction confidence below 85% to human review. A quarterly audit reveals that 12% of high-confidence extractions (>85%) also contain errors--cases where the model finds plausible-but- incorrect values. Error sources vary: comparison tables showing competitor specs, appendices referencing different product variants, and ambiguous phrasing the model misinterprets. You need a sustainable strategy to catch these high-confidence errors and measure whether improvements reduce the error rate over time. What approach is most effective?",
+    "options": {
+      "A": "Implement heuristic rules that flag documents containing comparison tables or appendices for review regardless of confidence score.",
+      "B": "Implement stratified random sampling reviewing a fixed percentage of high-confidence extractions weekly, enabling error rate measurement and novel pattern detection.",
+      "C": "Add a verification pass that re-extracts from each high-confidence document, flagging cases where the two extraction attempts produce different results.",
+      "D": "Lower the confidence threshold from 85% to 70%, routing a larger volume of extractions to human review."
+    },
+    "answer": "B",
+    "explanation": "A. Implement heuristic rules that flag documents containing comparison tables or appendices for review\n regardless of confidence score. Incorrect.\n\n This targets only currently known failure patterns and will miss new classes of high-confidence errors over\n time.\n\n B. Implement stratified random sampling reviewing a fixed percentage of high-confidence extractions\n weekly, enabling error rate measurement and novel pattern detection. Correct.\n\n This is the most sustainable and statistically sound approach. It both:\n\n measures the true ongoing error rate in \"trusted\" outputs, and\n surfaces emerging failure patterns that confidence scores miss.\n\n It creates a continuous quality-monitoring feedback loop rather than patching isolated issues.\n\n C. Add a verification pass that re-extracts from each high-confidence document, flagging cases where the\n two extraction attempts produce different results. Incorrect.\n\n Useful for detecting instability, but repeated extraction can still confidently reproduce the same wrong\n answer.\n\n D. Lower the confidence threshold from 85% to 70%, routing a larger volume of extractions to human\n review. Incorrect.\n\n This increases operational cost dramatically without specifically addressing hidden high-confidence errors."
+  },
+  {
+    "id": 90,
+    "question": "Your extraction uses tool use with a JSON schema where property_type is defined as an enum: ['house', 'apartment', \"condo\", \"townhouse\"]. After deployment, 8% of extractions fall schema validation. Investigation reveals listings mention many uncommon property types--\"studio\", \"loft\", \"duplex\", \"mobile home\", \"tiny house\", \"converted warehouse\"--and new types continue appearing regularly. What's the most effective long-term solution?",
+    "options": {
+      "A": "Add an \"other\" value to your enum with a separate property_type_detail string field for specifics when \"other\" is selected.",
+      "B": "Change property_type from an enum to a free-form string and implement a normalization step in post- processing.",
+      "C": "Add few-shot examples to your prompt demonstrating how to map unexpected property types to the closest existing enum value.",
+      "D": "Continuously expand the enum to include newly observed property types and add monitoring for additional edge cases."
+    },
+    "answer": "A",
+    "explanation": "A. Add an \"other\" value to your enum with a separate property_type_detail string field for specifics when\n\"other\" is selected. Correct.\n\nThis is the most robust long-term solution because it preserves schema validity while still allowing the system\nto capture new or uncommon property types without breaking validation. It also keeps structured consistency\nfor downstream systems.\n\nB. Change property_type from an enum to a free-form string and implement a normalization step in post-\nprocessing. Incorrect.\n\nThis sacrifices schema control and pushes complexity downstream, increasing inconsistency and processing\nburden.\n\nC. Add few-shot examples to your prompt demonstrating how to map unexpected property types to the\nclosest existing enum value. Incorrect.\n\nThis leads to forced misclassification and will not scale as new property types continue to appear.\n\nD. Continuously expand the enum to include newly observed property types and add monitoring for\nadditional edge cases. Incorrect.\n\nThis is operationally expensive and does not scale in dynamic domains where new categories appear\nfrequently."
+  },
+  {
+    "id": 91,
+    "question": "Your extraction system parses e-commerce product descriptions to extract specifications like dimensions, weight, and materials into JSON. Despite having a well-defined schema, the model inconsistently extracts the \"materials\" field--sometimes returning \"cotton blend\", other times \"Cotton/Polyester mix\", and occasionally omitting the field when material information is clearly present in the source. What's the most effective way to improve extraction consistency?",
+    "options": {
+      "A": "Set temperature to 0 to eliminate randomness and ensure deterministic outputs",
+      "B": "Switch to a more capable model tier since inconsistent extraction indicates insufficient model capability",
+      "C": "Make the \"materials\" field required instead of optional in the schema to force the model to always extract a value",
+      "D": "Add few-shot examples showing 2-3 complete Input-output pairs with standardized material description formats"
+    },
+    "answer": "D",
+    "explanation": "A. Set temperature to 0 to eliminate randomness and ensure deterministic outputs Incorrect.\n\nLower temperature improves consistency slightly, but it does not solve schema interpretation differences or\nmissing-field behavior when the model is uncertain.\n\nB. Switch to a more capable model tier since inconsistent extraction indicates insufficient model capability\n Incorrect.\n\nThis is not primarily a capability issue; the model already sees the information but is inconsistent in\nnormalization and extraction behavior.\n\nC. Make the \"materials\" field required instead of optional in the schema to force the model to always\nextract a value Incorrect.\n\nForcing requirement does not guarantee correctness; it often increases hallucination when the model tries to\nfill missing or ambiguous data.\n\nD. Add few-shot examples showing 2�3 complete input-output pairs with standardized material description\nformats Correct.\n\nThis directly teaches the model the expected normalization pattern (e.g., \"cotton blend\" vs \"cotton/polyester\nmix\") and when to consistently extract rather than omit, which is the core failure mode."
+  },
+  {
+    "id": 92,
+    "question": "Documents arrive continuously throughout business hours and need structured data extracted. To reduce costs, you want to use the Message Batches API (50% discount, up-to-24-hour processing window). Your SLA specifies that extraction results must be available within 30 hours of document arrival with 99.9% reliability. Which batching strategy is most appropriate?",
+    "options": {
+      "A": "Submit batches every 4 hours containing documents from that window",
+      "B": "Submit batches every 6 hours containing documents from that window",
+      "C": "Submit a single batch at end of day containing all documents from that day",
+      "D": "Use the real-time API for all documents instead of batch processing"
+    },
+    "answer": "C",
+    "explanation": "A. Submit batches every 4 hours containing documents from that window Incorrect\nThis is more frequent than necessary for a 30-hour SLA and reduces batching efficiency without improving\nreliability in a meaningful way.\n\nB. Submit batches every 6 hours containing documents from that window Incorrect\nStill unnecessarily frequent; it increases operational overhead without providing measurable SLA benefits\ncompared to less frequent batching.\n\nC. Submit a single batch at end of day containing all documents from that day Correct\nThis is the most efficient strategy. With a 24-hour batch processing window, end-of-day batching still\ncomfortably meets the 30-hour SLA while maximizing cost savings and operational simplicity.\n\nD. Use the real-time API for all documents instead of batch processing Incorrect\nThis guarantees speed but significantly increases cost and ignores the requirement to optimize for batch\nprocessing efficiency."
+  },
+  {
+    "id": 93,
+    "question": "Your extraction pipeline processes restaurant menus and must output structured JSON with fields for item names, descriptions, prices, and dietary tags. Some menus use inconsistent formatting--prices as \"$12\" vs \"12.00\", dietary info as icons vs text. What's the most reliable approach?",
+    "options": {
+      "A": "Extract data as-is and normalize formats in post-processing code after Claude returns.",
+      "B": "Define a strict output schema and include format normalization rules in your prompt.",
+      "C": "Use separate extraction calls for each field to ensure consistent handling of each type.",
+      "D": "Request multiple extraction attempts per document and select the most common format."
+    },
+    "answer": "B",
+    "explanation": "B. Define a strict output schema and include format normalization rules in your prompt. Correct\nThis is the most reliable approach because it enforces structure through the schema while also guiding the\nmodel to normalize inconsistent inputs (like \"$12\" vs \"12.00\" and icon-based vs text-based dietary tags) at the\npoint of extraction. That reduces downstream ambiguity and avoids relying on post-processing fixes.\nWhy the others are not correct:\nA. Extract data as-is and normalize formats in post-processing code after Claude returns. Incorrect\nThis shifts complexity downstream and risks inconsistencies if extraction itself is already noisy or incomplete.\nC. Use separate extraction calls for each field to ensure consistent handling of each type. Incorrect\nThis increases cost and latency and can introduce cross-field inconsistency instead of improving reliability.\nD. Request multiple extraction attempts per document and select the most common format. Incorrect\nMajority voting does not guarantee correctness and is inefficient for structured extraction tasks."
+  },
+  {
+    "id": 94,
+    "question": "Your system extracts event metadata (date, location, organizer, attendee_count) from news articles using a JSON schema with all nullable fields. During evaluation, you observe the model frequently generates plausible but incorrect values for fields not mentioned in the article-for example, outputting \"500\" for attendee_count when the source contains no attendance information. What's the most effective way to reduce these false extractions?",
+    "options": {
+      "A": "Make all schema fleids required (non-nullable) with strict validation rules to ensure the model only outputs verifiable data.",
+      "B": "Add prompt instructions to return null for any field where information is not directly stated in the source.",
+      "C": "Upgrade to a more capable model tier with improved instruction-following to reduce hallucination tendencies.",
+      "D": "Add a post-processing step using a second LLM call to verify each extracted value exists in the source document."
+    },
+    "answer": "B",
+    "explanation": "A. Make all schema fields required (non-nullable) with strict validation rules to ensure the model only\noutputs verifiable data. Incorrect\n\nMaking fields required doesn't prevent hallucination; it often makes it worse because the model is forced to\ninvent values instead of leaving them blank.\n\nB. Add prompt instructions to return null for any field where information is not directly stated in the source.\n Correct\n\nThis directly targets the root failure mode (hallucinating absent fields). It enforces a clear extraction rule: only\nextract explicitly supported data, otherwise return null, which is the correct behavior for structured\ninformation extraction.\n\nC. Upgrade to a more capable model tier with improved instruction-following to reduce hallucination\ntendencies. Incorrect\n\nA better model may reduce errors slightly, but the fundamental issue is missing extraction constraints, not\nmodel capability.\n\nD. Add a post-processing step using a second LLM call to verify each extracted value exists in the source\ndocument. Incorrect\n\nThis adds cost and latency and still relies on probabilistic verification rather than preventing hallucination at\nthe source."
+  },
+  {
+    "id": 95,
+    "question": "Your research assistant helps users analyze academic papers over extended conversations. User testing reveals a recurring issue: after conversations exceed 60K tokens, users ask follow-up questions requiring precise numerical details from papers discussed earlier--sample sizes, exact p-values, specific inclusion criteria. Your current approach summarizes paper discussions after 8 turns to stay within context limits. Users report that responses to these precision-dependent questions are often hedged or inaccurate. What's the most effective architectural change?",
+    "options": {
+      "A": "Implement retrieval that re-injects relevant paper sections when the user's question suggests they need specific numerical details.",
+      "B": "Maintain a structured database of key facts extracted from each paper (sample sizes, statistics, methods) and retrieve relevant entries into context when precision-dependent questions are detected.",
+      "C": "Keep source text from methodology and results sections in context permanently, while summarizing only the conversational discussion and interpretation portions.",
+      "D": "Use a separate Claude call with explicit instructions to generate higher-fidelity summaries that preserve all numerical details and statistical values."
+    },
+    "answer": "B",
+    "explanation": "A. Implement retrieval that re-injects relevant paper sections when the user's question suggests they need\nspecific numerical details. Incorrect\n\nThis helps, but it is reactive and depends on correct detection at query time; it doesn't ensure consistent\navailability of critical structured facts across the session.\n\nB. Maintain a structured database of key facts extracted from each paper (sample sizes, statistics,\n\nmethods) and retrieve relevant entries into context when precision-dependent questions are detected. \nCorrect\n\nThis is the most effective architectural change. It separates stable factual data (structured facts store) from\nconversational history, ensuring that precise values like p-values and sample sizes remain accessible even\nafter summarization or long-context drift.\n\nC. Keep source text from methodology and results sections in context permanently, while summarizing\nonly the conversational discussion and interpretation portions. Incorrect\n\nThis is inefficient and quickly exhausts context window limits, especially across many papers.\n\nD. Use a separate Claude call with explicit instructions to generate higher-fidelity summaries that preserve\nall numerical details and statistical values. Incorrect\n\nEven high-fidelity summaries can introduce omission or distortion; it is not as reliable as structured fact\nextraction and storage."
+  },
+  {
+    "id": 96,
+    "question": "Your fitness coaching assistant uses a system prompt with detailed conditional logic: \"If the user mentions being a beginner, provide step-by-step form instructions. If they use terms like 'progressive overload' or 'superset', respond concisely. If they ask about injury history, always recommend consulting a physician.\" During evaluation, you find the assistant correctly adapts to explicit expertise declarations but struggles when users don't clearly state their level--often defaulting to overly detailed responses regardless of contextual cues like technical terminology. Which change to the system prompt would most directly address this failure to pick up on implicit expertise signals?",
+    "options": {
+      "A": "Add an explicit instruction for the model to ask a clarifying question about experience level whenever the user's expertise isn't immediately clear from their first message.",
+      "B": "Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise, mirroring their terminology.\" Keep only the safety-critical conditional about injury consultations.",
+      "C": "Implement a pre-conversation intake that asks users to rate their experience level, then inject that rating into the system prompt as context for all subsequent responses.",
+      "D": "Add more conditional branches to cover additional expertise signals, such as \"If user mentions specific rep ranges or asks about periodization, treat as advanced.\""
+    },
+    "answer": "B",
+    "explanation": "A. Add an explicit instruction for the model to ask a clarifying question about experience level whenever\nthe user's expertise isn't immediately clear from their first message. Incorrect\n\nThis reduces responsiveness and forces unnecessary clarification questions, even when the model could\nreasonably infer expertise from context.\n\nB. Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise,\nmirroring their terminology.\" Keep only the safety-critical conditional about injury consultations. \nCorrect\n\nThis directly fixes the core issue: over-reliance on brittle rules. A general adaptive principle allows the model\nto infer expertise from implicit signals (terminology, phrasing, specificity) instead of only explicit declarations.\n\nC. Implement a pre-conversation intake that asks users to rate their experience level, then inject that\nrating into the system prompt as context for all subsequent responses. Incorrect\n\nThis improves clarity but adds friction and fails when users provide inaccurate or inconsistent self-\nassessments.\n\nD. Add more conditional branches to cover additional expertise signals,such as \"If user mentions specific\nrep ranges or asks about periodization, treat as advanced.\" Incorrect\n\nThis increases prompt complexity and still won't scale to the full range of implicit cues users naturally\nexpress."
+  },
+  {
+    "id": 97,
+    "question": "You're building a security scanning workflow. When engineers need to locate all occurrences of a dangerous function like eval() across a large codebase, which tool should your agent use for content search?",
+    "options": {
+      "A": "Use Grep to search for the pattern \"eval(\" across all files in the codebase.",
+      "B": "Use Glob with a pattern like **/*eval to find files, then Read each matching file.",
+      "C": "Use Bash to run ls -R | grep eval to recursively list files containing eval.",
+      "D": "Read the project's main entry file and follow import statements to trace where eval might be used."
+    },
+    "answer": "A",
+    "explanation": "A. Use Grep to search for the pattern \"eval(\" across all files in the codebase. (Correct)\nGrep is specifically designed for content searching within files. It can efficiently scan a large codebase and\nlocate every occurrence of a pattern such as eval(, making it the most appropriate tool for security analysis\nand code auditing.\n\nB. Use Glob with a pattern like **/*eval to find files, then Read each matching file. (Incorrect)\n\nGlob searches file names and paths, not file contents. It would miss occurrences of eval( inside files whose\nnames do not contain \"eval\".\n\nC. Use Bash to run ls -R | grep eval to recursively list files containing eval. (Incorrect)\n\nThis searches file names returned by ls, not the contents of files.\n\nD. Read the project's main entry file and follow import statements to trace where eval might be used. \n(Incorrect)\n\nThis is inefficient and unreliable for finding all occurrences across a large codebase. It may miss many uses of\neval()."
+  },
+  {
+    "id": 98,
+    "question": "agent has identified that caching logic spans 15 files including decorators, middleware, and service classes (~8,000 lines total). What's next step for building understanding while managing context constraints?",
+    "options": {
+      "A": "Use Glob to find files matching common caching patterns (cache.py, caching/), prioritize the largest files by reading them first, then check smaller files for gaps.",
+      "B": "Use the Read tool to sequentially load all 15 files, building complete understanding across the full caching implementation.",
+      "C": "Use Grep to search for \"invalidate\" and \"expire\" patterns across all files, then Read only those specific line ranges with minimal surrounding context.",
+      "D": "Analyze imports and class hierarchies to identify the base cache class, Read that file to understand the interface, then trace specific invalidation implementations."
+    },
+    "answer": "D",
+    "explanation": "D. Analyze imports and class hierarchies to identify the base cache class, Read that file to understand the\ninterface, then trace specific invalidation implementations. (Correct)\n\nWhen the logic spans many files (~8,000 lines), the goal is to build understanding efficiently while respecting\ncontext limits. Starting with the core abstraction (the base cache class or interface) provides a high-level\nunderstanding of how the caching system is structured. From there, you can trace the specific\nimplementations and invalidation paths that matter, rather than reading thousands of lines indiscriminately.\n\nA. Use Glob to find files matching common caching patterns, prioritize the largest files by reading them\nfirst, then check smaller files for gaps. (Incorrect)\n\nFile size is not a reliable indicator of importance. Large files may contain unrelated logic.\n\nB. Use the Read tool to sequentially load all 15 files, building complete understanding across the full\ncaching implementation. (Incorrect)\n\nThis is inefficient and likely to exceed context constraints. Understanding should be built incrementally.\n\nC. Use Grep to search for \"invalidate\" and \"expire\" patterns across all files, then Read only those specific\nline ranges with minimal surrounding context. (Incorrect)\n\nWhile useful for targeted investigation, this can miss the broader architecture and relationships needed to\nunderstand the caching system correctly."
+  },
+  {
+    "id": 99,
+    "question": "Today she wants to continue that specific investigation. She's worked on three other codebases since then and knows the session was dive\". How should she resume?",
+    "options": {
+      "A": "Start fresh and re-read the same files",
+      "B": "Use --resume auth-deep-dive to load that specific session by name",
+      "C": "Use --continue to pick up where the most recent conversation left off",
+      "D": "Use --session-id with the UUID from yesterday's session transcript file"
+    },
+    "answer": "B",
+    "explanation": "B. Use --resume auth-deep-dive to load that specific session by name (Correct)\n\nWhen returning to a specific investigation after working on other projects, using --resume with the session\nname is the most direct way to continue that exact context. It restores the relevant conversation and state\nassociated with the named session.\n\nA. Start fresh and re-read the same files (Incorrect)\n\nThis discards existing context and wastes time rebuilding understanding.\nC. Use --continue to pick up where the most recent conversation left off (Incorrect)\n--continue resumes the most recent session, which may be one of the other codebases worked on since then.\nD. Use --session-id with the UUID from yesterday's session transcript file (Incorrect)\nWhile a session ID could identify a session, the question specifically indicates the session is already known by\nname, making --resume auth-deep-dive the appropriate approach."
+  },
+  {
+    "id": 100,
+    "question": "\"You're the Lead Data Scientist/Engineer on a critical project. Something is not completely right with technical details or the data, and it negative impacts expected outputs. They need to independently develop both approaches to evaluation data... How do you manage this scenario?\"",
+    "options": {
+      "A": "Start two fresh sessions, having each re-read the relevant source files before beginning.",
+      "B": "Continue in the original session, developing end-to-end tests first, then snapshot tests sequentially.",
+      "C": "Resume the analysis session with fork_session enabled, creating a separate branch for each testing strategy.",
+      "D": "Export the analysis session's key findings to a file, then create two new sessions that reference this file."
+    },
+    "answer": "C",
+    "explanation": "C. Resume the analysis session with fork_session enabled, creating a separate branch for each testing\nstrategy. (Correct)\n\nForking the existing session allows both testing strategies to start from the same investigation context and\nunderstanding of the codebase. Each branch can then evolve independently, making it easy to compare\napproaches without losing prior analysis or mixing the reasoning paths.\n\nA. Start two fresh sessions, having each re-read the relevant source files before beginning. (Incorrect)\n\nThis duplicates work and loses the benefit of the existing analysis context.\n\nB. Continue in the original session, developing end-to-end tests first, then snapshot tests sequentially. \n(Incorrect)\n\nSequential development makes comparison harder and mixes the reasoning for the two approaches.\n\nD. Export the analysis session's key findings to a file, then create two new sessions that reference this file.\n (Incorrect)\n\nWhile possible, it is less efficient than directly forking the existing session and maintaining full contextual\ncontinuity."
+  }
+]
