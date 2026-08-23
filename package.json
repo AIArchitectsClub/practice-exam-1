@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Claude Certified Architect practice exam portal (React/Vite frontend + Express/Postgres backend)",
   "scripts": {
-    "build": "npm install --prefix app && npm run build --prefix app && npm install --prefix server",
+    "build": "npm install --include=dev --prefix app && npm run build --prefix app && npm install --prefix server",
     "start": "node server/index.js",
     "dev:server": "npm run dev --prefix server",
     "dev:app": "npm run dev --prefix app"
