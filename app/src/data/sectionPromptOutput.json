@@ -1,0 +1,637 @@
+[
+  {
+    "id": 2,
+    "question": "When researching \"renewable energy adoption,\" the web search agent returns recent statistics (2024: 35% adoption) while the document analysis agent extracts data from internal reports (2022: 18% adoption). The synthesis agent incorrectly flags these as contradictory sources rather than recognizing the data shows growth over time. What change would best enable the synthesis agent to correctly interpret such temporal differences?",
+    "options": {
+      "A": "Require subagents to include publication or data collection dates in their structured outputs.",
+      "B": "Instruct the synthesis agent to always treat the most recent data as authoritative and place older findings in a separate historical appendix.",
+      "C": "Add a conflict resolution agent that automatically discards older data when newer data exists for the same metric.",
+      "D": "Configure the web search agent to only return results from the past 6 months"
+    },
+    "answer": "A",
+    "explanation": "A. Require subagents to include publication or data collection dates in their structured outputs. Correct.\n\nProviding timestamps allows the synthesis agent to understand that the figures refer to different points in\ntime, enabling it to interpret the data as a trend (growth) rather than a contradiction.\n\nB. Instruct the synthesis agent to always treat the most recent data as authoritative and place older\nfindings in a separate historical appendix. Incorrect.\n\nThis approach hides useful context and does not help the agent understand relationships between data points\nover time.\n\nC. Add a conflict resolution agent that automatically discards older data when newer data exists for the\nsame metric. Incorrect.\n\nDiscarding older data removes valuable historical insight and prevents trend analysis.\n\nD. Configure the web search agent to only return results from the past 6 months. Incorrect.\n\nLimiting recency reduces context and does not address the core issue of interpreting time-based differences."
+  },
+  {
+    "id": 8,
+    "question": "Production reviews reveal inconsistent handling of uncertainty in final reports. Sometimes conflicting subagent findings are synthesized into a single confident statement (losing other times reports over hedge with excessive qualifications (becoming unhelpful). When the web search agent returns \"Industry analysts estimate $50B market size (methodolo the document analysis agent returns \"peer-reviewed study estimates $358 (1578, 95% CI),\" the coordinator either picks one arbitrarily or produces vague statements like \"the ma 6358-6508 depending on factors.\" What systematic approach best addresses this?",
+    "options": {
+      "A": "Configure subagents to only report findings meeting a high confidence threshold, filtering uncertain information before it reaches the coordinator.",
+      "B": "Add a verification subagent that cross-references findings across sources, only passing claims to synthesis that are corroborated by at least two independent sources.",
+      "C": "Instruct the synthesis agent to structure reports with explicit sections distinguishing well-established findings from contested ones, preserving original source characterization and methodological context.",
+      "D": "Implement a confidence calibration layer that normalizes subagent uncertainty expressions to standardized probability scores (0.0-1.0), then weight-average findings by their calculated reliability scores to produce a statistically grounded synthesis."
+    },
+    "answer": "C",
+    "explanation": "A. Configure subagents to only report findings meeting a high confidence threshold, filtering uncertain\ninformation before it reaches the coordinator. Incorrect.\n\nThis suppresses potentially valuable but uncertain insights and introduces bias by hiding ambiguity rather\nthan managing it.\n\nB. Add a verification subagent that cross-references findings across sources, only passing claims to\nsynthesis that are corroborated by at least two independent sources. Incorrect.\n\nWhile useful for validation, this approach still filters out uncertainty instead of representing it, and may\ndiscard novel or emerging insights.\n\nC. Instruct the synthesis agent to structure reports with explicit sections distinguishing well-established\nfindings from contested ones, preserving original source characterization and methodological context.\nCorrect.\n\nThis directly addresses inconsistent handling of uncertainty by making it explicit and structured, allowing\nusers to understand both consensus and disagreement without losing context.\n\nD. Implement a confidence calibration layer that normalizes subagent uncertainty expressions to\nstandardized probability scores (0.0�1.0), then weight-average findings by their calculated reliability\nscores to produce a statistically grounded synthesis. Incorrect.\n\nThis introduces artificial precision and may oversimplify complex, qualitative uncertainty, potentially\n\nmisleading users."
+  },
+  {
+    "id": 9,
+    "question": "A user is expanding the research system beyond its single web search agent by adding specialized data sources. They add a financial API agent that returns structured JSON with margins, and growth rates; a news monitoring agent that returns prose summaries of recent developments; and a patent analysis agent that returns structured lists of technology synthesis agent combines these into executive briefings. Currently, it converts everything to bullet points, causing financial comparisons to lose tabular clarity and news summari narrative flow. What change would most improve briefing quality?",
+    "options": {
+      "A": "Update the synthesis agent to render each content type appropriately--financial data as tables, news as prose, and technical lists as structured points.",
+      "B": "Add a format conversion layer between subagents and synthesis that transforms all outputs to a common intermediate representation (such as Markdown) to facilitate more flexible rendering.",
+      "C": "Standardize all subagent outputs to JSON with fields for every data type to ensure programmatic consistency across the pipeline.",
+      "D": "Standardize all subagent outputs to prose summaries with a uniform character to maintain a consistent executive voice regardless of the source material."
+    },
+    "answer": "A",
+    "explanation": "A. Update the synthesis agent to render each content type appropriately--financial data as tables, news as\nprose, and technical lists as structured points. Correct.\n\nThis preserves the natural structure and strengths of each data type, improving clarity, readability, and\nusefulness of the final briefing.\n\nB. Add a format conversion layer between subagents and synthesis that transforms all outputs to a\ncommon intermediate representation (such as Markdown) to facilitate more flexible rendering. Incorrect.\n\nWhile helpful for consistency, this does not guarantee appropriate presentation of different content types\nand may still lead to generic formatting.\n\nC. Standardize all subagent outputs to JSON with fields for every data type to ensure programmatic\nconsistency across the pipeline. Incorrect.\n\nThis improves structure but shifts complexity to the synthesis stage and does not inherently improve human-\nreadable output quality.\n\nD. Standardize all subagent outputs to prose summaries with a uniform character to maintain a consistent\nexecutive voice regardless of the source material. Incorrect.\n\nThis sacrifices important structure (like tables and lists), reducing clarity and effectiveness for data-heavy\ncontent."
+  },
+  {
+    "id": 11,
+    "question": "In production, final reports frequently contain claims without proper source attribution. Investigation shows that while the web search and document analysis agents correctly attach citations to their outputs, the synthesis agent loses track of which sources support which conclusions when combining findings. What's the most effective architectural change?",
+    "options": {
+      "A": "Add a verification step where the report generator uses semantic similarity matching against original sources to reconstruct which claims came from which documents.",
+      "B": "Have the coordinator inject source identifier prefixes into text before each handoff, then parse these prefixes at report generation to reconstruct citations.",
+      "C": "Maintain complete transcripts of all subagent interactions and add a citation-resolution agent to analyze logs and determine attributions before report generation.",
+      "D": "Require all subagents to output structured claim-source mappings that the synthesis agent must preserve and merge when combining findings from multiple sources."
+    },
+    "answer": "D",
+    "explanation": "A. Add a verification step where the report generator uses semantic similarity matching against original\nsources to reconstruct which claims came from which documents. Incorrect.\n\nThis relies on post-hoc inference, which is error-prone and can misattribute claims due to semantic ambiguity.\n\nB. Have the coordinator inject source identifier prefixes into text before each handoff, then parse these\nprefixes at report generation to reconstruct citations. Incorrect.\n\nThis is a fragile, text-based workaround that can break during transformations and doesn't scale well.\n\nC. Maintain complete transcripts of all subagent interactions and add a citation-resolution agent to analyze\nlogs and determine attributions before report generation. Incorrect.\n\nThis adds unnecessary complexity and still depends on indirect reconstruction rather than preserving\nattribution explicitly.\n\nD. Require all subagents to output structured claim-source mappings that the synthesis agent must\npreserve and merge when combining findings from multiple sources. Correct.\n\nThis ensures end-to-end attribution fidelity by keeping claim-to-source relationships explicit and structured\nthroughout the pipeline, preventing loss during synthesis."
+  },
+  {
+    "id": 24,
+    "question": "Your portfolio value tool returns the total value of a user's investment portfolio. You're deciding between returning a structured JSON object with explicit fields versus returning information as a formatted text string. What is the primary advantage of using structured output with defined fields?",
+    "options": {
+      "A": "Structured JSON consumes significantly fewer tokens than natural language, substantially reducing API costs.",
+      "B": "The agent can reliably extract specific values without parsing free form text, reducing errors in subsequent operations.",
+      "C": "Structured JSON is processed deterministically by the model, significantly improving accuracy when extracting values.",
+      "D": "JSON schemas automatically validate that the underlying API returned correct data before the agent processes it."
+    },
+    "answer": "B",
+    "explanation": "A. Structured JSON consumes significantly fewer tokens than natural language, substantially reducing API\ncosts. Incorrect.\n\nToken usage depends on the content; JSON is not inherently more compact than text and may sometimes use\nmore tokens.\n\nB. The agent can reliably extract specific values without parsing free form text, reducing errors in\nsubsequent operations. Correct.\n\nStructured output provides clear, predictable fields, making it easy for the agent to use the data accurately\nin downstream steps.\n\nC. Structured JSON is processed deterministically by the model, significantly improving accuracy when\nextracting values. Incorrect.\n\nThe model is still probabilistic; JSON improves structure, but not deterministic processing.\n\nD. JSON schemas automatically validate that the underlying API returned correct data before the agent\nprocesses it. Incorrect.\n\nSchemas define structure, but they do not guarantee correctness of the actual data returned by the API."
+  },
+  {
+    "id": 29,
+    "question": "After Implementing tool use with strict schema definitions, JSON syntax errors are eliminated, but 5% of extractions still have valid JSON with empty arrays or null values for required fields like citations and methodology. Spot-checking reveals that source documents contain this information, but in varied formats--Inline citations vs. bibliographies, methodology sections vs. details embedded in Introductions. What's the most effective way to address these failures?",
+    "options": {
+      "A": "Modify your schema to make citations and methodology optional, and flag Incomplete records for manual review rather than falling validation.",
+      "B": "Build a regex-based post-processing layer that scans source documents for citation patterns and methodology keywords, populating empty fields when the model falls to extract.",
+      "C": "Add few-shot examples demonstrating extractions from documents with varied structures--showing how to identify citations in different formats and locate methodology details across section types.",
+      "D": "Implement retry logic that re-sends requests when validation detects empty required fields."
+    },
+    "answer": "C",
+    "explanation": "A. Modify your schema to make citations and methodology optional, and flag incomplete records for\nmanual review rather than failing validation. Incorrect.\n\nThis lowers data quality standards and avoids solving the extraction problem.\n\nB. Build a regex-based post-processing layer that scans source documents for citation patterns and\nmethodology keywords, populating empty fields when the model fails to extract. Incorrect.\n\nRegex approaches are brittle and unreliable across varied formats, especially for complex structures like\nmethodology.\n\nC. Add few-shot examples demonstrating extractions from documents with varied structures--showing\nhow to identify citations in different formats and locate methodology details across section types. \nCorrect.\n\nThis directly improves the model's ability to generalize across diverse document formats, addressing the root\ncause of missed extractions.\n\nD. Implement retry logic that re-sends requests when validation detects empty required fields. \nIncorrect.\n\nRetries without improving guidance will likely produce the same incomplete outputs."
+  },
+  {
+    "id": 30,
+    "question": "The system processes product reviews using tool use with a defined schema: rating (integer 1-5), pros (string array), cons (string array), and overall_sentiment (enum: positive, ne Testing reveals two issues with brief or ambiguous reviews (-20% of the dataset): (1) for reviews like \"Great product!\", Claude fabricates specific pros and cons rather than Indica Information isn't explicitly stated, and (2) for sarcastic reviews like \"Well that was.. interesting\", Claude picks sentiment arbitrarily since there's no option for ambiguous cases. W modification best addresses both issues?",
+    "options": {
+      "A": "Make pros and cons optional fields, and add \"neutral\" and \"unclear\" to the sentiment enum",
+      "B": "Allow empty arrays for pros/cons as valid output, and add \"unclear\" ss the sentiment enum",
+      "C": "Add an extraction_confidence field (0.0-1.0) for each value, and filter outputs where any confidence falls below a threshold.",
+      "D": "Allow null values for pros/cons, and add \"unclear\" to the sentiment earum."
+    },
+    "answer": "B",
+    "explanation": "A. Make pros and cons optional fields, and add \"neutral\" and \"unclear\" to the sentiment enum Incorrect.\nMaking fields optional can lead to inconsistent outputs, and \"neutral\" doesn't solve ambiguity--it's different\nfrom \"unclear\".\n\nB. Allow empty arrays for pros/cons as valid output, and add \"unclear\" as the sentiment enum Correct.\nThis prevents fabrication by allowing explicitly empty outputs when no details are present, and \"unclear\"\nhandles ambiguous or sarcastic sentiment appropriately.\n\nC. Add an extraction_confidence field (0.0�1.0) for each value, and filter outputs where any confidence falls\nbelow a threshold. Incorrect.\nThis adds complexity but doesn't prevent fabrication or resolve ambiguity in outputs.\n\nD. Allow null values for pros/cons, and add \"unclear\" to the sentiment enum. Incorrect.\nNulls are less consistent than empty arrays for structured outputs and can complicate downstream\nprocessing."
+  },
+  {
+    "id": 31,
+    "question": "Your extraction system implements automatic retries when validation fails. On each retry, the specific validation error is appended to the prompt. This retry-with-error-feedback approach resolves most failures within 2-3 attempts. For which failure pattern would additional retries be LEAST effective?",
+    "options": {
+      "A": "The model extracts \"et al.\" for co-authors when the full list exists only in an external document not in the input",
+      "B": "The model extracts citation counts as locale-formatted strings (\"1234\") when the schema requires integers",
+      "C": "The model extracts dates as ISO 8601 datetime strings (\"2003-03-15T00:00:00Z\") when the schema requires only the date portion.",
+      "D": "The model extracts keywords as a nested object organized by category when the schema requires a flat array of strings"
+    },
+    "answer": "A",
+    "explanation": "A. The model extracts \"et al.\" for co-authors when the full list exists only in an external document not in\nthe input Correct.\n\nRetries won't help because the required information is not present in the input context. The model cannot\nrecover missing data through repeated attempts.\n\nB. The model extracts citation counts as locale-formatted strings (\"1234\") when the schema requires\nintegers Incorrect.\n\nThis is a formatting issue that can be corrected through retries with validation feedback.\n\nC. The model extracts dates as ISO 8601 datetime strings (\"2003-03-15T00:00:00Z\") when the schema\nrequires only the date portion (YYYY-MM-DD) Incorrect.\n\nAlso a format mismatch, which retries can fix easily.\n\nD. The model extracts keywords as a nested object organized by category when the schema requires a flat\narray of strings Incorrect.\n\nThis is a structural mismatch that can typically be corrected with retry feedback."
+  },
+  {
+    "id": 32,
+    "question": "Your invoice extraction uses tool use with strict JSON schemas. JSON syntax errors never occur, but 12% of extractions fail semantic validation--for example, line Item amounts don't extracted total, or vendor IDs don't match valid formats. These failures currently route to manual review. What's the most effective approach to reduce manual review volume while m accuracy?",
+    "options": {
+      "A": "Retry the extraction up to 3 times when validation fallis, accepting the first result that passes validation.",
+      "B": "Implement post-processing logic that automatically corrects common amors, such as recalculating totais from line items when sums don't match.",
+      "C": "When validation falls, make a follow-up request with the document, extraction, and validation errors for model correction.",
+      "D": "Add stricter schema constraints with detailed field descriptions to prevent the model from generating invalid values initially."
+    },
+    "answer": "C",
+    "explanation": "A. Retry the extraction up to 3 times when validation fails, accepting the first result that passes validation.\n Incorrect.\n\nRetries without targeted feedback often repeat the same mistakes and don't reliably fix semantic\ninconsistencies.\n\nB. Implement post-processing logic that automatically corrects common errors, such as recalculating\ntotals from line items when sums don't match. Incorrect.\n\nWhile useful for specific cases, this is narrow and brittle, and doesn't address broader validation failures like\nincorrect IDs.\n\nC. When validation fails, make a follow-up request with the document, extraction, and validation errors for\nmodel correction. Correct.\n\nThis provides targeted feedback, enabling the model to fix specific issues, significantly reducing manual\nreview while maintaining accuracy.\n\nD. Add stricter schema constraints with detailed field descriptions to prevent the model from generating\ninvalid values initially. Incorrect.\n\nSchema improvements help upfront, but they cannot fully prevent semantic errors like mismatched totals."
+  },
+  {
+    "id": 33,
+    "question": "Your team is extracting structured data from 50,000 legacy legal contracts under a two-week deadline. Initial testing with 500 sample documents shows 82% pass JSON schema first attempt, while the remaining 18% fall due to diverse issues--missing required fields, malformed dates, and incorrectly identified parties. Documents that fail typically need refinements targeting their specific failure modes before extraction succeeds. Which batch processing strategy is the most cost-efficient while still meeting the deadline?",
+    "options": {
+      "A": "Split documents into 10 sequential batches of 5,000 each, analysing results and refining prompts between batches to improve extraction quality progressively.",
+      "B": "Submit all 50,000 documents via batch API, then submit failed extractions in successive batches--refining prompts between each batch--until all documents pass validation.",
+      "C": "Use the real-time API for all 50,000 documents since the batch API's 24-hour processing window creates unacceptable deadline risk.",
+      "D": "Process 2,000 sample documents via real time API to identify failure patterns and refine prompts, then batch process all 50,000 with the optimized prompts."
+    },
+    "answer": "B",
+    "explanation": "A. Split documents into 10 sequential batches of 5,000 each, analysing results and refining prompts\nbetween batches to improve extraction quality progressively. Incorrect.\n\nThis introduces unnecessary sequential delays and reduces throughput, risking the deadline.\n\nB. Submit all 50,000 documents via batch API, then submit failed extractions in successive batches--\nrefining prompts between each batch--until all documents pass validation. Correct.\n\nThis maximizes throughput and parallelism upfront, ensuring the deadline is met. Then it uses targeted\niterative refinement only on failures, making it cost-efficient while handling diverse failure modes effectively.\n\nC. Use the real-time API for all 50,000 documents since the batch API's 24-hour processing window\ncreates unacceptable deadline risk. Incorrect.\n\nThis is unnecessarily expensive and not required given batch processing capabilities.\n\nD. Process 2,000 sample documents via real-time API to identify failure patterns and refine prompts, then\nbatch process all 50,000 with the optimized prompts. Incorrect.\n\nWhile proactive, this assumes failure patterns generalize well, which the scenario suggests they don't--since\nfailures are diverse and require case-specific refinements."
+  },
+  {
+    "id": 34,
+    "question": "Your extraction pipeline processes contracts that frequently include amendments. When a contract contains both original terms and later amendments (e.g., original clause specifies \"30-day payment terms\" while Amendment 1 changes this to \"45 days\"), the model inconsistently extracts one value or the other with no indication of which applies. What's the most effective approach to improve extraction accuracy for documents with amendments?",
+    "options": {
+      "A": "Preprocess documents with a classifier that identifies and removes superseded sections before the main extraction step.",
+      "B": "Implement post-extraction validation using pattern matching to detect amendments and flag those extractions for manual review.",
+      "C": "Redesign the schema so amended fields capture multiple values, each with source location and effective date.",
+      "D": "Add prompt instructions to always extract the most recent amendment value and ignore superseded original terms."
+    },
+    "answer": "C",
+    "explanation": "A. Preprocess documents with a classifier that identifies and removes superseded sections before the main\nextraction step. Incorrect.\n\nThis is brittle and risky--accurately identifying and removing superseded clauses is complex and may lead to\nloss of important context.\n\nB. Implement post-extraction validation using pattern matching to detect amendments and flag those\nextractions for manual review. Incorrect.\n\nThis increases manual review but does not improve extraction accuracy or resolve ambiguity.\n\nC. Redesign the schema so amended fields capture multiple values, each with source location and effective\ndate. Correct.\n\nThis preserves both original and amended values with context, enabling accurate interpretation and avoiding\nambiguity about which value applies.\n\nD. Add prompt instructions to always extract the most recent amendment value and ignore superseded\noriginal terms. Incorrect.\n\nThis relies on model judgment, which is inconsistent, and loses traceability of how values changed over time."
+  },
+  {
+    "id": 35,
+    "question": "Your system must extract event details from calendar invitations and output JSON that strictly conforms to a schema with fields for title, date, time, location, and attendees. Downstream reject any malformed or non- conformant JSON. What approach provides the most reliable schema compliance?",
+    "options": {
+      "A": "Define a tool with your target schema as input parameters and have Claude call it with the extracted data.",
+      "B": "Pre-fill Claude's response with an opening brace to force JSON output, then complete and parse the response.",
+      "C": "Append instructions like \"Output only valid JSON matching the schema exactly\" and implement retry logic to re-prompt when JSON parsing fails.",
+      "D": "Include detailed JSON formatting instructions and the target schema in your prompt, then parse Claude's text response as JSON."
+    },
+    "answer": "A",
+    "explanation": "A. Define a tool with your target schema as input parameters and have Claude call it with the extracted\ndata. Correct.\n\nTool use enforces strict schema compliance at generation time, ensuring valid, structured JSON that\ndownstream systems can reliably consume.\n\nB. Pre-fill Claude's response with an opening brace to force JSON output, then complete and parse the\nresponse. Incorrect.\n\nThis is a fragile workaround and does not guarantee valid or schema-compliant JSON.\n\nC. Append instructions like \"Output only valid JSON matching the schema exactly\" and implement retry\nlogic to re-prompt when JSON parsing fails. Incorrect.\n\nHelpful but not reliable--models can still produce malformed or non-conformant JSON.\n\nD. Include detailed JSON formatting instructions and the target schema in your prompt, then parse\nClaude's text response as JSON. Incorrect.\n\nPrompt-based formatting alone cannot guarantee strict compliance, especially in edge cases."
+  },
+  {
+    "id": 36,
+    "question": "Your schema includes a skills: string[] field. Production monitoring reveals three consistency issues: (1) compound phrases like \"Python and SQL\" are sometimes kept as one entry, sometimes split; (2) implied but unstated skills occasionally appear in extractions; (3) similar documents produce wildly different array lengths (5-10 vs 40+ entries). Your prompt currently says \"Extract skills mentioned.\" What's the most effective improvement?",
+    "options": {
+      "A": "Add constraints: \"Extract 10-20 skills maximum, one skill per entry, only explicitly named skills.\"",
+      "B": "Add post-extraction normalization that maps skills to a canonical taxonomy and deduplicates similar entries.",
+      "C": "Enrich the schema to [scondidering] to capture extraction metadata.",
+      "D": "Add few-shot examples demonstrating compound phrase handling, explicit mention criteria, and appropriate entry granularity."
+    },
+    "answer": "D",
+    "explanation": "A. Add constraints: \"Extract 10�20 skills maximum, one skill per entry, only explicitly named skills.\" \nIncorrect.\n\nThis enforces limits but is arbitrary and may exclude valid skills or still leave ambiguity in how to split\nphrases.\n\nB. Add post-extraction normalization that maps skills to a canonical taxonomy and deduplicates similar\nentries. Incorrect.\nHelpful downstream, but it does not fix inconsistent extraction behavior at the source.\n\nC. Enrich the schema to capture extraction metadata. Incorrect.\nAdds complexity but does not directly address inconsistency in skill identification and formatting.\n\nD. Add few-shot examples demonstrating compound phrase handling, explicit mention criteria, and\nappropriate entry granularity. Correct.\n\nExamples directly guide the model on how to split, what to include, and the expected level of detail,\naddressing all three issues effectively."
+  },
+  {
+    "id": 40,
+    "question": "Your extraction pipeline processes invoices and extracts line items, subtotals, tax amounts, and grand totals. During evaluation, you discover that in 18% of extractions, the sum of extracted line item amounts doesn't match the extracted grand total--sometimes due to OCR errors in the source document, sometimes due to extraction mistakes by the model. Downstream accounting systems reject records with mismatched totals. What's the most effective approach to improve extraction reliability?",
+    "options": {
+      "A": "Add a \"calculated total\" field where the model sums extracted line items alongside a \"stated_total\" field. Flag records for human review when values differ.",
+      "B": "Extract line items and totals independently, then use a separate validation model to reconcile discrepancies by determining which extracted values are most likely correct.",
+      "C": "Add few-shot examples demonstrating invoices where extracted line items sum correctly to the stated total, encouraging the model to produce mathematically consistent extractions.",
+      "D": "Implement post-processing that automatically adjusts line item amounts proportionally when their sum doesn't match the stated total."
+    },
+    "answer": "A",
+    "explanation": "A. Add a \"calculated total\" field where the model sums extracted line items alongside a \"stated_total\"\nfield. Flag records for human review when values differ. Correct.\n\nThis preserves both sources of truth and enables reliable validation. Discrepancies can be flagged explicitly,\nimproving accuracy without silently altering financial data.\n\nB. Extract line items and totals independently, then use a separate validation model to reconcile\ndiscrepancies by determining which extracted values are most likely correct. Incorrect.\n\nThis adds complexity and uncertainty--\"guessing\" which value is correct can introduce errors in financial\ndata.\n\nC. Add few-shot examples demonstrating invoices where extracted line items sum correctly to the stated\ntotal, encouraging the model to produce mathematically consistent extractions. Incorrect.\n\nHelpful but insufficient--does not handle OCR errors or real inconsistencies in source documents.\n\nD. Implement post-processing that automatically adjusts line item amounts proportionally when their sum\ndoesn't match the stated total. Incorrect.\n\nThis modifies financial data artificially, which is risky and unacceptable for accounting accuracy."
+  },
+  {
+    "id": 41,
+    "question": "Your extraction system processes two document types: standard monthly reports (archived after processing) and urgent exception reports (must trigger business alerts within 30 minutes of receipt). Both use the same JSON schema. You want to minimize API costs while meeting latency requirements. How should you architect the processing pipeline?",
+    "options": {
+      "A": "Submit all documents to the Batch API with custom ids for tracking. When results arrive, immediately process urgent documents and trigger delayed alerts for exceptions.",
+      "B": "Submit all documents to the real-time Messages API to ensure consistent processing latency across document types.",
+      "C": "Queue all documents and submit hourly batches, flagging urgent documents for expedited handling when batch results return.",
+      "D": "Route standard reports to the Batch API for 50% cost savings, and route urgent exception reports to the real-time Messages API."
+    },
+    "answer": "D",
+    "explanation": "A. Submit all documents to the Batch API with custom ids for tracking. When results arrive, immediately\nprocess urgent documents and trigger delayed alerts for exceptions. Incorrect.\n\nBatch processing introduces delays that can exceed the 30-minute requirement, making it unsuitable for\nurgent reports.\n\nB. Submit all documents to the real-time Messages API to ensure consistent processing latency across\ndocument types. Incorrect.\n\nThis meets latency needs but is unnecessarily expensive for standard reports that don't require real-time\nprocessing.\n\nC. Queue all documents and submit hourly batches, flagging urgent documents for expedited handling\nwhen batch results return. Incorrect.\n\nHourly batching further increases delay and cannot meet urgent processing requirements.\n\nD. Route standard reports to the Batch API for 50% cost savings, and route urgent exception reports to the\nreal-time Messages API. Correct.\n\nThis balances cost efficiency and latency requirements, ensuring urgent reports are processed quickly while\noptimizing cost for non-urgent ones."
+  },
+  {
+    "id": 43,
+    "question": "Monitoring shows 12% of extractions fall Pydantic validation with specific errors like \"expected float for quantity, got '2 to 3\". Retrying these requests without modification produces failures. What's the most effective approach to recover from these validation failures?",
+    "options": {
+      "A": "Set temperature to 0 to eliminate output variability and ensure consistent formatting",
+      "B": "Send a follow-up request including the validation error, asking the model to correct its output",
+      "C": "Pre-process source documents to standardize problematic formats before sending them for extraction",
+      "D": "Implement a secondary pipeline using a larger model tier to reprocess documents that fail validation"
+    },
+    "answer": "B",
+    "explanation": "A. Set temperature to 0 to eliminate output variability and ensure consistent formatting Incorrect.\nThis reduces randomness but won't fix systematic extraction errors like misinterpreting ranges (\"2 to 3\").\n\nB. Send a follow-up request including the validation error, asking the model to correct its output \nCorrect.\n\nProviding specific validation feedback allows the model to correct the exact issue (e.g., convert \"2 to 3\" into a\nvalid float), making recovery highly effective.\n\nC. Pre-process source documents to standardize problematic formats before sending them for extraction\n Incorrect.\nHelpful in some cases, but not scalable or sufficient for diverse real-world variations.\n\nD. Implement a secondary pipeline using a larger model tier to reprocess documents that fail validation \nIncorrect.\n\nMore expensive and not necessary--targeted correction is more efficient and effective."
+  },
+  {
+    "id": 47,
+    "question": "Your fitness coaching assistant uses a system prompt with detailed conditional logic: \"If the user mentions being a beginner, provide step-by-step form instructions. If they use term 'progressive overload' or 'superset', respond concisely. If they ask about injury history, always recommend consulting a physician.\" During evaluation, you find the assistant correct explicit expertise declarations but struggles when users don't clearly state their level-often defaulting to overly detailed responses regardless of contextual cues like technical te Which change to the system prompt would most directly address this failure to pick up on implicit expertise signals?",
+    "options": {
+      "A": "Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise, mirroring their terminology.\" Keep only the safety-critical conditional abou consultations.",
+      "B": "Add more conditional branches to cover additional expertise signals, such as \"If user mentions specific rep ranges or asks about periodization, treat as advanced.\"",
+      "C": "Implement a pre-conversation intake that asks users to rate their experience level, then inject that rating into the system prompt as context for all subsequent responses.",
+      "D": "Add an explicit instruction for the model to ask a clarifying question about experience level whenever the user's expertise isn't immediately clear from their first message."
+    },
+    "answer": "A",
+    "explanation": "A. Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise,\nmirroring their terminology.\" Keep only the safety-critical conditional about consultations. Correct.\nThis shifts from brittle rule-based logic to a flexible heuristic, enabling the model to infer expertise from\n\nsubtle cues like terminology and tone.\n\nB. Add more conditional branches to cover additional expertise signals, such as \"If user mentions specific\nrep ranges or asks about periodization, treat as advanced.\" Incorrect.\nThis increases complexity and brittleness--edge cases will still be missed.\n\nC. Implement a pre-conversation intake that asks users to rate their experience level, then inject that\nrating into the system prompt as context for all subsequent responses. Incorrect.\nUseful, but doesn't solve the issue of interpreting implicit signals during conversation.\n\nD. Add an explicit instruction for the model to ask a clarifying question about experience level whenever\nthe user's expertise isn't immediately clear from their first message. Incorrect.\nThis adds friction and interrupts flow instead of improving implicit understanding."
+  },
+  {
+    "id": 51,
+    "question": "Users frequently send ambiguous requests like \"book a venue for the party\" without specifying date, guest count, or budget. Your evaluation shows the assistant asks an average of 4 questions before taking any action, causing 35% of users to abandon mid-conversation. However, when you reduce questions, users sometimes receive recommendations that don't preferences. What's the most effective approach to improve this trade-off?",
+    "options": {
+      "A": "Implement a structured intake form that collects all required parameters (date, guest count, budget, venue type) upfront before the assistant begins providing any recommendation",
+      "B": "Configure the assistant to proceed with reasonable defaults (medium sized venue, next weekend, moderate budget) without explicitly stating these assumptions, allowing users to corrections if results don't match expectations",
+      "C": "Instruct the assistant to state explicit assumptions based on conversation status proceed with recommendations while inviting corrections, and reserve clarifying questions only Irreversible actions like confirming bookings.",
+      "D": "Configure the assistant to consolidate all clarifying questions into a single compound question (e.g., \"What date, guest count, and budget are you considering?\") to reduce the total"
+    },
+    "answer": "C",
+    "explanation": "A. Implement a structured intake form that collects all required parameters (date, guest count, budget,\nvenue type) upfront before the assistant begins providing any recommendation Incorrect.\nThis ensures completeness but adds high friction, increasing drop-off before any value is delivered.\n\nB. Configure the assistant to proceed with reasonable defaults (medium sized venue, next weekend,\nmoderate budget) without explicitly stating these assumptions, allowing users to correct them if results\ndon't match expectations Incorrect.\nHidden assumptions can lead to misalignment and confusion, reducing trust.\n\nC. Instruct the assistant to state explicit assumptions based on conversation status, proceed with\n\nrecommendations while inviting corrections, and reserve clarifying questions only for irreversible actions\nlike confirming bookings. Correct.\n\nThis balances speed and accuracy--users get immediate value, assumptions are transparent, and friction is\nminimized.\n\nD. Configure the assistant to consolidate all clarifying questions into a single compound question (e.g.,\n\"What date, guest count, and budget are you considering?\") to reduce the total Incorrect.\n\nThis reduces question count but still creates front-loaded friction without delivering immediate value."
+  },
+  {
+    "id": 54,
+    "question": "Your music discovery assistant should consistently maintain an enthusiastic tone, explain its reasoning for each recommendation, and ask clarifying questions to better understand user preferences. You want this behavior to persist reliably across all user interactions. Where should you define these behavioral guidelines?",
+    "options": {
+      "A": "In the first assistant message, instructing Claude to follow these guidelines going forward",
+      "B": "Prepended to each user message before sending to the API",
+      "C": "In the system prompt",
+      "D": "In environmental variables that your application passes to the API client"
+    },
+    "answer": "C",
+    "explanation": "A. In the first assistant message, instructing Claude to follow these guidelines going forward Incorrect.\nAssistant messages don't reliably control future behavior and can be overridden by later context.\nB. Prepended to each user message before sending to the API Incorrect.\n\nUser messages carry less authority than system-level instructions and are less reliable for enforcing behavior.\n\nC. In the system prompt Correct.\nThe system prompt is the highest-priority instruction layer, making it the most reliable place to enforce\nconsistent tone, reasoning style, and questioning behavior.\n\nD. In environmental variables that your application passes to the API client Incorrect.\nEnvironment variables are not part of the model's context and have no effect on behavior unless explicitly\nincluded in the prompt."
+  },
+  {
+    "id": 56,
+    "question": "A new user's first message is \"Set up my focus music,\" This could mean configure preferences, create a playlist, or play music immediately. Your system supports all three actions. What's the effective approach?",
+    "options": {
+      "A": "Create a new \"Focus\" playlist with curated tracks and notify the user it's ready.",
+      "B": "Ask one clarifying question about action type: play now or configure for later",
+      "C": "Play popular focus tracks Immediately and let the user redirect if needed",
+      "D": "Start preference configuration by asking about genres, temps, and artists they prefer for focus."
+    },
+    "answer": "B",
+    "explanation": "A. Create a new \"Focus\" playlist with curated tracks and notify the user it's ready. Incorrect.\nThis assumes intent and may do the wrong action, frustrating users.\nB. Ask one clarifying question about action type: play now or configure for later Correct.\nThis minimizes friction while resolving ambiguity, enabling the assistant to take the right action quickly.\nC. Play popular focus tracks immediately and let the user redirect if needed Incorrect.\nActs prematurely and may not match user intent.\nD. Start preference configuration by asking about genres, tempo, and artists Incorrect.\nToo heavy upfront--adds unnecessary friction before confirming intent."
+  },
+  {
+    "id": 57,
+    "question": "Users report that responses feel repetitive across turns--each message begins with phrases like \"Certainly!\" or \"I'd be happy to help!\" even deep into conversations. You want responses to feel more natural, without these repetitive openers. What's the most effective approach?",
+    "options": {
+      "A": "Implement post-processing to detect and strip common greeting phrases from response beginnings",
+      "B": "Add system prompt instructions specifying phrases to avoid, such as \"Never begin responses with 'Certainly' or similar affirmations\"",
+      "C": "Lower the temperature parameter to make response openings more deterministic and less variable",
+      "D": "Append a partial assistant message with a direct response opening that the model will continue from"
+    },
+    "answer": "D",
+    "explanation": "D. Append a partial assistant message with a direct response opening that the model will continue from.\n\nThis technique, often referred to as \"Pre-filling\" or \"Response Steering,\" is a powerful way to control the style\nand tone of an LLM. By providing the first few words of the assistant's response in the API call, you force the\nmodel to continue from that point, bypassing its internal \"politeness\" training or RLHF-induced habit of\nstarting every turn with a greeting."
+  },
+  {
+    "id": 58,
+    "question": "Users frequently send ambiguous requests like \"book a venue for the party\" without specifying date, guest count, or budget. Your evaluation shows the assistant asks an average of 4 questions before taking any action, causing 35% of users to abandon mid-conversation. However, when you reduce questions, users sometimes receive recommendations that don't preferences. What's the most effective approach to improve this trade-off?",
+    "options": {
+      "A": "Implement a structured intake form that collects all required parameters (date, guest count, budget, venue type) upfront before the assistant begins providing any recommendation",
+      "B": "Configure the assistant to proceed with reasonable defaults (medium sized venue, next weekend, moderate budget) without explicitly stating these assumptions, allowing users to corrections if results don't match expectations",
+      "C": "Instruct the assistant to state explicit assumptions based on conversation status proceed with recommendations while inviting corrections, and reserve clarifying questions only Irreversible actions like confirming bookings.",
+      "D": "Configure the assistant to consolidate all clarifying questions into a single compound question (e.g., \"What date, guest count, and budget are you considering?\") to reduce the total"
+    },
+    "answer": "C",
+    "explanation": "A. Implement a structured intake form that collects all required parameters (date, guest count, budget,\nvenue type) upfront before the assistant begins providing any recommendation Incorrect.\n\nThis ensures completeness but adds high friction, increasing drop-off before any value is delivered.\n\nB. Configure the assistant to proceed with reasonable defaults (medium sized venue, next weekend,\nmoderate budget) without explicitly stating these assumptions, allowing users to correct them if results\ndon't match expectations Incorrect.\n\nHidden assumptions can lead to misalignment and confusion, reducing trust.\n\nC. Instruct the assistant to state explicit assumptions based on conversation status, proceed with\nrecommendations while inviting corrections, and reserve clarifying questions only for irreversible actions\nlike confirming bookings. Correct.\n\nThis balances speed and accuracy--users get immediate value, assumptions are transparent, and friction is\nminimized.\n\nD. Configure the assistant to consolidate all clarifying questions into a single compound question (e.g.,\n\"What date, guest count, and budget are you considering?\") to reduce the total Incorrect.\n\nThis reduces question count but still creates front-loaded friction without delivering immediate value."
+  },
+  {
+    "id": 67,
+    "question": "Users frequently send ambiguous requests like \"book a venue for the party\" without specifying date, guest count, or budget. Your evaluation shows the assistant asks an average of 4.2 clarifying questions before taking any action, causing 35% of users to abandon mid-conversation. However, when you reduce questions, users sometimes receive recommendations that don't match their preferences. What's the most effective approach to improve this trade-off?",
+    "options": {
+      "A": "Instruct the assistant to state explicit assumptions based on conversation history, proceed with recommendations while inviting corrections, and reserve clarifying questions only for irreversible actions like confirming bookings.",
+      "B": "Configure the assistant to proceed with reasonable defaults (medium-sized venue, next weekend, moderate budget) without explicitly stating these assumptions, allowing users to provide corrections if results don't match expectations.",
+      "C": "Implement a structured intake form that collects all required parameters (date, guest count, budget, venue type) upfront before the assistant begins providing any recommendations.",
+      "D": "Configure the assistant to consolidate all clarifying questions into a single compound question (e.g., \"What date, guest count, and budget are you considering?\") to reduce the total number of conversational turns."
+    },
+    "answer": "D",
+    "explanation": "A. Instruct the assistant to state explicit assumptions based on conversation history, proceed with\nrecommendations while inviting corrections, and reserve clarifying questions only for irreversible actions\nlike confirming bookings. Incorrect.\n\nThis improves transparency, but it still relies on assumptions that may not fully align with user intent, leading\nto partial mismatches.\n\nB. Configure the assistant to proceed with reasonable defaults (medium-sized venue, next weekend,\nmoderate budget) without explicitly stating these assumptions, allowing users to provide corrections if\nresults don't match expectations. Incorrect.\n\nHidden defaults can reduce trust and lead to user confusion when outputs don't match expectations.\n\nC. Implement a structured intake form that collects all required parameters (date, guest count, budget,\nvenue type) upfront before the assistant begins providing any recommendations. Incorrect.\n\nThis ensures accuracy but introduces too much friction early in the flow, increasing drop-off.\n\nD. Configure the assistant to consolidate all clarifying questions into a single compound question (e.g.,\n\"What date, guest count, and budget are you considering?\") to reduce the total number of conversational\nturns. Correct.\n\nThis reduces user fatigue while still explicitly capturing required constraints, improving both completion rates\nand recommendation accuracy without over-questioning."
+  },
+  {
+    "id": 68,
+    "question": "Your document extraction tool uses ML models to extract invoice fields (vendor, amount, date). The models return confidence scores (0.0-1.0) for each extracted field. In production, you observe: (1) the agent proceeds with low-confidence extractions that are incorrect 23% of the time, and (2) the agent requests unnecessary human review for 31% of extractions that were actually correct. How should you restructure the tool's output?",
+    "options": {
+      "A": "Return fields with their raw confidence scores and add detailed few-shot examples to your system prompt demonstrating how to interpret different confidence ranges and when to request human review.",
+      "B": "Compute an aggregate extraction quality score across all fields and return it alongside the extracted values. Include a text summary describing the overall extraction reliability.",
+      "C": "Return fields with confidence scores, plus a requires_review boolean computed using your tested confidence thresholds, along with a review_reasons array explaining which fields triggered review.",
+      "D": "Return fields organized into verified and needs_verification objects based on confidence thresholds."
+    },
+    "answer": "C",
+    "explanation": "A. Return fields with their raw confidence scores and add detailed few-shot examples to your system\nprompt demonstrating how to interpret different confidence ranges and when to request human review. \nIncorrect.\n\nThis still leaves the decision logic ambiguous and pushes critical operational behavior into prompt\ninterpretation, which is inconsistent and hard to control in production.\n\nB. Compute an aggregate extraction quality score across all fields and return it alongside the extracted\nvalues. Include a text summary describing the overall extraction reliability. Incorrect.\n\nA single aggregate score hides per-field uncertainty, which is exactly what is needed to avoid both false\n\napprovals and unnecessary reviews.\n\nC. Return fields with confidence scores, plus a requires_review boolean computed using your tested\nconfidence thresholds, along with a review_reasons array explaining which fields triggered review. \nCorrect.\n\nThis directly encodes decision logic into structured output, ensuring consistent behavior while still preserving\nexplainability at the field level.\n\nD. Return fields organized into verified and needs_verification objects based on confidence thresholds. \nIncorrect.\n\nThis improves structure, but it hides the underlying confidence signals and reduces flexibility for downstream\nsystems that may need finer-grained control or auditability."
+  },
+  {
+    "id": 72,
+    "question": "Your conversational assistant frequently generates multiple clarifying questions when users make ambiguous requests. When a user asks \"Can you help me with the report?\", the assistant responds: \"I'd be happy to help! Could you tell me: 1) Which report? 2) What kind of help--drafting, reviewing, or formatting? 3) What's your deadline?\" User analytics show a 40% conversation abandonment rate after these multi-question responses. What's the most effective way to reduce friction while appropriately handling ambiguity?",
+    "options": {
+      "A": "Limit the assistant to one clarifying question per turn, using conversation history to accumulate answers over multiple exchanges rather than requesting everything upfront.",
+      "B": "Modify the system prompt to instruct the assistant to make reasonable assumptions from available context, state those assumptions explicitly, and offer to adjust if the interpretation is wrong.",
+      "C": "Add a preprocessing step using a smaller model to classify request ambiguity on a 1-5 scale, routing high- ambiguity requests to a clarification dialog and low-ambiguity requests directly to the assistant.",
+      "D": "Create a lookup table of common request patterns with predefined default interpretations, having the assistant respond with those defaults without stating the assumptions made."
+    },
+    "answer": "B",
+    "explanation": "A. Limit the assistant to one clarifying question per turn, using conversation history to accumulate answers\nover multiple exchanges rather than requesting everything upfront. Incorrect.\n\nThis reduces immediate friction, but it can make resolution slower and still prolong ambiguity across multiple\nturns, potentially frustrating users who want faster outcomes.\n\nB. Modify the system prompt to instruct the assistant to make reasonable assumptions from available\ncontext, state those assumptions explicitly, and offer to adjust if the interpretation is wrong. Correct.\n\nThis best balances usability and accuracy: the assistant provides immediate value, avoids overload of\nquestions, and maintains transparency so users can correct assumptions quickly if needed.\n\nC. Add a preprocessing step using a smaller model to classify request ambiguity on a 1-5 scale, routing\nhigh-ambiguity requests to a clarification dialog and low-ambiguity requests directly to the assistant. \nIncorrect.\n\nThis adds system complexity and still risks unnecessary gating or misclassification, increasing friction or\nincorrect routing.\n\nD. Create a lookup table of common request patterns with predefined default interpretations, having the\nassistant respond with those defaults without stating the assumptions made. Incorrect.\n\nHidden assumptions reduce trust and can lead to incorrect outputs without user awareness or correction."
+  },
+  {
+    "id": 74,
+    "question": "Your conversational AI tutor has a 2,800-token system prompt containing teaching methodology, persona guidelines, and detailed written instructions for adapting explanations to different proficiency levels. User testing reveals that in conversations exceeding 12 turns (approximately 4,000 tokens of conversation history), the assistant increasingly ignores the proficiency-adaptation guidelines, defaulting to intermediate-level explanations regardless of the learner's stated level. What's the most effective approach to ensure consistent adherence to these guidelines throughout extended conversations?",
+    "options": {
+      "A": "Inject a condensed reminder of the proficiency requirements into the conversation as a system message every 4-5 turns.",
+      "B": "Replace the verbose proficiency guidelines with few-shot examples demonstrating appropriate responses at each proficiency level, showing concrete differences in vocabulary, complexity, and explanation depth.",
+      "C": "Restructure the system prompt to place the proficiency-adaptation rules in a clearly-marked final section immediately before the conversation history begins.",
+      "D": "After each assistant response, make a separate API call to evaluate whether the difficulty level matched the learner's profile, regenerating responses that don't align."
+    },
+    "answer": "B",
+    "explanation": "A. Inject a condensed reminder of the proficiency requirements into the conversation as a system message\nevery 4�5 turns. Incorrect.\n\nThis is a mitigation strategy, but it's operationally inefficient and still treats the symptom (drift over long\ncontext) rather than improving how the model reliably learns and applies the rule in the first place.\n\nB. Replace the verbose proficiency guidelines with few-shot examples demonstrating appropriate\nresponses at each proficiency level, showing concrete differences in vocabulary, complexity, and\nexplanation depth. Correct.\n\nThis is the most effective fix because few-shot examples strongly anchor behavior. Instead of relying on long,\nabstract instructions that degrade in influence over long contexts, the model gets clear behavioral patterns\nit can consistently imitate, improving adherence across extended conversations.\n\nC. Restructure the system prompt to place the proficiency-adaptation rules in a clearly-marked final\nsection immediately before the conversation history begins. Incorrect.\n\nThis can slightly improve recall but does not address the core weakness of long, abstract rule blocks losing\neffectiveness over time.\n\nD. After each assistant response, make a separate API call to evaluate whether the difficulty level matched\nthe learner's profile, regenerating responses that don't align. Incorrect.\n\nThis is expensive, slow, and unnecessary when prompt design improvements can solve the issue."
+  },
+  {
+    "id": 75,
+    "question": "After deploying an updated system prompt that improves response quality, users with multi-session conversations spanning several weeks report that the assistant now contradicts its earlier statements and has a noticeably different communication style. New users don't experience these issues. What's the best approach to resolve this?",
+    "options": {
+      "A": "Regenerate summaries of existing conversations using the new prompt and replace the stored histories to align past context with current behavior.",
+      "B": "Add a transition message when sessions resume explaining that the assistant has been updated and behavior may differ.",
+      "C": "Version system prompts and associate each conversation with the prompt version under which it started, applying updates only to new conversations.",
+      "D": "Add instructions to the new system prompt directing the assistant to maintain consistency with any prior statements in the conversation history."
+    },
+    "answer": "C",
+    "explanation": "A. Regenerate summaries of existing conversations using the new prompt and replace the stored histories\nto align past context with current behavior. Incorrect.\n\nThis rewrites history and can distort or erase what users actually said, creating continuity risks and potential\ninaccuracies.\n\nB. Add a transition message when sessions resume explaining that the assistant has been updated and\nbehavior may differ. Incorrect.\n\nThis improves transparency but does not solve the core problem of inconsistent behavior across sessions.\n\nC. Version system prompts and associate each conversation with the prompt version under which it started,\napplying updates only to new conversations. Correct.\n\nThis is the most robust solution because it preserves behavioral consistency within a conversation over time,\navoiding contradictions caused by mid-stream prompt changes.\n\nD. Add instructions to the new system prompt directing the assistant to maintain consistency with any prior\nstatements in the conversation history. Incorrect.\n\nThis helps slightly, but it cannot reliably override changes in underlying behavior introduced by prompt\nupdates."
+  },
+  {
+    "id": 77,
+    "question": "Production reviews reveal inconsistent handling of uncertainty in final reports. Sometimes conflicting subagent findings are synthesized into a single confident statement (losing nuance), while other times reports over-hedge with excessive qualifications (becoming unhelpful). When the web search agent returns \"industry analysts estimate $50B market size (methodology varies)\" and the document analysis agent returns \"peer-reviewed study estimates $35B (�$7B, 95% CI),\" the coordinator either picks one arbitrarily or produces vague statements like \"the market may be $35B-$50B depending on factors.\" What systematic approach best addresses this?",
+    "options": {
+      "A": "Implement a confidence calibration layer that normalizes subagent uncertainty expressions to standardized probability scores (0.0-1.0), then weight-average findings by their calibrated confidence.",
+      "B": "Instruct the synthesis agent to structure reports with explicit sections distinguishing well-established findings from contested ones, preserving original source characterizations and methodological context.",
+      "C": "Configure subagents to only report findings meeting a high-confidence threshold, filtering uncertain information before it reaches the coordinator.",
+      "D": "Add a verification subagent that cross-references findings across sources, only passing claims to synthesis that are corroborated by at least two independent sources."
+    },
+    "answer": "B",
+    "explanation": "A. Implement a confidence calibration layer that normalizes subagent uncertainty expressions to\nstandardized probability scores (0.0-1.0), then weight-average findings by their calibrated confidence. \nIncorrect.\n\nThis forces incompatible uncertainty types (market estimates, confidence intervals, analyst opinions) into a\nsingle numeric scale, which can distort meaning and oversimplify fundamentally different methodologies.\n\nB. Instruct the synthesis agent to structure reports with explicit sections distinguishing well-established\nfindings from contested ones, preserving original source characterizations and methodological context. \nCorrect.\n\nThis directly addresses the root problem: loss of nuance. It preserves multiple viewpoints, uncertainty types,\nand methodological differences, while still producing a coherent, structured report instead of collapsing\neverything into a misleading single value or vague range.\n\nC. Configure subagents to only report findings meeting a high-confidence threshold, filtering uncertain\ninformation before it reaches the coordinator. Incorrect.\n\nThis removes the very uncertainty signals needed for proper synthesis and biases outputs toward false\ncertainty.\n\nD. Add a verification subagent that cross-references findings across sources, only passing claims to\nsynthesis that are corroborated by at least two independent sources. Incorrect.\n\nThis is too restrictive for domains like market sizing where disagreement is meaningful and expected, not a\nsign of invalid data."
+  },
+  {
+    "id": 80,
+    "question": "The synthesis agent receives summarized findings from the web search and document analysis agents, then passes a consolidated summary to the report generator. During testing, you discover the generated reports make factual claims without proper citations--the report generator cannot attribute statements to their original sources because that metadata was lost during the summarization steps. What's the most effective approach to ensure proper source attribution in the final reports?",
+    "options": {
+      "A": "Have each agent output structured data separating content summaries from source metadata (URLs, document names, page numbers).",
+      "B": "Have the report generator query the web search agent to re-locate sources for claims in the final report.",
+      "C": "Skip summarization and pass full raw outputs from web search and document analysis directly to the report generator.",
+      "D": "Instruct the synthesis agent to embed source references inline within its summary text using a consistent citation format."
+    },
+    "answer": "A",
+    "explanation": "A. Have each agent output structured data separating content summaries from source metadata (URLs,\ndocument names, page numbers). Correct.\n\nThis is the most reliable solution because it preserves provenance as first-class data, ensuring citations are\nnever lost during summarization. The report generator can then deterministically map claims back to their\noriginal sources.\n\nB. Have the report generator query the web search agent to re-locate sources for claims in the final report.\n Incorrect.\n\nThis is inefficient and unreliable because it requires reverse-matching claims to sources, which can be\nambiguous or fail entirely.\n\nC. Skip summarization and pass full raw outputs from web search and document analysis directly to the\nreport generator. Incorrect.\n\nThis avoids the problem but is not scalable and leads to context bloat and degraded performance.\n\nD. Instruct the synthesis agent to embed source references inline within its summary text using a\nconsistent citation format. Incorrect.\n\nThis helps, but it still risks losing or breaking attribution during downstream transformations and does not\nenforce structured traceability."
+  },
+  {
+    "id": 81,
+    "question": "A user is expanding the research system beyond its single web search agent by adding specialized data sources. They add a financial API agent that returns structured JSON with revenue, margins, and growth rates; a news monitoring agent that returns prose summaries of recent developments; and a patent analysis agent that returns structured lists of technology areas. The synthesis agent combines these into executive briefings. Currently, it converts everything to bullet points, causing financial comparisons to lose tabular clarity and news summaries to lose narrative flow. What change would most improve briefing quality?",
+    "options": {
+      "A": "Update the synthesis agent to render each content type appropriately--financial data as tables, news as prose",
+      "B": "Standardize all subagent outputs to JSON with fields for claim, evidence, source, and confidence",
+      "C": "Add a format conversion layer between subagents and synthesis that transforms all outputs to a common intermediate representation",
+      "D": "Standardize all subagent outputs to prose summaries with inline citations"
+    },
+    "answer": "A",
+    "explanation": "A. Update the synthesis agent to render each content type appropriately--financial data as tables, news as\n prose Correct.\n\n This works because it preserves the native structure of each data type at the point where it matters most\n (final synthesis). Financial data remains comparable in tabular form, news retains narrative coherence, and\n patents stay structured as categorized lists. The key improvement is that the synthesis layer becomes\n format-aware instead of flattening everything into bullets, which is exactly what was causing quality loss.\n\n Why the others are not correct:\n\n B. Standardize all subagent outputs to JSON with fields for claim, evidence, source, and confidence \n Incorrect\n\n This forces unrelated data types into a single schema and strips meaningful presentation structure like tables\n and narratives.\n\n C. Add a format conversion layer between subagents and synthesis Incorrect\n\n This risks over-normalization into a lowest-common-denominator format, reducing expressiveness.\n\n D. Standardize all subagent outputs to prose summaries with inline citations Incorrect\n\n This removes structure from financial and analytical data, reducing precision and comparability."
+  },
+  {
+    "id": 85,
+    "question": "Evaluation shows 94% extraction accuracy on short meeting transcripts (<30 minutes) but only 68% on longer transcripts (>60 minutes) where discussions meander and key information is scattered throughout. Transcripts of both lengths fit within the model's context window. What pattern most effectively improves accuracy on complex, lengthy documents?",
+    "options": {
+      "A": "Add few-shot examples demonstrating correct extraction from lengthy meetings with scattered Information.",
+      "B": "Split lengthy transcripts Into chunks, extract from each chunk separately, then merge and deduplicate the results.",
+      "C": "Upgrade to a more capable model tier for the extraction task,",
+      "D": "Add a pre-extraction step where the model summarizes key discussions and conclusions before performing structured extraction."
+    },
+    "answer": "B",
+    "explanation": "A. Add few-shot examples demonstrating correct extraction from lengthy meetings with scattered\ninformation. Incorrect.\n\nExamples help somewhat, but they do not fundamentally solve the challenge of maintaining attention and\nconsistency across long, meandering documents.\n\nB. Split lengthy transcripts into chunks, extract from each chunk separately, then merge and deduplicate\nthe results. Correct.\n\nChunking reduces cognitive load per extraction pass and improves recall of scattered details. Merging and\ndeduplication then reconstruct the final structured output more reliably than processing the entire long\ntranscript in one pass.\n\nC. Upgrade to a more capable model tier for the extraction task. Incorrect.\n\nA stronger model may help marginally, but the core issue is long-document attention and information\ndistribution, which chunking addresses more directly and efficiently.\n\nD. Add a pre-extraction step where the model summarizes key discussions and conclusions before\nperforming structured extraction. Incorrect.\n\nSummarization can omit details needed for extraction, especially when important information is scattered or\nmentioned briefly."
+  },
+  {
+    "id": 86,
+    "question": "Your system has been running for 3 weeks and human reviewers have corrected 847 extractions. Analysis reveals a recurring pattern: when recipes use informal measurements like \"a handful\" or \"a splash,\" the model either invents specific amounts or leaves fields empty--accounting for 23% of all corrections. How should you use this feedback to improve extraction accuracy?",
+    "options": {
+      "A": "Update your JSON schema to add a \"measurement_type\" enum field (precise/informal).",
+      "B": "Add few-shot examples to your prompt demonstrating correct handling of informal measurements-- extracting them verbatim rather than converting or omitting them.",
+      "C": "Implement a post-processing layer that uses pattern matching to detect informal measurement phrases in source text and automatically populate values when the extraction is empty.",
+      "D": "Fine-tune the model on the 847 corrected extractions."
+    },
+    "answer": "B",
+    "explanation": "A. Update your JSON schema to add a \"measurement_type\" enum field (precise/informal). Incorrect.\n\nThis may help classify outputs, but it does not teach the model how to correctly extract informal\nmeasurements instead of hallucinating or omitting them.\n\nB. Add few-shot examples to your prompt demonstrating correct handling of informal measurements--\nextracting them verbatim rather than converting or omitting them. Correct.\n\nThis directly targets the observed failure mode by showing the model the desired behavior on real edge cases,\nimproving consistency without forcing unsupported normalization.\n\nC. Implement a post-processing layer that uses pattern matching to detect informal measurement phrases\nin source text and automatically populate values when the extraction is empty. Incorrect.\n\nPattern matching is brittle and does not address cases where the model invents incorrect quantities instead\nof leaving fields empty.\n\nD. Fine-tune the model on the 847 corrected extractions. Incorrect.\n\nFine-tuning is expensive and unnecessary for a narrow, well-defined extraction issue that can be effectively\ncorrected through targeted prompting examples.\n\nKey idea: use real correction data to create targeted few-shot examples that teach the desired extraction\nbehavior on recurring edge cases."
+  },
+  {
+    "id": 90,
+    "question": "Your extraction uses tool use with a JSON schema where property_type is defined as an enum: ['house', 'apartment', \"condo\", \"townhouse\"]. After deployment, 8% of extractions fall schema validation. Investigation reveals listings mention many uncommon property types--\"studio\", \"loft\", \"duplex\", \"mobile home\", \"tiny house\", \"converted warehouse\"--and new types continue appearing regularly. What's the most effective long-term solution?",
+    "options": {
+      "A": "Add an \"other\" value to your enum with a separate property_type_detail string field for specifics when \"other\" is selected.",
+      "B": "Change property_type from an enum to a free-form string and implement a normalization step in post- processing.",
+      "C": "Add few-shot examples to your prompt demonstrating how to map unexpected property types to the closest existing enum value.",
+      "D": "Continuously expand the enum to include newly observed property types and add monitoring for additional edge cases."
+    },
+    "answer": "A",
+    "explanation": "A. Add an \"other\" value to your enum with a separate property_type_detail string field for specifics when\n\"other\" is selected. Correct.\n\nThis is the most robust long-term solution because it preserves schema validity while still allowing the system\nto capture new or uncommon property types without breaking validation. It also keeps structured consistency\nfor downstream systems.\n\nB. Change property_type from an enum to a free-form string and implement a normalization step in post-\nprocessing. Incorrect.\n\nThis sacrifices schema control and pushes complexity downstream, increasing inconsistency and processing\nburden.\n\nC. Add few-shot examples to your prompt demonstrating how to map unexpected property types to the\nclosest existing enum value. Incorrect.\n\nThis leads to forced misclassification and will not scale as new property types continue to appear.\n\nD. Continuously expand the enum to include newly observed property types and add monitoring for\nadditional edge cases. Incorrect.\n\nThis is operationally expensive and does not scale in dynamic domains where new categories appear\nfrequently."
+  },
+  {
+    "id": 91,
+    "question": "Your extraction system parses e-commerce product descriptions to extract specifications like dimensions, weight, and materials into JSON. Despite having a well-defined schema, the model inconsistently extracts the \"materials\" field--sometimes returning \"cotton blend\", other times \"Cotton/Polyester mix\", and occasionally omitting the field when material information is clearly present in the source. What's the most effective way to improve extraction consistency?",
+    "options": {
+      "A": "Set temperature to 0 to eliminate randomness and ensure deterministic outputs",
+      "B": "Switch to a more capable model tier since inconsistent extraction indicates insufficient model capability",
+      "C": "Make the \"materials\" field required instead of optional in the schema to force the model to always extract a value",
+      "D": "Add few-shot examples showing 2-3 complete Input-output pairs with standardized material description formats"
+    },
+    "answer": "D",
+    "explanation": "A. Set temperature to 0 to eliminate randomness and ensure deterministic outputs Incorrect.\n\nLower temperature improves consistency slightly, but it does not solve schema interpretation differences or\nmissing-field behavior when the model is uncertain.\n\nB. Switch to a more capable model tier since inconsistent extraction indicates insufficient model capability\n Incorrect.\n\nThis is not primarily a capability issue; the model already sees the information but is inconsistent in\nnormalization and extraction behavior.\n\nC. Make the \"materials\" field required instead of optional in the schema to force the model to always\nextract a value Incorrect.\n\nForcing requirement does not guarantee correctness; it often increases hallucination when the model tries to\nfill missing or ambiguous data.\n\nD. Add few-shot examples showing 2�3 complete input-output pairs with standardized material description\nformats Correct.\n\nThis directly teaches the model the expected normalization pattern (e.g., \"cotton blend\" vs \"cotton/polyester\nmix\") and when to consistently extract rather than omit, which is the core failure mode."
+  },
+  {
+    "id": 92,
+    "question": "Documents arrive continuously throughout business hours and need structured data extracted. To reduce costs, you want to use the Message Batches API (50% discount, up-to-24-hour processing window). Your SLA specifies that extraction results must be available within 30 hours of document arrival with 99.9% reliability. Which batching strategy is most appropriate?",
+    "options": {
+      "A": "Submit batches every 4 hours containing documents from that window",
+      "B": "Submit batches every 6 hours containing documents from that window",
+      "C": "Submit a single batch at end of day containing all documents from that day",
+      "D": "Use the real-time API for all documents instead of batch processing"
+    },
+    "answer": "C",
+    "explanation": "A. Submit batches every 4 hours containing documents from that window Incorrect\nThis is more frequent than necessary for a 30-hour SLA and reduces batching efficiency without improving\nreliability in a meaningful way.\n\nB. Submit batches every 6 hours containing documents from that window Incorrect\nStill unnecessarily frequent; it increases operational overhead without providing measurable SLA benefits\ncompared to less frequent batching.\n\nC. Submit a single batch at end of day containing all documents from that day Correct\nThis is the most efficient strategy. With a 24-hour batch processing window, end-of-day batching still\ncomfortably meets the 30-hour SLA while maximizing cost savings and operational simplicity.\n\nD. Use the real-time API for all documents instead of batch processing Incorrect\nThis guarantees speed but significantly increases cost and ignores the requirement to optimize for batch\nprocessing efficiency."
+  },
+  {
+    "id": 93,
+    "question": "Your extraction pipeline processes restaurant menus and must output structured JSON with fields for item names, descriptions, prices, and dietary tags. Some menus use inconsistent formatting--prices as \"$12\" vs \"12.00\", dietary info as icons vs text. What's the most reliable approach?",
+    "options": {
+      "A": "Extract data as-is and normalize formats in post-processing code after Claude returns.",
+      "B": "Define a strict output schema and include format normalization rules in your prompt.",
+      "C": "Use separate extraction calls for each field to ensure consistent handling of each type.",
+      "D": "Request multiple extraction attempts per document and select the most common format."
+    },
+    "answer": "B",
+    "explanation": "B. Define a strict output schema and include format normalization rules in your prompt. Correct\nThis is the most reliable approach because it enforces structure through the schema while also guiding the\nmodel to normalize inconsistent inputs (like \"$12\" vs \"12.00\" and icon-based vs text-based dietary tags) at the\npoint of extraction. That reduces downstream ambiguity and avoids relying on post-processing fixes.\nWhy the others are not correct:\nA. Extract data as-is and normalize formats in post-processing code after Claude returns. Incorrect\nThis shifts complexity downstream and risks inconsistencies if extraction itself is already noisy or incomplete.\nC. Use separate extraction calls for each field to ensure consistent handling of each type. Incorrect\nThis increases cost and latency and can introduce cross-field inconsistency instead of improving reliability.\nD. Request multiple extraction attempts per document and select the most common format. Incorrect\nMajority voting does not guarantee correctness and is inefficient for structured extraction tasks."
+  },
+  {
+    "id": 94,
+    "question": "Your system extracts event metadata (date, location, organizer, attendee_count) from news articles using a JSON schema with all nullable fields. During evaluation, you observe the model frequently generates plausible but incorrect values for fields not mentioned in the article-for example, outputting \"500\" for attendee_count when the source contains no attendance information. What's the most effective way to reduce these false extractions?",
+    "options": {
+      "A": "Make all schema fleids required (non-nullable) with strict validation rules to ensure the model only outputs verifiable data.",
+      "B": "Add prompt instructions to return null for any field where information is not directly stated in the source.",
+      "C": "Upgrade to a more capable model tier with improved instruction-following to reduce hallucination tendencies.",
+      "D": "Add a post-processing step using a second LLM call to verify each extracted value exists in the source document."
+    },
+    "answer": "B",
+    "explanation": "A. Make all schema fields required (non-nullable) with strict validation rules to ensure the model only\noutputs verifiable data. Incorrect\n\nMaking fields required doesn't prevent hallucination; it often makes it worse because the model is forced to\ninvent values instead of leaving them blank.\n\nB. Add prompt instructions to return null for any field where information is not directly stated in the source.\n Correct\n\nThis directly targets the root failure mode (hallucinating absent fields). It enforces a clear extraction rule: only\nextract explicitly supported data, otherwise return null, which is the correct behavior for structured\ninformation extraction.\n\nC. Upgrade to a more capable model tier with improved instruction-following to reduce hallucination\ntendencies. Incorrect\n\nA better model may reduce errors slightly, but the fundamental issue is missing extraction constraints, not\nmodel capability.\n\nD. Add a post-processing step using a second LLM call to verify each extracted value exists in the source\ndocument. Incorrect\n\nThis adds cost and latency and still relies on probabilistic verification rather than preventing hallucination at\nthe source."
+  },
+  {
+    "id": 96,
+    "question": "Your fitness coaching assistant uses a system prompt with detailed conditional logic: \"If the user mentions being a beginner, provide step-by-step form instructions. If they use terms like 'progressive overload' or 'superset', respond concisely. If they ask about injury history, always recommend consulting a physician.\" During evaluation, you find the assistant correctly adapts to explicit expertise declarations but struggles when users don't clearly state their level--often defaulting to overly detailed responses regardless of contextual cues like technical terminology. Which change to the system prompt would most directly address this failure to pick up on implicit expertise signals?",
+    "options": {
+      "A": "Add an explicit instruction for the model to ask a clarifying question about experience level whenever the user's expertise isn't immediately clear from their first message.",
+      "B": "Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise, mirroring their terminology.\" Keep only the safety-critical conditional about injury consultations.",
+      "C": "Implement a pre-conversation intake that asks users to rate their experience level, then inject that rating into the system prompt as context for all subsequent responses.",
+      "D": "Add more conditional branches to cover additional expertise signals, such as \"If user mentions specific rep ranges or asks about periodization, treat as advanced.\""
+    },
+    "answer": "B",
+    "explanation": "A. Add an explicit instruction for the model to ask a clarifying question about experience level whenever\nthe user's expertise isn't immediately clear from their first message. Incorrect\n\nThis reduces responsiveness and forces unnecessary clarification questions, even when the model could\nreasonably infer expertise from context.\n\nB. Replace most conditionals with a general principle: \"Adapt explanation depth to match user expertise,\nmirroring their terminology.\" Keep only the safety-critical conditional about injury consultations. \nCorrect\n\nThis directly fixes the core issue: over-reliance on brittle rules. A general adaptive principle allows the model\nto infer expertise from implicit signals (terminology, phrasing, specificity) instead of only explicit declarations.\n\nC. Implement a pre-conversation intake that asks users to rate their experience level, then inject that\nrating into the system prompt as context for all subsequent responses. Incorrect\n\nThis improves clarity but adds friction and fails when users provide inaccurate or inconsistent self-\nassessments.\n\nD. Add more conditional branches to cover additional expertise signals,such as \"If user mentions specific\nrep ranges or asks about periodization, treat as advanced.\" Incorrect\n\nThis increases prompt complexity and still won't scale to the full range of implicit cues users naturally\nexpress."
+  },
+  {
+    "id": 117,
+    "question": "The system processes product reviews using tool use with a defined schema: rating (integer 1-5), pros (string array), cons (string array), and overall_sentiment (enum: positive, negative, mixed). Testing reveals two issues with brief or ambiguous reviews (~20% of the dataset): (1) for reviews like \"Great product!\", Claude fabricates specific pros and cons rather than indicating this information isn't explicitly stated, and (2) for sarcastic reviews like \"Well that was... interesting\", Claude picks sentiment arbitrarily since there's no option for ambiguous cases. What schema modification best addresses both issues?",
+    "options": {
+      "A": "Add an extraction_confidence field (0.0-1.0) for each value, and filter outputs where any confidence falls below a threshold.",
+      "B": "Allow null values for pros/cons, and add \"unclear\" to the sentiment enum.",
+      "C": "Allow empty arrays for pros/cons as valid output, and add \"unclear\" to the sentiment enum.",
+      "D": "Make pros and cons optional fields, and add \"neutral\" and \"unclear\" to the sentiment enum."
+    },
+    "answer": "C",
+    "explanation": "C. Allow empty arrays for pros/cons as valid output, and add \"unclear\" to the sentiment enum. (Correct)\n\nThis directly addresses both problems:\n\nFor reviews like \"Great product!\", there may be no explicitly stated pros or cons. Allowing empty arrays lets\nthe model accurately represent that no specific pros or cons were mentioned, instead of hallucinating details.\n\nFor ambiguous or sarcastic reviews like \"Well that was... interesting\", adding \"unclear\" to the sentiment\nenum provides a valid option when sentiment cannot be determined reliably from the text.\n\nA. Add an extraction_confidence field (0.0-1.0) for each value, and filter outputs where any confidence falls\nbelow a threshold. (Incorrect)\n\nConfidence scores do not solve the underlying schema problem. The model may still fabricate pros/cons or\nguess sentiment.\n\nB. Allow null values for pros/cons, and add \"unclear\" to the sentiment enum. (Incorrect)\n\nNull suggests the fields are missing rather than that no pros/cons were explicitly stated. Empty arrays more\naccurately represent \"none identified.\"\n\nD. Make pros and cons optional fields, and add \"neutral\" and \"unclear\" to the sentiment enum. \n(Incorrect)\n\nOptional fields can lead to inconsistent outputs. \"Neutral\" is different from \"unclear\" and does not address\nambiguity in determining sentiment."
+  },
+  {
+    "id": 118,
+    "question": "After your daily batch of 10,000 documents completes, 300 documents (3%) failed with \"context_length_exceeded\" errors. The results file identifies each failure by custom_id. What's the most cost- effective approach to process these failures?",
+    "options": {
+      "A": "Reprocess the entire batch with prompt caching enabled to reduce the cost of retrying requests with identical system prompts",
+      "B": "Resubmit only the 300 failed documents after chunking them into smaller pieces, then combine the partial extractions",
+      "C": "Increase the max_tokens parameter for the 300 failed documents and resubmit them in a new batch",
+      "D": "Resubmit the entire 10,000 document batch using a model tier with a larger context window"
+    },
+    "answer": "B",
+    "explanation": "B. Resubmit only the 300 failed documents after chunking them into smaller pieces, then combine the\npartial extractions. (Correct)\n\nThe failures are specifically due to context_length_exceeded, meaning the documents are too large for the\nmodel's context window. The most cost-effective solution is to retry only the failed 300 documents, split\nthem into smaller chunks that fit within context limits, and then merge the results. This avoids reprocessing\nthe 9,700 documents that already succeeded.\n\nA. Reprocess the entire batch with prompt caching enabled to reduce the cost of retrying requests with\nidentical system prompts (Incorrect)\n\nPrompt caching may reduce costs, but it does not solve the context-length issue and unnecessarily\nreprocesses successful documents.\n\nC. Increase the max_tokens parameter for the 300 failed documents and resubmit them in a new batch \n(Incorrect)\n\nmax_tokens controls output length, not input context capacity. It will not resolve context_length_exceeded\nerrors.\n\nD. Resubmit the entire 10,000 document batch using a model tier with a larger context window \n(Incorrect)\n\nThis is significantly more expensive and unnecessary when only 3% of documents failed."
+  },
+  {
+    "id": 119,
+    "question": "The system needs to extract candidate information (name, contact details, skills, work experience, education) from uploaded resumes. The extracted data must strictly conform to a predefined JSON schema, as missing required fields or incorrect data types will cause downstream validation failures. What is the most reliable approach to ensure Claude's output consistently matches the schema?",
+    "options": {
+      "A": "Define a tool with an input schema matching your required JSON structure and extract the data from Claude's tool_use response.",
+      "B": "Include detailed JSON formatting instructions and a template example in the system prompt, asking Claude to output only valid JSON.",
+      "C": "Parse Claude's text response with regex patterns to extract JSON objects, using retry logic for malformed responses.",
+      "D": "Make two separate API calls--first extracting information as text, then asking Claude to format that text as JSON."
+    },
+    "answer": "A",
+    "explanation": "A. Define a tool with an input schema matching your required JSON structure and extract the data from\nClaude's tool_use response. (Correct)\n\nUsing tool use with a defined schema is the most reliable way to ensure the extracted candidate information\nconforms to the required JSON structure. The schema enforces field names, required properties, data types,\nand allowed values, significantly reducing validation failures and eliminating the need to parse free-form text.\n\nB. Include detailed JSON formatting instructions and a template example in the system prompt, asking\nClaude to output only valid JSON. (Incorrect)\n\nPrompt instructions improve consistency but cannot guarantee strict schema compliance.\n\nC. Parse Claude's text response with regex patterns to extract JSON objects, using retry logic for\nmalformed responses. (Incorrect)\n\nRegex-based parsing is brittle and does not ensure required fields or correct data types.\n\nD. Make two separate API calls--first extracting information as text, then asking Claude to format that\ntext as JSON. (Incorrect)\n\nThis adds complexity and still does not provide the schema enforcement that tool use offers.\\"
+  },
+  {
+    "id": 120,
+    "question": "After deploying automated code review, developers report that approximately 35% of flagged findings are false positives falling into consistent patterns: style suggestion contradicting team conventions, security warnings for patterns safe in your deployment context, and performance suggestions that would degrade your specific use ca. You want to reduce false positives while maintaining the ability to catch genuine issues. Which approach best enables the model to generalize its judgment to novel co patterns it hasn't seen before?",
+    "options": {
+      "A": "Include few-shot examples in your prompt showing annotated code snippets that distinguish acceptable patterns from genuine issues in each category.",
+      "B": "Implement post-processing that uses keyword matching to filter out findings containing terms like \"convention,\" \"context-dependent,\" or \"trade-off.\"",
+      "C": "Add instructions to your system prompt to \"be conservative,\" \"only flag definite issues,\" and \"consider that some patterns may be intentional.\"",
+      "D": "Create a comprehensive written specification of all patterns that should not be flagged, then include this full documentation in the system prompt."
+    },
+    "answer": "A",
+    "explanation": "A. Include few-shot examples in your prompt showing annotated code snippets that distinguish acceptable\npatterns from genuine issues in each category. (Correct)\n\nFew-shot examples teach the model the underlying distinctions between acceptable and problematic\npatterns, allowing it to generalize to new, unseen code scenarios. By demonstrating how team conventions,\ndeployment-specific security considerations, and performance trade-offs should be evaluated, the model\nlearns the decision-making criteria rather than memorizing specific cases. This is the most effective approach\nfor reducing systematic false positives while preserving the ability to identify genuine issues.\n\nB. Implement post-processing that uses keyword matching to filter out findings containing terms like\n\"convention,\" \"context-dependent,\" or \"trade-off.\" (Incorrect)\n\nKeyword filtering is brittle and may suppress legitimate findings that happen to contain those terms while\nfailing to address the root cause of incorrect model reasoning.\n\nC. Add instructions to your system prompt to \"be conservative,\" \"only flag definite issues,\" and \"consider\nthat some patterns may be intentional.\" (Incorrect)\n\nGeneral instructions may reduce the number of findings but do not provide enough contextual guidance for\ndistinguishing acceptable patterns from genuine issues, especially in novel situations.\n\nD. Create a comprehensive written specification of all patterns that should not be flagged, then include this\nfull documentation in the system prompt. (Incorrect)\n\nA long list of rules is difficult for the model to apply consistently and may not help it generalize to new\npatterns. Examples are typically more effective at teaching nuanced judgment than exhaustive\ndocumentation alone."
+  },
+  {
+    "id": 123,
+    "question": "Your code review prompts include both implementation changes and the corresponding test file, but the LLM's review comments fail to point out untested code paths. Analysis reveals the model correctly flags functions that have no tests at all, but fails to identify when conditional branches or error-handling paths within tested functions that have no tests at all, but fails to identify when conditional branches or error-handling paths within tested functio lack coverage. What's the most effective way to improve detection of branch-level coverage gaps without overcomplicating the pipeline?",
+    "options": {
+      "A": "Implement a multi-pass pipeline where separate LLM calls first extract all conditional branches, then cross- reference each against test assertions in a second pass.",
+      "B": "Include few-shot examples showing code with an uncovered branch paired with the review comment identifying the specific missing test case.",
+      "C": "Add explicit instructions directing the model to enumerate each conditional branch and exception path, then verify each has a corresponding test assertion.",
+      "D": "Restructure the prompt to interleave implementation and tests, presenting each function followed immediately by its test cases"
+    },
+    "answer": "B",
+    "explanation": "B. Include few-shot examples showing code with an uncovered branch paired with the review comment\nidentifying the specific missing test case. (Correct)\n\nFew-shot examples are the most effective way to improve the model's ability to recognize branch-level test\ncoverage gaps and generalize that reasoning to new code. By demonstrating examples where conditional\nbranches or error-handling paths are untested--and showing the expected review comments--the model\nlearns the pattern it should look for during review without adding significant pipeline complexity.\n\nA. Implement a multi-pass pipeline where separate LLM calls first extract all conditional branches, then\ncross-reference each against test assertions in a second pass. (Incorrect)\n\nThis may improve accuracy but substantially increases system complexity, latency, and cost. The question\nasks for improvement without overcomplicating the pipeline.\n\nC. Add explicit instructions directing the model to enumerate each conditional branch and exception path,\nthen verify each has a corresponding test assertion. (Incorrect)\n\nInstructions can help, but they are generally less effective than examples at teaching nuanced reasoning\npatterns such as identifying branch-level coverage gaps.\n\nD. Restructure the prompt to interleave implementation and tests, presenting each function followed\nimmediately by its test cases. (Incorrect)\n\nImproving code-test proximity may aid review, but it does not directly teach the model how to identify missing\ncoverage for specific branches or error paths."
+  },
+  {
+    "id": 124,
+    "question": "After deploying the automated review, you notice high precision but low recall - real bugs are slipping through undetected. Investigation reveals your review prompt instructs Claude to \"only report high-confidence issues you are certain about\" and \"err on the side of not commenting.\" Developers appreciate the low noise, but a race condition that caused a production outage was visible in a reviewed PR and went unreported. You need to substantially improve bug detection while keeping false positive rates manageable for your team. What is the most effective approach?",
+    "options": {
+      "A": "Expand the context window by including related test files, recent git history, and the module's dependency graph alongside the diff, giving Claude richer signals to assess issue severity.",
+      "B": "Remove the conservative filtering instructions and prompt Claude to report all potential issues, then apply a programmatic filter to deduplicate and suppress categories that historically generate false positives.",
+      "C": "Split the review into a finding stage where Claude's goal is coverage - flagging every potential issue with confidence and severity metadata - and a separate thresholds those findings.",
+      "D": "Add detailed few-shot examples demonstrating bug categories Claude should flag - race conditions, null dereferences, error handling gaps - while keeping confidence filtering instruction to maintain current precision levels."
+    },
+    "answer": "C",
+    "explanation": "C. Split the review into a finding stage where Claude's goal is coverage--flagging every potential issue\nwith confidence and severity metadata--and a separate filtering stage that applies team-specific\nthresholds to those findings. (Correct)\n\nThe core problem is that the prompt's conservative filtering instructions are suppressing recall, causing\ngenuine bugs (such as the race condition) to go unreported. Separating issue detection from issue filtering is\nthe most effective solution:\n\nStage 1 (Detection): Maximize recall by identifying all plausible issues and assigning confidence/severity\nscores.\nStage 2 (Filtering): Apply team-specific thresholds to control noise and maintain manageable false-positive\nrates.\n\nThis architecture avoids forcing the model to simultaneously optimize for both recall and precision, which\noften leads to missed bugs.\n\nA. Expand the context window by including related test files, recent git history, and the module's\ndependency graph alongside the diff, giving Claude richer signals to assess issue severity. (Incorrect)\n\nMore context can help in some cases, but it does not address the primary issue: the prompt explicitly tells\n\nClaude to suppress anything it is not certain about.\n\nB. Remove the conservative filtering instructions and prompt Claude to report all potential issues, then\napply a programmatic filter to deduplicate and suppress categories that historically generate false\npositives. (Incorrect)\n\nThis improves recall but relies on coarse category-level filtering rather than evaluating each finding's\nconfidence and severity. It is less flexible and effective than a dedicated detection-and-filtering pipeline.\n\nD. Add detailed few-shot examples demonstrating bug categories Claude should flag--race conditions,\nnull dereferences, error handling gaps--while keeping confidence filtering instructions to maintain current\nprecision levels. (Incorrect)\n\nExamples may help identify more bug patterns, but the conservative instructions would still suppress many\nfindings, leaving the recall problem largely unresolved."
+  },
+  {
+    "id": 125,
+    "question": "Your automated reviewer uses a single prompt covering security issues, API design, and business logic correctness. Your evaluation suite shows strong recall findings (82%) but poor recall for business logic edge cases in quiz scoring (34%). When you add few-shot examples of logic bugs to the prompt, logic recall is 41% but API design recall drops to 68%. How should you address this trade-off to improve detection across both categories?",
+    "options": {
+      "A": "Split the review into separate focused prompts - one for security and API design, another for business logic - each with dedicated examples, then combine findings before posting.",
+      "B": "Upgrade to a more capable model tier, since its stronger reasoning will handle both concern types in a single prompt and eliminate the recall trade-off.",
+      "C": "Provide the full repository as context instead of just the changed files and surrounding code, giving the model deeper visibility into business logic.",
+      "D": "Replace the few-shot examples with a detailed checklist of specific logic edge cases to verify, such as division-by-zero in score calculation or grading thresholds."
+    },
+    "answer": "A",
+    "explanation": "A. Split the review into separate focused prompts - one for security and API design, another for business\nlogic - each with dedicated examples, then combine findings before posting. (Correct)\n\nThe results show a classic prompt-capacity trade-off: adding business-logic examples improves logic recall\nbut reduces API design recall. By separating concerns into specialized review passes, each prompt can focus\non its domain with targeted instructions and examples without competing for attention or context. The\nfindings can then be merged into a single review output, improving overall recall across categories.\n\nB. Upgrade to a more capable model tier, since its stronger reasoning will handle both concern types in a\nsingle prompt and eliminate the recall trade-off. (Incorrect)\n\nA stronger model may help, but it does not fundamentally solve the prompt specialization problem. The trade-\noff can still persist when multiple review objectives compete within one prompt.\n\nC. Provide the full repository as context instead of just the changed files and surrounding code, giving the\nmodel deeper visibility into business logic. (Incorrect)\n\nMore context increases cost and complexity and may even dilute attention. The observed issue stems from\nbalancing multiple review goals, not a lack of repository-wide context.\n\nD. Replace the few-shot examples with a detailed checklist of specific logic edge cases to verify, such as\ndivision-by-zero in score calculation or grading thresholds. (Incorrect)\n\nChecklists can help for known cases but are less effective than dedicated, specialized review passes. They\nalso do not address the underlying competition between business-logic and API-design review objectives\nwithin a single prompt."
+  },
+  {
+    "id": 136,
+    "question": "Your automated review calls the Claude API for each PR, using tool_use with a report_findings tool that returns a JSON array of finding objects (each with file_path, line_number, severity, category, and description). During testing on a large PR touching 30+ files, the response hits the max_tokens limit and the output is truncated mid-JSON, causing your pipeline's parser to fail. What is the most effective way to handle this?",
+    "options": {
+      "A": "Increase max_tokens to the model's maximum and instruct Claude to keep finding descriptions under 50 words each.",
+      "B": "Switch from tool_use to prompting Claude to return findings as a markdown list.",
+      "C": "Split the review into multiple API calls that each analyze a subset of the changed files, then merge the resulting findings arrays.",
+      "D": "Add retry logic that detects truncated JSON and re-sends the request with instructions to report only critical and high severity findings."
+    },
+    "answer": "C",
+    "explanation": "C. Split the review into multiple API calls that each analyze a subset of the changed files, then merge the\nresulting findings arrays. Correct\n\nWhy C is correct:\n\nBreaking the PR into smaller batches keeps each JSON response within token limits, preventing truncation\nand ensuring valid, parseable output.\n\nA. Increase max_tokens to the model's maximum and instruct Claude to keep finding descriptions under 50\nwords each Incorrect\n\nMay reduce truncation but does not guarantee the response will fit.\nB. Switch from tool_use to prompting Claude to return findings as a markdown list Incorrect\nLoses structured output and still does not solve token limit issues.\nD. Add retry logic that detects truncated JSON and re-sends the request with instructions to report only\ncritical and high severity findings Incorrect\nProduces incomplete reviews by omitting lower-severity findings."
+  },
+  {
+    "id": 140,
+    "question": "Your automated reviewer uses a single prompt covering security issues, API design, and business logic correctness. Your evaluation suite shows strong recall for API design findings (82%) but poor recall for business logic edge cases in quiz scoring (34%). When you add few-shot examples of logic bugs to the prompt, logic recall improves to 41% but API design recall drops to 68%. How should you address this trade-off to improve detection across both categories?",
+    "options": {
+      "A": "Split the review into separate focused prompts -- one for security and API design, another for business logic -- each with dedicated examples, then consolidate findings before posting.",
+      "B": "Replace the few-shot examples with a detailed checklist of specific logic edge cases to verify, such as division-by-zero In score calculations and boundary conditions in grading thresholds.",
+      "C": "Upgrade to a more capable model tier, since its stronger reasoning will handle both concern types in a single prompt and eliminate the recall trade-off."
+    },
+    "answer": "A",
+    "explanation": "A. Split the review into separate focused prompts -- one for security and API design, another for business\nlogic -- each with dedicated examples, then consolidate findings before posting. Correct\n\nWhy A is correct:\n\nCombining multiple review objectives in a single prompt creates context competition, where adding examples\nfor one category can reduce performance in another. Separate, focused prompts allow each review type to\nhave its own instructions and examples, improving recall across categories without sacrificing performance.\n\nB. Replace the few-shot examples with a detailed checklist of specific logic edge cases Incorrect\n\nA checklist may help business logic detection but still forces multiple concerns into one prompt and does not\neliminate the trade-off.\n\nC. Upgrade to a more capable model tier Incorrect\n\nA stronger model may improve overall performance, but it does not guarantee removal of prompt interference\nbetween different review objectives."
+  },
+  {
+    "id": 149,
+    "question": "Your code-review prompts include both implementation changes and the corresponding test file, but the review comments fail to identify untested code paths. The model correctly flags functions that have no tests at all, but it fails to recognize when conditional branches or error-handling paths within tested functions lack coverage. What is the most effective way to improve branch-level gap detection without overcomplicating the pipeline?",
+    "options": {
+      "A": "Interleave the implementation and tests in the prompt, presenting each function immediately before its test cases.",
+      "B": "Add explicit instructions requiring Claude to enumerate every conditional branch and exception path, then verify that each path has a corresponding test assertion.",
+      "C": "Implement a two-pass pipeline in which one model call extracts all conditional branches and another cross- references them against test assertions.",
+      "D": "Include few-shot examples showing code with an uncovered branch and the corresponding review comment identifying the missing test case."
+    },
+    "answer": "B",
+    "explanation": "A. Incorrect\n\nInterleaving each function with its tests may improve readability, but it does not specifically teach the model\nto check whether every conditional branch or exception path is covered by tests.\n\nB. Correct\n\nAdding explicit instructions to enumerate every conditional branch and exception path, and then verify that\neach has a corresponding test assertion, directly addresses the branch-level coverage problem. This improves\ndetection of missing tests for if/else branches, early returns, and error-handling paths without adding major\npipeline complexity.\n\nC. Incorrect\n\nA two-pass pipeline can improve accuracy, but it introduces additional orchestration, latency, and cost. The\nquestion asks for the most effective improvement without overcomplicating the pipeline.\n\nD. Incorrect\n\nFew-shot examples can help the model learn the desired behavior, but they are less reliable than giving an\nexplicit branch-checking instruction. The model may still miss branches in unfamiliar code patterns.\n\nFinal Answer: B"
+  },
+  {
+    "id": 154,
+    "question": "You are building a structured data extraction system using Claude. The system extracts information from unstructured documents, validates the output using JSON schemas, and maintains high accuracy. It must handle edge cases gracefully and integrate with downstream systems. Your extraction system processes two document types: standard monthly reports, which are archived after processing, and urgent exception reports, which must trigger business alerts within 30 minutes of receipt. Both use the same JSON schema. You want to minimize API costs while meeting the latency requirements. How should you architect the processing pipeline?",
+    "options": {
+      "A": "Submit all documents to the Message Batches API with custom_id values for tracking. When results arrive, immediately process urgent documents and trigger delayed alerts for exceptions.",
+      "B": "Route standard reports to the Message Batches API for 50% cost savings, and route urgent exception reports to the real-time Messages API.",
+      "C": "Queue all documents and submit hourly batches, flagging urgent documents for expedited handling when batch results return.",
+      "D": "Submit all documents to the real-time Messages API to ensure consistent processing latency across document types."
+    },
+    "answer": "B",
+    "explanation": "A. Incorrect Submit all documents to the Message Batches API with custom_id values for tracking.\nWhen results arrive, immediately process urgent documents and trigger delayed alerts for exceptions.\n\nThe Message Batches API is asynchronous and does not guarantee the sub-30-minute latency required for\nurgent exception reports.\n\nB. Correct Route standard reports to the Message Batches API for 50% cost savings, and route urgent\nexception reports to the real-time Messages API.\n\nThis approach satisfies both requirements:\n\nStandard monthly reports: low urgency, so use the lower-cost batch processing path.\nUrgent exception reports: require alerts within 30 minutes, so use the real-time API.\n\nThe same JSON schema can be applied in both paths, preserving consistency while optimizing cost.\n\nC. Incorrect Queue all documents and submit hourly batches, flagging urgent documents for expedited\nhandling when batch results return.\n\nHourly batching can easily violate the 30-minute alert requirement.\n\nD. Incorrect Submit all documents to the real-time Messages API to ensure consistent processing\nlatency across document types.\n\nThis meets the latency requirement but does not minimize API costs, which is a stated goal.\n\nFinal Answer: B"
+  },
+  {
+    "id": 155,
+    "question": "You are building a structured data extraction system using Claude. The system extracts information from unstructured documents, validates the output using JavaScript Object Notation (JSON) schemas, and maintains high accuracy. It must handle edge cases gracefully and integrate with downstream systems. Testing reveals that when source documents are missing certain specifications, the model fabricates plausible- sounding values to satisfy your schema's required fields. For example, a document mentioning only dimensions receives a fabricated \"weight: 2.3 kg\" in the extraction output. What schema design change most effectively addresses this hallucination behavior?",
+    "options": {
+      "A": "Add explicit instructions to the prompt stating \"only extract information explicitly stated in the document; use placeholder text for missing values.\"",
+      "B": "Change fields that may not exist in source documents from required to optional, allowing the model to omit them.",
+      "C": "Add a \"confidence\" field alongside each specification where the model self-reports its certainty, then filter out low-confidence extractions.",
+      "D": "Implement semantic validation that verifies each extracted value appears in or can be inferred from the source document text."
+    },
+    "answer": "B",
+    "explanation": "A. Incorrect Add explicit instructions to the prompt stating \"only extract information explicitly stated in\nthe document; use placeholder text for missing values.\"\n\nPrompt instructions help, but they do not remove the structural pressure created by a schema that requires\nvalues for fields that may not exist.\n\nB. Correct Change fields that may not exist in source documents from required to optional, allowing the\nmodel to omit them.\n\nThe hallucination occurs because the schema requires a value for every field. Making potentially absent fields\noptional removes the incentive to fabricate plausible values and allows the extraction to accurately represent\nmissing information.\n\nC. Incorrect Add a \"confidence\" field alongside each specification where the model self-reports its\ncertainty, then filter out low-confidence extractions.\n\nConfidence scores are not a reliable mechanism for preventing hallucinations, and fabricated values may still\nbe reported with high confidence.\n\nD. Incorrect Implement semantic validation that verifies each extracted value appears in or can be\ninferred from the source document text.\n\nThis is a useful downstream safeguard, but it is not the most effective schema design change to prevent the\nbehavior at its source.\n\nFinal Answer: B"
+  },
+  {
+    "id": 156,
+    "question": "You are building a structured data extraction system using Claude. The system extracts information from unstructured documents, validates the output using JSON schemas, and maintains high accuracy. It must handle edge cases gracefully and integrate with downstream systems. Your extraction pipeline occasionally receives responses that cannot be parsed as valid JSON, causing downstream processing failures. The current implementation prompts Claude to return JSON in the response text and then parses it. What is the most reliable approach to ensure Claude returns valid, schema-compliant structured data?",
+    "options": {
+      "A": "Add explicit formatting instructions to the prompt with JSON examples, emphasizing that Claude must return only valid JSON with no surrounding text.",
+      "B": "Use regular expressions to locate and extract JSON from the response text, handling cases where Claude includes explanatory text around the JSON block.",
+      "C": "Define a tool with a JSON schema specifying the expected structure, using tool use to constrain Claude's output to schema-compliant JSON.",
+      "D": "Implement a retry loop that catches JSON parsing errors and re-prompts Claude with the error details, asking it to correct the malformed output."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Add explicit formatting instructions to the prompt with JSON examples, emphasizing that\nClaude must return only valid JSON with no surrounding text.\n\nThis improves reliability, but the model can still occasionally produce malformed or non-compliant JSON.\n\nB. Incorrect Use regular expressions to locate and extract JSON from the response text, handling cases\nwhere Claude includes explanatory text around the JSON block.\n\nRegex extraction is brittle and does not guarantee schema compliance.\n\nC. Correct Define a tool with a JSON schema specifying the expected structure, using tool use to\nconstrain Claude's output to schema-compliant JSON.\n\nTool use with a JSON schema is the most reliable approach because it constrains the model to return\nstructured arguments that match the defined schema, greatly reducing parsing failures and improving\ndownstream integration.\n\nD. Incorrect Implement a retry loop that catches JSON parsing errors and re-prompts Claude with the\nerror details, asking it to correct the malformed output.\n\nRetries can recover from some failures, but they add latency, cost, and complexity and are less reliable than\nschema-constrained tool output.\n\nFinal Answer: C"
+  },
+  {
+    "id": 164,
+    "question": "A user expands the research system beyond its original web-search agent by adding specialized data sources. A financial API agent returns structured JSON containing revenue, margins, and growth rates. A news-monitoring agent returns prose summaries of recent developments. A patent-analysis agent returns structured lists of technology areas. The synthesis agent combines these results into executive briefings. Currently, it converts everything into bullet points, causing financial comparisons to lose tabular clarity and news summaries to lose their narrative flow. What change would most improve briefing quality?",
+    "options": {
+      "A": "Standardize all subagent outputs as prose summaries with inline citations.",
+      "B": "Standardize all subagent outputs as JSON containing fields for claim, evidence, source, and confidence.",
+      "C": "Update the synthesis agent to render each content type appropriately--financial data as tables, news as prose, and technology areas as structured lists.",
+      "D": "Add a format-conversion layer that transforms every subagent result into a common intermediate representation before synthesis."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Standardize all subagent outputs as prose summaries with inline citations.\n\nThis would reduce the clarity of structured financial data and technology lists.\n\nB. Incorrect Standardize all subagent outputs as JSON containing fields for claim, evidence, source, and\nconfidence.\n\nUseful for validation and traceability, but it does not solve the presentation-quality problem in executive\nbriefings.\n\nC. Correct Update the synthesis agent to render each content type appropriately--financial data as\ntables, news as prose, and technology areas as structured lists.\n\nDifferent information types have different optimal representations:\n\nFinancial data: tables for comparison\nNews: narrative prose for flow and context\nTechnology areas: structured lists for scanability\n\nAdapting rendering to content type preserves the strengths of each source and produces higher-quality\nexecutive briefings.\n\nD. Incorrect Add a format-conversion layer that transforms every subagent result into a common\nintermediate representation before synthesis.\n\nA common internal representation may help orchestration, but it does not inherently improve the final\npresentation quality.\n\nFinal Answer: C"
+  },
+  {
+    "id": 173,
+    "question": "Your schema includes a 'skills: string[] field. Production monitoring reveals three consistency issues: (1) compound phrases like \"Python and SQL\" are sometimes kept as one entry, sometimes split; (2) implied but unstated skills occasionally appear in extractions; (3) similar documents produce wildly different array lengths (5-10 vs 40+ entries). Your prompt currently says \"Extract all skills mentioned.\" What's the most effective improvement?",
+    "options": {
+      "A": "Add few-shot examples demonstrating compound phrase handling, explicit mention criteria, and appropriate entry granularity.",
+      "B": "Add constraints: \"Extract 10-20 skills maximum, one skill per entry, only explicitly named skills.\"",
+      "C": "Add post-extraction normalization that maps skills to a canonical taxonomy and deduplicates similar entries.",
+      "D": "Enrich the schema to skill: string, confidence: float, source_quote: string to capture extraction confidence."
+    },
+    "answer": "A",
+    "explanation": "A. Correct Add few-shot examples demonstrating compound phrase handling, explicit mention criteria,\nand appropriate entry granularity.\n\nFew-shot examples are the most effective improvement because they teach the model the desired extraction\nbehavior directly. They show how to split compound phrases consistently, include only explicitly mentioned\nskills, and maintain a consistent level of granularity across documents. This addresses all three observed\ninconsistencies without imposing arbitrary limits.\n\nB. Incorrect Add constraints: \"Extract 10-20 skills maximum, one skill per entry, only explicitly named\nskills.\"\n\nThese constraints reduce variability, but a fixed maximum can truncate legitimate documents that contain\nmany skills and may reduce extraction completeness.\n\nC. Incorrect Add post-extraction normalization that maps skills to a canonical taxonomy and\ndeduplicates similar entries.\n\nNormalization helps downstream consistency, but it does not teach the model how to decide what counts as a\nskill during extraction.\n\nD. Incorrect Enrich the schema to skill: string, confidence: float, source quote: string to capture\nextraction provenance.\n\nThis improves traceability and auditing, but it does not directly resolve the inconsistent extraction behavior.\n\nFinal Answer: A"
+  }
+]

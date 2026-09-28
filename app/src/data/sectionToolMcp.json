@@ -1,0 +1,434 @@
+[
+  {
+    "id": 15,
+    "question": "Your search products tool queries an external catalog API that returns paginated results (50 items per request). Production logs show queries frequently match 200+ products, and the design that auto-fetches all pages causes 15-20 second delays. How should you redesign the pagination handling?",
+    "options": {
+      "A": "Create separate search products and fetch more results tools for pagination.",
+      "B": "Implement server-side relevance ranking and return only the top 50 most relevant items.",
+      "C": "Add a max pages parameter (default: 2) that controls how many pages are fetched internally.",
+      "D": "Return the first page with total match count and cursor for additional pages."
+    },
+    "answer": "D",
+    "explanation": "A. Create separate search products and fetch more results tools for pagination. Incorrect.\n\nThis exposes pagination mechanics to the agent, increasing complexity and coupling tool usage with control\nflow.\n\nB. Implement server-side relevance ranking and return only the top 50 most relevant items. Incorrect.\n\nWhile this reduces latency, it removes access to the full result set, limiting flexibility when more results are\nactually needed.\n\nC. Add a max pages parameter (default: 2) that controls how many pages are fetched internally. Incorrect.\n\nThis is an improvement over fetching everything, but it still hides pagination control inside the tool and may\nfetch unnecessary data.\n\nD. Return the first page with total match count and cursor for additional pages. Correct.\n\nThis enables lazy loading and explicit control, allowing the agent to fetch more results only when needed--\nbalancing performance and completeness."
+  },
+  {
+    "id": 16,
+    "question": "Your search Flights tool calls an external airline API that occasionally returns a 503 Service Unavailable error. What is the most effective way to handle this error in your tool implementation?",
+    "options": {
+      "A": "Return an empty flight list as if the search succeeded but found no matching flights.",
+      "B": "Log the error internally and return an empty response, letting the model continue without the flight data.",
+      "C": "Return an error message in the tool result explaining the service is temporarily unavailable.",
+      "D": "Automatically retry the request up to five times with exponential backoff before returning results to the agent."
+    },
+    "answer": "D",
+    "explanation": "A. Return an empty flight list as if the search succeeded but found no matching flights. Incorrect.\n\nThis hides the failure and misleads the system into thinking no flights exist, which can lead to incorrect\nconclusions.\n\nB. Log the error internally and return an empty response, letting the model continue without the flight data.\nIncorrect.\n\nThis still suppresses the failure signal, preventing the agent from taking corrective action.\n\nC. Return an error message in the tool result explaining the service is temporarily unavailable. Incorrect.\n\nWhile transparent, this alone doesn't attempt recovery and may degrade user experience unnecessarily.\n\nD. Automatically retry the request up to five times with exponential backoff before returning results to the\nagent. Correct.\n\nThis is the most effective approach--handles transient failures gracefully, improves reliability, and only\nsurfaces errors if retries fail."
+  },
+  {
+    "id": 17,
+    "question": "Your MCP server implements a check_availability tool that queries an external calendar API. During testing, you encounter three error conditions: (1) the tool is called with a malformed request, missing the required user_email parameter (2) the calendar API returns a 404 because the specified user doesn't exist in the calendar system (3) the calendar API returns a 503 because the service is temporarily unavailable. How should each error be reported according to MCP's error handling design?",
+    "options": {
+      "A": "Report all three as tool results with isError: true",
+      "B": "Report errors 1 and 2 as JSON-RPC protocol errors, report error 3 as a tool result with isError: true",
+      "C": "Report error 1 as a JSON-RPC protocol error, report errors 2 and 3 as tool results with isError: true",
+      "D": "Report all three as JSON-RPC protocol errors."
+    },
+    "answer": "C",
+    "explanation": "A. Report all three as tool results with isError: true Incorrect.\n\n Malformed requests (error 1) are protocol-level issues, not tool execution results, so they should not be\n reported this way.\n\n B. Report errors 1 and 2 as JSON-RPC protocol errors, report error 3 as a tool result with isError: true\n Incorrect.\n\n A 404 (error 2) is a valid tool execution outcome (the user doesn't exist), not a protocol error.\n\n C. Report error 1 as a JSON-RPC protocol error, report errors 2 and 3 as tool results with isError: true\n Correct.\n\n Error 1 (malformed request) JSON-RPC protocol error (invalid input)\n Error 2 (user not found) Tool result with isError: true (valid execution, meaningful failure)\n Error 3 (service unavailable) Tool result with isError: true (transient external failure)\n\n D. Report all three as JSON-RPC protocol errors. Incorrect.\n\n Only malformed requests should be protocol errors; external API responses are tool-level outcomes, not\n protocol failures."
+  },
+  {
+    "id": 18,
+    "question": "Your documents (query) tool returns results as \"Found 3 documents: Q2 Budget Proposal, Q2 Budget Forecast, Annual Review\". You want the agent to document (4, multi) and doc (24, multi). What return format would best enable these multi-step workflows?",
+    "options": {
+      "A": "URLs that users can click to open the document in their browser.",
+      "B": "Structured data containing document IDs and metadata for each result.",
+      "C": "A JSON array of document titles extracted from the search results.",
+      "D": "More detailed human-readable descriptions including the size and authors."
+    },
+    "answer": "B",
+    "explanation": "A. URLs that users can click to open the document in their browser. Incorrect.\nURLs are useful for users, but not ideal for agents performing multi-step workflows that require reliable\n\nreferencing and further operations.\nB. Structured data containing document IDs and metadata for each result. Correct.\nThis enables the agent to programmatically reference specific documents (via IDs) across multiple steps,\nmaking workflows like follow-up queries or document retrieval precise and reliable.\nC. A JSON array of document titles extracted from the search results. Incorrect.\nTitles alone are ambiguous and not stable identifiers, making it difficult for agents to reliably act on specific\ndocuments.\nD. More detailed human-readable descriptions including the size and authors. Incorrect.\nHelpful for users, but still unstructured and not suitable for precise multi-step agent operations."
+  },
+  {
+    "id": 19,
+    "question": "Your agent has access to 50+ specialized API connectors for different external services. As the connector library grew, tool selection accuracy dropped to 58%. You design a search_connectors(description) tool that finds matching connectors, but in testing agents frequently skip searching and call connectors directly (often incorrectly), or search select wrong connectors from the filtered results. How should you design the tool composition pattern to address both issues?",
+    "options": {
+      "A": "Design connectors with built-in compatibility validation that return descriptive errors for mismatched requests.",
+      "B": "Design a find_and_execute(description, params) composite tool that searches and immediately executes the best matching connector.",
+      "C": "Enhance all connector descriptions with detailed usage samples, edge cases, and input requirements. Add few-shot examples showing the correct search-then-use workflow.",
+      "D": "Design search_connectors to dynamically add matched connectors to the agent's available tools. Connectors start unavailable and persist once discovered."
+    },
+    "answer": "D",
+    "explanation": "A. Design connectors with built-in compatibility validation that return descriptive errors for mismatched\nrequests. Incorrect.\n\nThis helps with error handling after a wrong choice is made, but does not improve initial tool selection\naccuracy.\n\nB. Design a find_and_execute(description, params) composite tool that searches and immediately executes\nthe best matching connector. Incorrect.\n\nThis removes transparency and control, making debugging harder and preventing the agent from reasoning\nabout tool choice.\n\nC. Enhance all connector descriptions with detailed usage samples, edge cases, and input requirements.\nAdd few-shot examples showing the correct search-then-use workflow. Incorrect.\n\nWhile helpful, this still relies on the agent to follow instructions and does not enforce correct behavior,\nespecially at scale with 50+ tools.\n\nD. Design search_connectors to dynamically add matched connectors to the agent's available tools.\n\nConnectors start unavailable and persist once discovered. Correct.\n\nThis enforces the search-first pattern by limiting available tools initially and reducing the decision space,\nimproving both discovery and correct selection."
+  },
+  {
+    "id": 20,
+    "question": "Your publish article tool calls an external CMS API that occasionally returns transient errors (network timeouts, 503s) and non-transient errors (403 permission denied, 422 validation failure). Currently, every error is returned directly to the agent, which leads to the agent retrying non-transient errors and wasting turns on failures that will never succeed. How should you partition error-handling responsibility between the tool implementation and the agent?",
+    "options": {
+      "A": "Handle all errors inside the tool: Implement retries with exponential backoff for every error type, and only surface a failure to the agent after a fixed number of retry attempts have been exhausted.",
+      "B": "Handle transient errors (timeouts, 503s) with automatic retries inside the tool implementation, and surface non-transient errors (permission denied, validation fallures) to the agent with descriptive messages so it can take corrective action.",
+      "C": "Surface all errors to the agent immediately with detailed context, and let the agent decide which errors to retry and how many times-keeping the tool implementation stateless and simple.",
+      "D": "Implement a universal error handler that catches all exceptions and returns a generic \"tool unavailable-try again later\" message, shielding the agent from error complexity."
+    },
+    "answer": "B",
+    "explanation": "A. Handle all errors inside the tool: Implement retries with exponential backoff for every error type, and\nonly surface a failure to the agent after a fixed number of retry attempts have been exhausted. \nIncorrect.\n\nThis wastes time retrying non-transient errors (e.g., 403, 422) that will never succeed and hides useful\nfeedback from the agent.\n\nB. Handle transient errors (timeouts, 503s) with automatic retries inside the tool implementation, and\nsurface non-transient errors (permission denied, validation failures) to the agent with descriptive messages\nso it can take corrective action. Correct.\n\nThis cleanly separates responsibility:\n\nTool handles recoverable/transient issues automatically\nAgent receives actionable errors it can fix (permissions, input validation)\n\nC. Surface all errors to the agent immediately with detailed context, and let the agent decide which errors\nto retry and how many times--keeping the tool implementation stateless and simple. Incorrect.\n\nThis pushes retry logic to the agent, leading to inefficient behavior and wasted turns.\n\nD. Implement a universal error handler that catches all exceptions and returns a generic \"tool unavailable\n--try again later\" message, shielding the agent from error complexity. Incorrect.\n\nThis removes critical detail, preventing the agent from taking corrective actions when possible."
+  },
+  {
+    "id": 21,
+    "question": "Your remove_team_member tool uses a dry_run: boolean parameter for previewing impacts before execution. Production monitoring shows the agent bypasses the preview step in 15% of calls by calling with dry_run=false directly. You need to ensure every removal is preceded by a preview that the user explicitly confirms. What is the most reliable approach?",
+    "options": {
+      "A": "Add server-side validation that permits dry_run=false only when a dry_run=true call with identical parameters occurred within the past 60 seconds.",
+      "B": "Replace with two tools: preview_remove_member returns impact details and a single-use confirmation token; execute_remove_member requires that token, binding execution to the specific previewed action.",
+      "C": "Annotate the tool as requiring confirmation and configure the orchestration layer to prompt the user for approval before forwarding any calls to annotated tools.",
+      "D": "Add detailed instructions and few-shot examples to the tool description requiring the agent to always call with dry_run=true first and wait for user confirmation before calling with dry_run=false."
+    },
+    "answer": "B",
+    "explanation": "A. Add server-side validation that permits dry_run=false only when a dry_run=true call with identical\nparameters occurred within the past 60 seconds. Incorrect.\n\nThis approach is brittle because it depends on timing and does not guarantee that the user actually reviewed\nor confirmed the preview.\n\nB. Replace with two tools: preview_remove_member returns impact details and a single-use confirmation\ntoken; execute_remove_member requires that token, binding execution to the specific previewed action.\n Correct.\n\nThis enforces the correct workflow at the system level by requiring a valid preview step and tying execution\nto an explicit confirmation, making bypass impossible.\n\nC. Annotate the tool as requiring confirmation and configure the orchestration layer to prompt the user for\napproval before forwarding any calls to annotated tools. Incorrect.\n\nThis depends on orchestration behavior and is not strictly enforced, so it can still be bypassed or\nmisconfigured.\n\nD. Add detailed instructions and few-shot examples to the tool description requiring the agent to always\ncall with dry_run=true first and wait for user confirmation before calling with dry_run=false. Incorrect.\n\nInstruction-based approaches are not reliable for enforcement, as demonstrated by the existing bypass rate."
+  },
+  {
+    "id": 22,
+    "question": "Your expense reimbursement agent processes employee requests using a process reimbursement tool. Company policy requires that reimbursements above $500 must be approved before funds are disbursed. The agent handles hundreds of requests daily, and you need the threshold enforcement to be tamper-proof regardless of how the agent is prompted ensures the $500 approval threshold cannot be bypassed?",
+    "options": {
+      "A": "The process reimbursement tool accepts an approved by manager parameter. The system prompt instructs the agent to only set this to true after confirming that a manager approved the request. A nightly audit script reviews all reimbursements where approved by manager was set to true.",
+      "B": "Provide two tools: auto reimburse (hard-coded limit of $500) and manager approval. Include detailed system prompt instructions telling the agent to check the amount and use the appropriate tool. Add a Post ToolUse hook that logs which tool was called for auditing.",
+      "C": "The process reimbursement tool accepts amount and details, and internally enforces the threshold; amounts <$500 are auto-disbursed and the tool returns a success confirmation. Amounts >$500 cause the tool to create a pending approval request and return a status indicating manager review is pending.",
+      "D": "Implement the threshold check in a PreToolUse hook that inspects the amount parameter before process reimbursement executes. If the amount exceeds $500, the hook modifies the context to add a requires approval: true flag, which the tool checks before disbursing."
+    },
+    "answer": "C",
+    "explanation": "A. The process reimbursement tool accepts an approved by manager parameter. The system prompt\ninstructs the agent to only set this to true after confirming that a manager approved the request. A nightly\naudit script reviews all reimbursements where approved by manager was set to true. Incorrect.\n\nThis relies on the agent following instructions and post-hoc auditing, which is not tamper-proof and allows\nbypass at execution time.\n\nB. Provide two tools: auto reimburse (hard-coded limit of $500) and manager approval. Include detailed\nsystem prompt instructions telling the agent to check the amount and use the appropriate tool. Add a Post\nToolUse hook that logs which tool was called for auditing. Incorrect.\n\nAgain depends on agent behavior and correct tool selection. Logging helps auditing but does not prevent\nmisuse.\n\nC. The process reimbursement tool accepts amount and details, and internally enforces the threshold;\namounts <$500 are auto-disbursed and the tool returns a success confirmation. Amounts >$500 cause the\ntool to create a pending approval request and return a status indicating manager review is pending. \nCorrect.\n\nThis enforces the rule inside the tool itself, making it impossible to bypass regardless of how the agent is\nprompted.\n\nD. Implement the threshold check in a PreToolUse hook that inspects the amount parameter before process\nreimbursement executes. If the amount exceeds $500, the hook modifies the context to add a requires\napproval: true flag, which the tool checks before disbursing. Incorrect.\n\nPreToolUse hooks can be bypassed or misconfigured and still rely on downstream logic. Enforcement should\nreside directly within the tool for full reliability."
+  },
+  {
+    "id": 23,
+    "question": "Your order management system requires tools for three distinct operations: issuing refunds (requires amount and reason), canceling orders (requires reason), and res (requires shipping address). Each operation shares an order id parameter but has different additional requirements. You notice during testing that with your current frequently omits required parameters or includes irrelevant ones. What design change will most effectively improve parameter accuracy?",
+    "options": {
+      "A": "Split into three separate tools (each defining only the parameters required for that specific operation.",
+      "B": "Keep one unified tool with all parameters marked optional, but add few-shot examples in the system prompt showing correct parameter combinations for each operation.",
+      "C": "Keep one unified tool but add JSON Schema if-then-else conditionals to enforce that parameters like amount are required only when the operation type is \"refund\".",
+      "D": "Keep one unified tool with a nested operation object parameter whose internal structure varies by operation type, documented in the tool description."
+    },
+    "answer": "A",
+    "explanation": "A. Split into three separate tools (e.g., issue_refund, cancel_order, reship_order), each defining only the\nparameters required for that specific operation. Correct.\nThis reduces ambiguity and ensures the agent only sees relevant parameters per operation, leading to much\nhigher accuracy.\nB. Keep one unified tool with all parameters marked optional, but add few-shot examples in the system\nprompt showing correct parameter combinations for each operation. Incorrect.\nExamples help, but the schema remains ambiguous, so errors will still occur.\nC. Keep one unified tool but add JSON Schema if-then-else conditionals to enforce that parameters like\namount are required only when the operation type is \"refund\". Incorrect.\nWhile technically valid, this increases complexity and is less reliable than simply separating tools.\nD. Keep one unified tool with a nested operation object parameter whose internal structure varies by\noperation type, documented in the tool description. Incorrect.\nThis adds complexity and cognitive load, making it harder for the agent to consistently provide correct\nparameters."
+  },
+  {
+    "id": 25,
+    "question": "Your scheduling agent uses get_available_slots(date, provider_id) to retrieve open appointment times, then book_appointment(provider_id, slot_time, patient_id) to reserve a slot. tickets show that 15% of booking attempts fall with \"slot no longer available\" because another user booked the slot between the availability check and the booking call. How should you r these tools?",
+    "options": {
+      "A": "Modify book_appointment to return detailed failure information including currently available alternative slots when the requested slot is unavailable, enabling the agent to retry with a di time.",
+      "B": "Keep both tools but add retry logic to the agent's system prompt, instructing it to call get_available_slots again and select a different time if booking fails.",
+      "C": "Add a hold_slot(provider_id, slot_time) tool that creates a 60 second temporary reservation, requiring the agent to call it between checking availability and booking.",
+      "D": "Combine both tools into a single find_and_book_appointment that atomically checks availability and books, returning either the confirmed booking or available alternatives."
+    },
+    "answer": "D",
+    "explanation": "A. Modify book_appointment to return detailed failure information including currently available alternative\nslots when the requested slot is unavailable, enabling the agent to retry with a different time. Incorrect.\n\nThis improves recovery but does not fix the race condition between availability check and booking.\n\nB. Keep both tools but add retry logic to the agent's system prompt, instructing it to call\nget_available_slots again and select a different time if booking fails. Incorrect.\n\nThis still suffers from the same race condition and relies on agent behavior rather than fixing the underlying\nissue.\n\nC. Add a hold_slot(provider_id, slot_time) tool that creates a 60 second temporary reservation, requiring\nthe agent to call it between checking availability and booking. Incorrect.\n\nThis reduces the issue but introduces additional complexity and still requires multiple steps that can fail.\n\nD. Combine both tools into a single find_and_book_appointment that atomically checks availability and\nbooks, returning either the confirmed booking or available alternatives. Correct.\n\nThis eliminates the race condition by making the operation atomic, ensuring consistency and reliability."
+  },
+  {
+    "id": 26,
+    "question": "Your agent has a log_workout tool that accepts exercise_type (string), value (number), and measurement (string). Production monitoring shows the agent frequently passes mismatched combinations-using measurement: \"reps\" for cardio exercises like running, or measurement: \"miles\" for strength exercises like bench press. Your exercises naturally divide into two categories: cardio (measured in time or distance) and strength (measured in reps and sets). 23% of tool calls have invalid combinations. What approach would most effectively reduce these errors?",
+    "options": {
+      "A": "Implement server-side validation returning descriptive errors for invalid combinations, allowing the agent to retry with corrections.",
+      "B": "Add enum constraints on measurement limiting values to \"minutes\", \"miles\", \"reps\", or \"sets\" to prevent arbitrary measurement strings.",
+      "C": "Add explicit examples to the tool description showing valid combinations (e.g., \"For running: use minutes or miles. For push-ups: use reps\") with constraints for each exercise category.",
+      "D": "Split into log_cardio_workout (with duration_minutes or distance_miles parameters) and log_strength_workout (with reps and sets parameters)."
+    },
+    "answer": "D",
+    "explanation": "A. Implement server-side validation returning descriptive errors for invalid combinations, allowing the\nagent to retry with corrections. Incorrect.\n\nThis catches errors after they occur but does not prevent them, leading to wasted turns and inefficiency.\n\nB. Add enum constraints on measurement limiting values to \"minutes\", \"miles\", \"reps\", or \"sets\" to prevent\narbitrary measurement strings. Incorrect.\n\nThis restricts values but does not prevent invalid combinations (e.g., still allows \"miles\" for bench press).\n\nC. Add explicit examples to the tool description showing valid combinations (e.g., \"For running: use minutes\nor miles. For push-ups: use reps\") with constraints for each exercise category. Incorrect.\n\nHelpful guidance, but not enforceable--agents can still make mistakes.\n\nD. Split into log_cardio_workout (with duration_minutes or distance_miles parameters) and\nlog_strength_workout (with reps and sets parameters). Correct.\n\nThis enforces correctness at the schema level by eliminating invalid parameter combinations entirely,\nsignificantly reducing errors."
+  },
+  {
+    "id": 27,
+    "question": "Your MCP server includes archive_file(file_id) and delete_file(file_id) tools. Production logs show the agent calls delete_file when users ask to \"remove old backups,\" policy requires archiving backup files. Both tools currently have minimal descriptions: \"Archives a file\" and \"Deletes a file.\" Which change most directly improves tool selection?",
+    "options": {
+      "A": "Add a confirmation step that requires users to type \"CONFIRM DELETE\" before delete_file executes.",
+      "B": "Implement server-side validation that rejects delete_file calls for files tagged as backups, returning an error message suggesting archive_file.",
+      "C": "Expand tool descriptions to clarify use cases, adding guidance like \"Do not use for backup files\" to delete_file.",
+      "D": "Add few-shot examples to the system prompt demonstrating that requests involving \"backup\" or \"old\" should use archive_file."
+    },
+    "answer": "C",
+    "explanation": "A. Add a confirmation step that requires users to type \"CONFIRM DELETE\" before delete_file executes. \nIncorrect.\n\nThis prevents accidental execution but does not improve the agent's tool selection decision.\n\nB. Implement server-side validation that rejects delete_file calls for files tagged as backups, returning an\nerror message suggesting archive_file. Incorrect.\n\nThis enforces policy after the wrong choice is made but does not directly improve initial selection.\n\nC. Expand tool descriptions to clarify use cases, adding guidance like \"Do not use for backup files\" to\ndelete_file. Correct.\n\nClear, specific descriptions directly influence the agent's tool selection reasoning, making it less likely to\nchoose the wrong tool.\n\nD. Add few-shot examples to the system prompt demonstrating that requests involving \"backup\" or \"old\"\nshould use archive_file. Incorrect.\n\nHelpful, but less direct and less reliable than improving the tool descriptions themselves."
+  },
+  {
+    "id": 28,
+    "question": "Your CRM agent's delete_contact tool handles requests like \"delete the duplicate entry for Acme Corp.\" The database contains similarly named records (e.g., \"Acme Corp,\" \"Acme Corporation,\" \"ACME Corp Inc.\"), and analytics show 8% of deletions are reversed within 24 hours due to misidentified records. Users have also complained that the current multi-step confirmation flow adds too much friction to routine cleanup tasks. Which approach most effectively reduces the error rate while maintaining workflow efficiency?",
+    "options": {
+      "A": "Present matched records with differentiating fields and require single-click confirmation of the intended target before executing deletion.",
+      "B": "Require users to supply the exact record ID from the CRM Interface rather than using natural language references to contact names.",
+      "C": "Deploy automated duplicate detection that identifies and merges probable duplicates, removing the need for manual deletion requests.",
+      "D": "Implement soft-delete with a 30-day recovery window so users can undo mistakes without slowing down the deletion workflow."
+    },
+    "answer": "A",
+    "explanation": "A. Present matched records with differentiating fields and require single-click confirmation of the intended\ntarget before executing deletion. Correct.\n\nThis directly addresses ambiguity by showing clear distinctions between similar records while keeping the\nworkflow fast with a lightweight confirmation step.\n\nB. Require users to supply the exact record ID from the CRM interface rather than using natural language\nreferences to contact names. Incorrect.\n\nThis reduces errors but adds significant friction and hurts usability for routine tasks.\n\nC. Deploy automated duplicate detection that identifies and merges probable duplicates, removing the\nneed for manual deletion requests. Incorrect.\n\nHelpful as a separate improvement, but it doesn't solve incorrect deletions during manual requests.\n\nD. Implement soft-delete with a 30-day recovery window so users can undo mistakes without slowing down\nthe deletion workflow. Incorrect.\n\nThis mitigates impact after errors occur but does not reduce the error rate itself."
+  },
+  {
+    "id": 37,
+    "question": "Your pipeline uses a tool called extract_metadata with a JSON schema for paper details. You've also defined lookup_citations and verify_doi tools for enrichment. During testing, you notice that when users include requests like \"extract the metadata and tell me how cited it is,\" Claude sometimes calls lookup_citations first, which fails because it needs the DOI that extract_metadata would provide. What's the most effective way to ensure structured metadata extraction happens first?",
+    "options": {
+      "A": "Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") and process the enrichment requests in subsequent turns after receiving the extracted metadata.",
+      "B": "Set tool choice to \"any\" so Claude must use a tool, combined with system prompt instructions prioritizing extract_metadata.",
+      "C": "Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") for every API call in the pipeline, ensuring Claude always extracts metadata before any enrichment can occur.",
+      "D": "Set tool choice to \"auto\" and reorder the tool definitions so extract_metadata appears first in the tools array, since Claude prioritizes earlier-listed tools."
+    },
+    "answer": "A",
+    "explanation": "A. Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") and process the enrichment requests in\nsubsequent turns after receiving the extracted metadata. Correct.\n\nThis enforces the correct execution order, ensuring required data (like DOI) is available before dependent\ntools are called.\n\nB. Set tool choice to \"any\" so Claude must use a tool, combined with system prompt instructions\nprioritizing extract_metadata. Incorrect.\n\nThis does not guarantee ordering--Claude may still choose the wrong tool first.\n\nC. Set tool choice to (\"type\": \"tool\", \"name\": \"extract_metadata\") for every API call in the pipeline,\nensuring Claude always extracts metadata before any enrichment can occur. Incorrect.\n\nThis is too rigid and prevents legitimate use of other tools in later steps.\n\nD. Set tool choice to \"auto\" and reorder the tool definitions so extract_metadata appears first in the tools\narray, since Claude prioritizes earlier-listed tools. Incorrect.\n\nTool ordering does not reliably control selection or execution order."
+  },
+  {
+    "id": 42,
+    "question": "The extraction pipeline receives documents of varying types--some are invoices, others are contracts, and some are receipts. You've defined separate extraction tools, each with its own schema tailored to the document type. During testing, you observe that with tool_choice: \"auto\", Claude sometimes returns conversational text instead of calling an extraction tool, causing downstream parsing failures. You need guaranteed structured output without knowing the document type in advance. What's the most effective approach?",
+    "options": {
+      "A": "Consolidate all document types into a single unified-schema extraction tool and force that tool.",
+      "B": "Keep tool_choice: \"auto\" with system prompt instructions requiring tool use.",
+      "C": "Set tool_choice: \"any\" with all extraction tools defined.",
+      "D": "Add a preliminary classification call, then make a second call with tool_choice forced to the identified extraction tool."
+    },
+    "answer": "C",
+    "explanation": "A. Consolidate all document types into a single unified-schema extraction tool and force that tool. \nIncorrect.\n\nThis reduces extraction accuracy and creates an overly complex schema that doesn't fit all document types\nwell.\n\nB. Keep tool_choice: \"auto\" with system prompt instructions requiring tool use. Incorrect.\n\nInstructions alone are not enforceable, which is exactly why the issue occurs.\n\nC. Set tool_choice: \"any\" with all extraction tools defined. Correct.\n\nThis guarantees that a tool will always be called, eliminating conversational text responses. While tool\nselection may not always be perfect, it ensures structured output every time, which is the primary\nrequirement.\n\nD. Add a preliminary classification call, then make a second call with tool_choice forced to the identified\nextraction tool. Incorrect.\n\nWhile more precise, this adds extra latency and complexity. The question prioritizes guaranteed structured\noutput, which C achieves more directly."
+  },
+  {
+    "id": 59,
+    "question": "Your process refund tool returns two types of errors: technical errors (\"503 Service Unavailable\", \"Connection timeout\") that are transient (5% of calls), and business errors (\"Order exceeds 3 day return window\", \"item already refunded\") that are permanent (12% of calls). Monitoring shows the agent wastes 3-4 turns retrying business errors that can never succeed. Currently, both error types return only a plain text message to Claude. What's the most effective way to reduce wasted retries while improving customer-facing response quality?",
+    "options": {
+      "A": "Add few-shot examples showing how to distinguish retriable from non-retriable errors by parsing error message text.",
+      "B": "Add a check refund eligibility tool that must be called before process refund to prevent business rule violations.",
+      "C": "Implement automatic retry logic at the tool level for technical errors only, passing business errors to Claude without retries.",
+      "D": "Return structured error responses with retriable false for business errors and a customer-friendly explanation for Claude to use."
+    },
+    "answer": "D",
+    "explanation": "A. Add few-shot examples showing how to distinguish retriable from non-retriable errors by parsing error\nmessage text. Incorrect.\n\nParsing plain text error messages is brittle and unreliable compared to explicit structured signals.\n\nB. Add a check refund eligibility tool that must be called before process refund to prevent business rule\nviolations. Incorrect.\n\nThis may reduce some failures, but business errors can still occur and it adds extra tool calls and latency.\n\nC. Implement automatic retry logic at the tool level for technical errors only, passing business errors to\nClaude without retries. Incorrect.\n\nThis improves handling of transient failures, but Claude may still retry permanent business errors because it\nlacks explicit retryability information.\n\nD. Return structured error responses with retriable: false for business errors and a customer-friendly\nexplanation for Claude to use. Correct.\n\nStructured error metadata lets the agent reliably distinguish permanent vs. transient failures, preventing\nwasted retries while improving user-facing responses."
+  },
+  {
+    "id": 63,
+    "question": "Production logs reveal inconsistent error handling: when lookup_order fails, the agent sometimes retries 5+ times (wasteful when the order ID doesn't exist), sometimes escalates immediately (premature for temporary network issues), and sometimes asks users for clarification (inappropriate when the issue is a backend permission error). Investigation shows your MCP tool returns uniform error responses: \"isError\": true, \"content\": [ \"type\": \"text\", \"text\": \"Operation failed\" ] . The agent cannot distinguish between error types. What's the most effective improvement?",
+    "options": {
+      "A": "Enhance error responses with structured metadata: include errorCategory (transient/validation/permission), isRetryable boolean, and a description of what caused the failure.",
+      "B": "Implement retry logic with exponential backoff in your MCP server for all errors, returning to the agent only after retries are exhausted.",
+      "C": "Add few-shot examples to the system prompt demonstrating how to interpret error message patterns and select appropriate responses for each.",
+      "D": "Create an analyze_error MCP tool the agent calls after any failure to determine the error category and recommended action."
+    },
+    "answer": "A",
+    "explanation": "A. Enhance error responses with structured metadata: include errorCategory\n(transient/validation/permission), isRetryable boolean, and a description of what caused the failure. \nCorrect.\n\nStructured error metadata gives the agent clear signals for deciding whether to retry, escalate, or ask the\nuser for clarification, leading to consistent and appropriate handling.\n\nB. Implement retry logic with exponential backoff in your MCP server for all errors, returning to the agent\nonly after retries are exhausted. Incorrect.\n\nRetrying all errors wastes resources and still doesn't help the agent distinguish permanent failures like\nvalidation or permission errors.\n\nC. Add few-shot examples to the system prompt demonstrating how to interpret error message patterns\nand select appropriate responses for each. Incorrect.\n\nParsing generic text errors is brittle and unreliable compared to explicit structured metadata.\n\nD. Create an analyze_error MCP tool the agent calls after any failure to determine the error category and\nrecommended action. Incorrect.\n\nThis adds unnecessary complexity and extra tool calls when the information should already be present in the\noriginal error response."
+  },
+  {
+    "id": 65,
+    "question": "Your update_user_profile tool accepts a user_id (required) and an optional fields_to_update object. In testing, Claude frequently omits user_id or passes incorrectly structured data. What is most critical for helping Claude understand what parameter values to provide?",
+    "options": {
+      "A": "Clear parameter descriptions explaining expected format, such as \"user_id : UUID of the user to update (required)\"",
+      "B": "Verbose parameter names encoding format hints, such as user_id_string_uuid_format",
+      "C": "Strict JSON Schema type constraints marking user_id as required and defining fields_to_update as an object type",
+      "D": "Detailed error responses explaining why invalid parameter values were rejected"
+    },
+    "answer": "A",
+    "explanation": "A. Clear parameter descriptions explaining expected format, such as \"user_id: UUID of the user to update\n(required)\" Correct.\nClear, human-readable descriptions are the most important guidance for helping Claude understand what\nvalues to provide and how parameters should be structured.\n\nB. Verbose parameter names encoding format hints, such as user_id_string_uuid_format Incorrect.\nOverly verbose names reduce readability and are less effective than proper descriptions.\n\nC. Strict JSON Schema type constraints marking user_id as required and defining fields_to_update as an\nobject type Incorrect.\nSchema constraints help validation, but they don't sufficiently explain semantic expectations like the required\nUUID format.\n\nD. Detailed error responses explaining why invalid parameter values were rejected Incorrect.\nHelpful after failure, but not the most critical factor for preventing mistakes initially."
+  },
+  {
+    "id": 66,
+    "question": "Production monitoring shows your search_catalog tool fails 12% of the time: 8% are network timeouts that succeed when immediately retried, while 4% are query syntax errors from malformed user-provided filters that never succeed regardless of retry attempts. Currently, both error types are returned to the agent identically, causing it to waste turns retrying syntax errors and telling users to \"try again later\" for timeouts. How should you modify the tool's error handling?",
+    "options": {
+      "A": "Apply exponential backoff retry logic to all errors uniformly, returning a generic \"service temporarily unavailable\" message after max retries are exhausted.",
+      "B": "Return all errors with a retryable boolean flag and error type details.",
+      "C": "Implement automatic retry with backoff for network timeouts inside the tool; return syntax errors immediately with parameter validation details.",
+      "D": "Add few-shot examples to your system prompt demonstrating how to distinguish network errors from syntax errors and handle each case appropriately."
+    },
+    "answer": "C",
+    "explanation": "A. Apply exponential backoff retry logic to all errors uniformly, returning a generic \"service temporarily\nunavailable\" message after max retries are exhausted. Incorrect.\nThis wastes retries on non-recoverable syntax errors and hides useful diagnostic information from the agent.\n\nB. Return all errors with a retryable boolean flag and error type details. Incorrect.\nThis improves clarity, but still pushes retry logic to the agent, which leads to inconsistent handling and wasted\nturns.\n\nC. Implement automatic retry with backoff for network timeouts inside the tool; return syntax errors\nimmediately with parameter validation details. Correct.\nThis cleanly separates responsibilities:\n\nTool handles transient failures (timeouts)\nTool immediately exposes non-retryable syntax errors with actionable feedback\nThis prevents wasted retries and improves user-facing behavior.\n\nD. Add few-shot examples to your system prompt demonstrating how to distinguish network errors from\nsyntax errors and handle each case appropriately. Incorrect.\nPrompt-based reasoning is unreliable for error handling compared to explicit tool-level logic separation."
+  },
+  {
+    "id": 69,
+    "question": "Your agent includes an update_game_score tool that accepts game_date (string), home_team (string), and away_team (string) parameters. Production logs reveal recurring issues: the agent uses team nicknames instead of official names, applies inconsistent date formats, and selects the wrong game when teams have rematches in the same season. What tool interface change would effectively prevent these errors?",
+    "options": {
+      "A": "Add a season parameter to disambiguate rematches, and add a confirm_before_update flag that returns the resolved game details for the agent to verify before the score is committed.",
+      "B": "Add detailed examples to the tool description showing the required date format and complete list of official team names.",
+      "C": "Add enum constraints listing valid team names for both team parameters, and add a regex pattern enforcing ISO 8601 format for the date parameter.",
+      "D": "Replace the three parameters with a single game_id parameter and a separate search_games lookup tool that returns matching game IDs."
+    },
+    "answer": "D",
+    "explanation": "A. Add a season parameter to disambiguate rematches, and add a confirm_before_update flag that returns\nthe resolved game details for the agent to verify before the score is committed. Incorrect.\n\nThis improves safety via confirmation, but it still leaves ambiguity in identifying the correct game as a core\nissue.\n\nB. Add detailed examples to the tool description showing the required date format and complete list of\nofficial team names. Incorrect.\n\nExamples help, but they don't reliably prevent structural errors like wrong team identity or ambiguous match\nselection.\n\nC. Add enum constraints listing valid team names for both team parameters, and add a regex pattern\nenforcing ISO 8601 format for the date parameter. Incorrect.\n\nThis improves input validation, but it still does not solve the deeper problem of disambiguating multiple\ngames between the same teams.\n\nD. Replace the three parameters with a single game_id parameter and a separate search_games lookup\ntool that returns matching game IDs. Correct.\n\nThis removes ambiguity entirely by forcing the agent to resolve the exact entity first, then operate on a unique\nidentifier, eliminating nickname errors, date mismatches, and rematch confusion."
+  },
+  {
+    "id": 70,
+    "question": "Your resource allocation tool returns a simple acknowledgment message after provisioning is requested. Users frequently approve allocations and immediately ask \"how much did that cost?\" or \"which project was that?\" - indicating they confirmed without understanding the request. What tool design change would most effectively address this?",
+    "options": {
+      "A": "Add a user_acknowledged: boolean parameter that must be set true, with instructions for the agent to only set it after the user explicitly confirms they reviewed the details",
+      "B": "Implement a 60-second hold before execution completes, allowing users time to review pending allocations and cancel if needed",
+      "C": "Add a detail_level parameter with options \"minimal\" or \"comprehensive\" that controls how much context the agent presents in confirmations",
+      "D": "Return structured data including cost estimate, target project, resource specifications, and impact summary in the tool response"
+    },
+    "answer": "D",
+    "explanation": "A. Add a user_acknowledged: boolean parameter that must be set true, with instructions for the agent to\nonly set it after the user explicitly confirms they reviewed the details Incorrect.\n\nThis relies on agent discipline and is easy to bypass or mis-handle; it doesn't guarantee users actually see or\nunderstand key details.\n\nB. Implement a 60-second hold before execution completes, allowing users time to review pending\nallocations and cancel if needed Incorrect.\n\nDelays alone don't improve understanding; they only slow execution and may frustrate users without ensuring\ninformed approval.\n\nC. Add a detail_level parameter with options \"minimal\" or \"comprehensive\" that controls how much\ncontext the agent presents in confirmations Incorrect.\n\nThis improves formatting flexibility but does not ensure critical cost and impact information is consistently\nsurfaced before approval.\n\nD. Return structured data including cost estimate, target project, resource specifications, and impact\nsummary in the tool response Correct.\n\nThis ensures that every allocation includes explicit, structured, reviewable details, reducing uninformed\napprovals and enabling users to understand cost and impact before proceeding."
+  },
+  {
+    "id": 78,
+    "question": "You've configured the system so that all four subagents have access to the complete set of 18 tools. During testing, agents frequently call tools outside their specialization--the synthesis agent attempts web searches, and the report generator tries to analyze documents. What is the primary cause of this poor tool selection behavior?",
+    "options": {
+      "A": "Choosing from 18 tools instead of 4-5 relevant ones increases decision complexity beyond reliable selection thresholds.",
+      "B": "The agents' role descriptions in their system prompts conflict with having access to tools outside that role.",
+      "C": "The tool definitions consume too much context window space, leaving insufficient room for task content.",
+      "D": "The coordinator cannot track which capabilities each subagent has, leading to misrouted tasks."
+    },
+    "answer": "A",
+    "explanation": "A. Choosing from 18 tools instead of 4�5 relevant ones increases decision complexity beyond reliable\nselection thresholds. Correct.\n\nThis is the core issue: as the number of available tools grows, especially across multiple unrelated domains,\nthe model's tool selection accuracy degrades due to increased choice entropy and decision load. Even if\neach tool is well-described, having too many options in the same context makes it harder for the model to\nreliably pick the correct one, leading to cross-role tool misuse.\n\nWhy the others are not correct:\n\nB. Role-description conflict Incorrect\nRole prompts influence behavior, but they don't inherently break tool selection when tools are available.\n\nC. Context window usage Incorrect\nThere's no indication of truncation or missing tool definitions--this is a selection problem, not a capacity\nproblem.\n\nD. Coordinator tracking issue Incorrect\nThe failure happens at the subagent decision level, not because the coordinator lacks awareness of tools."
+  },
+  {
+    "id": 84,
+    "question": "When implementing your lookup_order MCP tool, the backend sometimes returns errors (e.g., \"Order not found\" or temporary database failures). What is the correct pattern for communicating these errors back to the agent?",
+    "options": {
+      "A": "Log the error server-side and return an empty result to avoid confusing the model",
+      "B": "Throw an exception from the tool handler so the agent framework can catch and log it",
+      "C": "Return the error message in the tool result content with the isError flag set to true",
+      "D": "Return a success response with a \"status\" field indicating the error type"
+    },
+    "answer": "C",
+    "explanation": "A. Log the error server-side and return an empty result to avoid confusing the model Incorrect.\nThis hides critical failure information, making it impossible for the agent to distinguish \"no data\" from \"system\nfailure.\"\n\nB. Throw an exception from the tool handler so the agent framework can catch and log it Incorrect.\nExceptions are useful internally, but the agent still needs a structured tool response; raw exceptions don't\nreliably propagate useful context to the model.\n\nC. Return the error message in the tool result content with the isError flag set to true Correct.\nThis is the proper MCP pattern: the tool explicitly signals failure using isError: true, while still providing a\nreadable error message so the agent can decide whether to retry, escalate, or inform the user.\n\nD. Return a success response with a \"status\" field indicating the error type Incorrect.\nThis is misleading because it treats failures as successful responses, which confuses downstream reasoning\nand tool orchestration."
+  },
+  {
+    "id": 88,
+    "question": "The document analysis agent has a single analyze_document tool that takes a document and a free-text instruction parameter. During evaluation, requests like \"extract the key financial metrics\" often return narrative summaries, while \"summarize the methodology\" sometimes returns raw data tables. The synthesis agent reports that 35% of analysis results require re-requests with clarified instructions. What's the most effective way to improve reliability?",
+    "options": {
+      "A": "Enhance the tool description with detailed examples showing how different instruction phrasings should map to different output formats",
+      "B": "Keep the single tool but add an analysis_type enum parameter requiring explicit selection between extraction, summarization, and verification modes",
+      "C": "Split the generic tool into purpose-specific tools - extract_data_points, summarize_content, verify_claim_against_source - each with defined input/output contracts",
+      "D": "Have the coordinator pre-classify each analysis request before passing instructions to the document analysis agent"
+    },
+    "answer": "C",
+    "explanation": "A. Enhance the tool description with detailed examples showing how different instruction phrasings should\nmap to different output formats Incorrect.\n\nExamples help somewhat, but the core problem is that the tool itself is overloaded with multiple\nresponsibilities and ambiguous behavior.\n\nB. Keep the single tool but add an analysis_type enum parameter requiring explicit selection between\nextraction, summarization, and verification modes Incorrect.\n\nThis improves clarity, but the tool still mixes fundamentally different workflows and output contracts into one\ninterface.\n\nC. Split the generic tool into purpose-specific tools -- extract_data_points, summarize_content,\nverify_claim_against_source -- each with defined input/output contracts Correct.\n\nThis most effectively improves reliability because each tool has a clear purpose, constrained behavior, and\npredictable output format, dramatically reducing ambiguity and re-requests.\n\nD. Have the coordinator pre-classify each analysis request before passing instructions to the document\nanalysis agent Incorrect.\n\nThis shifts ambiguity upstream but does not solve the underlying problem of a single overloaded tool with\ninconsistent outputs."
+  },
+  {
+    "id": 121,
+    "question": "After expanding the agent's MCP tools with delivery-specific capabilities (check_delivery_status, contact_driver, issue_credit, apply_promo_code, update_delivery_address, reschedule_delivery), the total tool count has grown from 4 to 10. Your evaluation suite shows tool selection accuracy has dropped to 71%. Log analysis reveals the majority of errors involve the agent selecting between semantically overlapping tools-calling issue_credit when process_refund is correct, and calling check_delivery_status when lookup_order already returns the needed data. Which approach structurally eliminates the semantic overlaps that are being logged as the error source?",
+    "options": {
+      "A": "Split the tools across two sub-agents - a \"financial resolution\" agent with process_refund, issue_credit, and apply_promo_code, and a \"delivery\" agent with the remaining delivery tools - with a coordinator routing between them.",
+      "B": "Add few-shot examples to the system prompt demonstrating correct selection for each ambiguous tool pair, such as showing when issue_credit or process_refund is appropriate.",
+      "C": "Consolidate semantically overlapping tools-merge issue_credit and process_refund into a single resolve_compensation tool with an optional include_tracking flag.",
+      "D": "Enable the tool search tool with defer_loading on the six new tools, keeping the original four always loaded, so the agent dynamically calls it when needed."
+    },
+    "answer": "C",
+    "explanation": "C. Consolidate semantically overlapping tools--merge issue_credit and process_refund into a single\nresolve_compensation tool with an optional include_tracking flag. (Correct)\n\nThe logged errors stem from semantic overlap between tools, where multiple tools can satisfy similar intents.\nConsolidating overlapping tools removes the ambiguity entirely, eliminating the need for the model to choose\n\nbetween near-equivalent actions. By designing tools around distinct user intents rather than overlapping\nimplementations, tool selection becomes simpler and more reliable.\n\nA. Split the tools across two sub-agents - a \"financial resolution\" agent with process_refund, issue_credit,\nand apply_promo_code, and a \"delivery\" agent with the remaining delivery tools - with a coordinator\nrouting between them. (Incorrect)\n\nThis reduces the number of tools visible to each agent but does not eliminate overlap within a domain. The\nfinancial agent would still need to choose between issue_credit and process_refund.\n\nB. Add few-shot examples to the system prompt demonstrating correct selection for each ambiguous tool\npair, such as showing when issue_credit or process_refund is appropriate. (Incorrect)\n\nFew-shot examples can improve accuracy but do not remove the underlying ambiguity. The model must still\nmake a difficult distinction between overlapping tools.\n\nD. Enable the tool search tool with defer_loading on the six new tools, keeping the original four always\nloaded, so the agent dynamically calls it when needed. (Incorrect)\n\nDeferred loading reduces the number of immediately available tools but does not address the root cause of\nerrors: overlapping tool semantics. Once loaded, the same ambiguity remains."
+  },
+  {
+    "id": 122,
+    "question": "Anthropic's tool use documentation states: \"Write instructive error messages. Instead of generic errors like 'failed', include what went wrong and what Claude should try next.\" A billing dispute agent uses lookup_order, which catches all exceptions and returns a tool_result with is_error: true and the message \"execution failed\". Monitoring shows two failure modes: the agent retries the identical call until hitting the turn limit, or it immediately calls escalate_to_human without trying alternative tools. Which change follows the documented recommendation and gives Claude the information it needs to select the correct recovery action for each error type?",
+    "options": {
+      "A": "Implement retry logic with exponential backoff inside each tool implementation so transient errors are resolved transparently within the tool before any failure result is surfaced to Claude in the agentic loop.",
+      "B": "Return error-type-specific messages with is_error: true, e.g., \"order not found-try get_customer to search by phone\" for data errors and \"Database timeout (transient)-retry should succeed\" for infrastructure errors.",
+      "C": "Remove is_error: true and return the error details as normal tool content, so Claude reasons about the response as data rather than treating it as a flagged failure condition that biases retry behavior.",
+      "D": "Add an error classification step in the agentic loop that intercepts tool errors before Claude sees them, tags each as \"retry\" \"try_alternative,\" or \"escalate,\" and adds that recommendation to the tool result."
+    },
+    "answer": "B",
+    "explanation": "B. Return error-type-specific messages with is_error: true, e.g., \"order not found--try get_customer to\nsearch by phone\" for data errors and \"Database timeout (transient)--retry should succeed\" for\ninfrastructure errors. (Correct)\n\nAnthropic's recommendation is to provide instructive error messages that explain both what went wrong and\nwhat action Claude should take next. Error-specific messages give the model the context needed to\ndistinguish between failures that warrant a retry and failures that require trying a different tool. This directly\naddresses the observed behaviors of repeated identical retries and premature escalation.\n\nA. Implement retry logic with exponential backoff inside each tool implementation so transient errors are\nresolved transparently within the tool before any failure result is surfaced to Claude in the agentic loop.\n\n(Incorrect)\n\nInternal retries can help with transient failures, but they do not solve the problem of providing actionable\nguidance when an error is ultimately returned to Claude.\n\nC. Remove is_error: true and return the error details as normal tool content, so Claude reasons about the\nresponse as data rather than treating it as a flagged failure condition that biases retry behavior. (Incorrect)\n\nErrors should still be clearly identified as errors. Removing is_error: true obscures failure states and can lead\nto incorrect reasoning about tool outputs.\n\nD. Add an error classification step in the agentic loop that intercepts tool errors before Claude sees them,\ntags each as \"retry,\" \"try_alternative,\" or \"escalate,\" and adds that recommendation to the tool result.\n(Incorrect)\n\nWhile potentially helpful, this adds an external classification layer rather than following the documented\nguidance. The recommendation is for tools themselves to return informative, actionable error messages that\nexplain the failure and next step."
+  },
+  {
+    "id": 129,
+    "question": "The document analysis agent has a single analyze_document tool that takes a document and a free-text instruction parameter. During evaluation, requests like \"key financial metrics\" often return narrative summaries, while \"summarize the methodology\" sometimes returns raw data tables. The synthesis agent reports analysis results require re-requests with clarified instructions. What's the most effective way to improve reliability?",
+    "options": {
+      "A": "Enhance the tool description with detailed examples showing how different instruction phrasings should map to different output formats",
+      "B": "Keep the single tool but add an analysis type enum parameter requiring explicit selection between extraction, summarization, and verification",
+      "C": "Have the coordinator pre-classify each analysis request before passing instructions to the document analysis agent",
+      "D": "Split the generic tool into purpose specific tools--extract data points, summarize content, verify claim against source--each with"
+    },
+    "answer": "D",
+    "explanation": "D. Split the generic tool into purpose-specific tools--extract data points, summarize content, verify claims\nagainst source--each with clearly defined inputs and outputs. (Correct)\n\nThe root cause is that a single tool with a free-text instruction parameter has ambiguous semantics, leading\nto inconsistent outputs. Splitting it into purpose-specific tools removes this ambiguity by giving each tool a\nclear responsibility and expected output format. This makes tool selection more reliable and reduces the need\nfor re-requests or clarification by downstream agents.\n\nA. Enhance the tool description with detailed examples showing how different instruction phrasings should\nmap to different output formats. (Incorrect)\n\nExamples may improve performance, but the tool still relies on interpreting free-text instructions, leaving\nambiguity and inconsistency in place.\n\nB. Keep the single tool but add an analysis type enum parameter requiring explicit selection between\nextraction, summarization, and verification. (Incorrect)\n\nAn enum helps reduce ambiguity, but the tool still combines multiple responsibilities. Purpose-specific tools\ngenerally provide clearer semantics and more reliable behavior.\n\nC. Have the coordinator pre-classify each analysis request before passing instructions to the document\nanalysis agent. (Incorrect)\n\nThis shifts the classification burden elsewhere but does not solve the underlying issue that the tool itself\nperforms multiple distinct tasks with overlapping behavior."
+  },
+  {
+    "id": 143,
+    "question": "You've configured your Claude agent with three MCP servers: one for git operations, one for Jira ticket management, and one for documentation search. When a user asks the agent to \"create a branch for JIRA-123 and add documentation links to the ticket,\" how does the agent access tools across these servers?",
+    "options": {
+      "A": "The agent queries each server sequentially to determine which handles each tool, routing calls based on tool name prefixes.",
+      "B": "Tools from all configured MCP servers are discovered at connection time and available simultaneously to the agent.",
+      "C": "You must specify which MCP server to use for each turn, and the agent can only access one server's tools at a time.",
+      "D": "The agent automatically selects the most relevant server based on the request and loads only that server's tools."
+    },
+    "answer": "B",
+    "explanation": "B. Tools from all configured MCP servers are discovered at connection time and available simultaneously to\nthe agent. Correct\nWhy B is correct:\n\nWhen multiple MCP servers are configured, the agent discovers and loads tools from all connected servers\nduring initialization. It can then use tools across servers in a single request--for example, using the Git server\nto create a branch, the Jira server to update the ticket, and the Documentation server to retrieve links.\n\nA. The agent queries each server sequentially Incorrect\nThe agent does not probe servers one by one for every request or rely on tool name prefixes.\n\nC. You must specify which MCP server to use for each turn Incorrect\nThe agent can access tools from multiple servers simultaneously and does not require manual server\nselection per turn.\n\nD. The agent automatically selects one server and loads only that server's tools Incorrect\nTools from all configured servers remain available; the agent is not limited to a single server per request."
+  },
+  {
+    "id": 144,
+    "question": "Compliance requires that refunds exceeding $500 must automatically escalate to a human agent-this rule cannot be left to model discretio Despite clear system prompt instructions, production logs show the agent occasionally processes high-value refunds directly (3% failure rate) How should you achieve guaranteed compliance?",
+    "options": {
+      "A": "Modify the refund tool to return an error with message \"Amount exceeds policy limit please escalate\" when threshold is exceeded.",
+      "B": "Implement a hook to intercept tool calls when the refund process amount exceeds $500, block it and invoke human escalation.",
+      "C": "Strengthen the system prompt with emphatic language: \"CRITICAL POLICY! Refunds over $500 MUST trigger human escalation. NEVER process these directly!\"",
+      "D": "Add few-shot examples to the prompt showing correct escalation behavior at various refund amounts ($40, $500, $600)."
+    },
+    "answer": "B",
+    "explanation": "B. Implement a hook to intercept tool calls when the refund process amount exceeds $500, block it and\ninvoke human escalation. Correct\nWhy B is correct:\n\nCompliance requirements need deterministic enforcement, not model judgment. A hook that intercepts\nrefund tool calls and blocks any refund over $500 guarantees that prohibited actions cannot occur and\nautomatically triggers human escalation.\n\nA. Modify the refund tool to return an error message Incorrect\nAn error message depends on the model interpreting and handling it correctly and does not provide\nguaranteed enforcement.\n\nC. Strengthen the system prompt Incorrect\nPrompts improve behavior but cannot guarantee 100% compliance, as shown by the existing 3% failure rate.\n\nD. Add few-shot examples Incorrect\nExamples may improve adherence but remain probabilistic and cannot enforce a hard compliance rule."
+  },
+  {
+    "id": 145,
+    "question": "Production logs reveal inconsistent error handling: when tool_code fails, the agent sometimes retries 5 times (even if the tool_id doesn't exist), sometimes escalates immediately (premature for temporary network issues), and sometimes adds user-friendly explanation (inappropriate when the issue is a backend permission error). Investigation shows four MCP tool returns uniform error responses: \"status\": \"error\", \"content\": \" \"type\": \"Error\", \"message\": \"Operation failed.\" \" . The agent learns different types. What's the most effective improvement?",
+    "options": {
+      "A": "Implement retry logic with exponential backoff in your MCP server for all errors, returning to the agent only after retries are exhausted.",
+      "B": "Create an analyze_error MCP tool the agent calls after any failure to determine the error category and recommended action.",
+      "C": "Add a few-shot examples to the system prompt demonstrating how to interpret error message patterns and select appropriate responses for each.",
+      "D": "Enhance error responses with structured metadata. Include error_category (transient/retriable/permission), reason, and a description of what caused the failure."
+    },
+    "answer": "D",
+    "explanation": "D. Enhance error responses with structured metadata. Include error_category\n(transient/retriable/permission), reason, and a description of what caused the failure. Correct\nWhy D is correct:\n\nThe current error responses are generic (\"Operation failed.\"), giving the agent no information to distinguish\nbetween transient network issues, invalid tool IDs, or permission errors. Structured metadata enables the\n\nagent to take the appropriate action--retry, escalate, or inform the user--consistently and correctly.\nA. Implement retry logic with exponential backoff for all errors Incorrect\nNot all errors are retriable. Retrying permission or invalid-tool errors wastes time and can worsen behavior.\nB. Create an analyze_error MCP tool Incorrect\nAdds extra complexity and latency. The root problem is that the original errors lack sufficient information.\nC. Add few-shot examples to the system prompt Incorrect\nExamples cannot reliably infer error types from identical, generic error messages."
+  },
+  {
+    "id": 146,
+    "question": "Production logs reveal inconsistent error handling. When looking up facts, the agent sometimes retries 5+ times (sadly, when the outer ID doesn't exist), sometimes escalates immediately (prematurely for temporary network issues), and sometimes asks users for clarification (inappropriate when the issue is a backend permission error). Investigation shows your MCP tool returns uniform error responses (\"isError\": true, \"context\": \"type\": \"text\", \"text\": \"Operation failed.\" ). The agent cannot distinguish between error types. What's the most effective improvement?",
+    "options": {
+      "A": "Implement retry logic with exponential backoff in your MCP service for all errors returning to the agent only after retries are exhausted.",
+      "B": "Create an analyze_error MCP tool that the agent calls after any failure to determine the error category and recommended action.",
+      "C": "Add ten shot examples to the system's conduct_demo training to interpret error message context and select appropriate responses for each.",
+      "D": "Return structured error metadata in MCP responses."
+    },
+    "answer": "D",
+    "explanation": "D. Return structured error metadata in MCP responses. Correct\nWhy D is correct:\nThe agent receives the same generic error (\"Operation failed.\") for every failure, so it cannot determine whether\nit should retry, escalate, or inform the user. Returning structured metadata (for example, error_category,\nreason, retriable, and permission_denied) enables consistent and appropriate error handling.\n\nA. Implement retry logic with exponential backoff for all errors Incorrect\nNot all errors are retriable. Retrying invalid IDs or permission errors wastes time and may cause repeated\nfailures.\nB. Create an analyze_error MCP tool Incorrect\nAdds extra complexity and latency. The root issue is insufficient information in the original error response.\nC. Add ten-shot examples to training Incorrect\nExamples cannot reliably infer different error types from identical, generic error messages."
+  },
+  {
+    "id": 147,
+    "question": "After expanding the agent's MCP tools with delivery-specific capabilities [apply_promo_code, update_delivery_address, reconcile_delivery], the total tool count has grown from 1 to 7. We have observed that the agent now shows tool selection accuracy has dropped from 86% to 71%. Log analysis reveals the majority of errors involve the agent selecting between semantically overlapping tools -- calling issue_credit when process_refund was correct, and calling check_delivery_status when looking order_allready_returns_the_needed_data. Which approach structurally eliminate the semantic overlap identified in the error source?",
+    "options": {
+      "A": "Consolidate semantically overlapping tools � merge issue_credit and process_refund into a single handle_promotions tool with an action parameter and fold check_delivery_status into lookup_order with an optional include_tracking flag.",
+      "B": "Enable the tool search tool with defer_loading on the six new tools, keeping the original two always loaded, so the agent dynamically discovers specialized tools only when needed.",
+      "C": "Add few-shot examples to the system prompt demonstrating correct selection for each ambiguous tool, such as showing when issue_credit applies versus when process_refund is appropriate.",
+      "D": "Split the tools across two sub-agents -- a 'financial resolution' agent with issue_credit, process_refund, return_order, and apply_promo_code and a 'delivery operations' agent with the remaining delivery tools -- with a coordinating routing between them."
+    },
+    "answer": "A",
+    "explanation": "A. Consolidate semantically overlapping tools � merge issue_credit and process_refund into a single\nhandle_promotions tool with an action parameter and fold check_delivery_status into lookup_order with an\noptional include_tracking flag. Correct\n\nWhy A is correct:\n\nThe primary issue is semantic overlap between tools. When multiple tools perform similar functions or return\noverlapping information, the agent struggles to choose correctly. Consolidating overlapping tools into unified\ninterfaces removes ambiguity and structurally improves tool selection accuracy.\n\nB. Enable tool search with defer_loading Incorrect\n\nReduces the number of simultaneously loaded tools but does not eliminate the underlying semantic overlap.\n\nC. Add few-shot examples Incorrect\n\nExamples may improve selection temporarily, but they do not address the root cause of overlapping tool\ncapabilities.\n\nD. Split tools across two sub-agents Incorrect\n\nDomain separation can help organization, but overlap still exists within domains (for example, issue_credit vs.\nprocess_refund), so ambiguity remains."
+  },
+  {
+    "id": 157,
+    "question": "You are building developer-productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks. It uses the built-in tools--Read, Write, Bash, Grep, and Glob--and integrates with Model Context Protocol (MCP) servers. Your productivity agent connects to three MCP servers: an issue tracker with search_issues , get_issue , and create_comment ; a documentation wiki with search_docs , get_page , and list_spaces ; and a database explorer with run_query , get_schema , and list_databases . For cross-system questions such as, \"Which database tables are affected by the authentication refactor in PROJ-1234?\", the agent makes eight to ten sequential exploratory calls, lacks visibility into each server's available content, and exhausts context before completing complex investigations. What architectural change best leverages MCP capabilities to address these problems?",
+    "options": {
+      "A": "Add a prepare_investigation tool to each server that accepts a natural-language question and returns relevant summaries.",
+      "B": "Consolidate all three systems into one unified MCP server with cross-referencing capabilities.",
+      "C": "Expose each server's content catalog as MCP resources, including issue summaries, documentation hierarchies, and database schemas.",
+      "D": "Add an orchestrator that routes each question to one server based on keywords."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Add a prepare_investigation tool to each server that accepts a natural-language question\nand returns relevant summaries.\n\nThis may reduce some calls, but it does not solve the core problem of discoverability and context-efficient\nexploration across systems.\n\nB. Incorrect Consolidate all three systems into one unified MCP server with cross-referencing\ncapabilities.\n\nThis is a heavy operational change and is not necessary to take advantage of MCP's native strengths.\n\nC. Correct Expose each server's content catalog as MCP resources, including issue summaries,\ndocumentation hierarchies, and database schemas.\n\nMCP resources are designed for discoverable, structured context. Exposing issue summaries, wiki structure,\nand database schemas allows the agent to understand what content exists before making targeted tool calls,\nreducing exploratory requests and preserving context for complex investigations.\n\nD. Incorrect Add an orchestrator that routes each question to one server based on keywords.\n\nCross-system questions inherently require information from multiple servers, so single-server routing would\nmiss important relationships.\n\nFinal Answer: C"
+  },
+  {
+    "id": 163,
+    "question": "You are building developer-productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks. It uses the built-in tools--Read, Write, Bash, Grep, and Glob--and integrates with Model Context Protocol (MCP) servers. Engineers frequently ask the agent to cross-reference code changes with Jira tickets during reviews--checking ticket descriptions, acceptance criteria, and recent comments. This currently requires manually copying and pasting content into conversations. The team wants the agent to access this standard Jira ticket data directly. What is the most effective approach?",
+    "options": {
+      "A": "Use the Bash tool with curl to call Jira's REST API, including authentication headers and parsing JSON responses inline.",
+      "B": "Build a custom MCP server wrapping Jira's API with tools designed specifically for this team's code-review workflow.",
+      "C": "Export Jira tickets to Markdown files in the repository that the agent accesses using the Read tool.",
+      "D": "Integrate an existing Jira MCP server that exposes tickets, comments, and metadata through discoverable tool interfaces."
+    },
+    "answer": "D",
+    "explanation": "A. Incorrect Use the Bash tool with curl to call Jira's REST API, including authentication headers and\nparsing JSON responses inline.\n\nThis works, but it is brittle, requires manual authentication handling, and does not provide discoverable,\nreusable interfaces for the team.\n\nB. Incorrect Build a custom MCP server wrapping Jira's API with tools designed specifically for this\nteam's code-review workflow.\n\nA custom server is appropriate only if existing solutions do not meet the need. The question asks for the most\neffective approach for standard Jira ticket access.\n\nC. Incorrect Export Jira tickets to Markdown files in the repository that the agent accesses using the\nRead tool.\n\nThis creates synchronization overhead and loses live ticket updates, comments, and metadata.\n\nD. Correct Integrate an existing Jira MCP server that exposes tickets, comments, and metadata through\ndiscoverable tool interfaces.\n\nThis is the best fit for the Agent SDK and MCP architecture. It provides structured, discoverable access to Jira\ndata, avoids manual copy/paste, and enables the agent to retrieve ticket descriptions, acceptance criteria,\ncomments, and metadata directly during code reviews.\n\nFinal Answer: D"
+  },
+  {
+    "id": 166,
+    "question": "You are building a customer support resolution agent using the Claude Agent SDK. The agent handles high- ambiguity requests like returns, billing disputes, and account issues. It has access to your backend systems through custom Model Context Protocol (MCP) tools ( get_customer , lookup_order , process_refund , escalate_to_human ). Your target is 80%+ first-contact resolution while knowing when to escalate. Your process_refund tool returns two types of errors: technical errors (\"503 Service Unavailable\", \"Connection timeout\") that are transient (~5% of calls), and business errors (\"Order exceeds 30-day return window\", \"Item already refunded\") that are permanent (~12% of calls). Monitoring shows the agent wastes 3�4 turns retrying business errors that can never succeed. Currently, both error types return only a plain text message to Claude. What's the most effective way to reduce wasted retries while improving customer-facing response quality?",
+    "options": {
+      "A": "Implement automatic retry logic at the tool layer for technical errors only, passing business errors to Claude without retries.",
+      "B": "Add few-shot examples showing how to distinguish retriable from non-retriable errors by parsing error message text.",
+      "C": "Add a check_refund_eligibility tool that must be called before process_refund to prevent business rule violations.",
+      "D": "Return structured error responses with \" retriable \" : false for business errors and a customer-friendly explanation for Claude to use."
+    },
+    "answer": "D",
+    "explanation": "A. Incorrect Implement automatic retry logic at the tool layer for technical errors only, passing business\n\nerrors to Claude without retries.\n\nThis helps with transient failures, but Claude still receives unstructured business-error text and may continue\nretrying unnecessarily.\n\nB. Incorrect Add few-shot examples showing how to distinguish retriable from non-retriable errors by\nparsing error message text.\n\nParsing free-form error text is brittle and less reliable than explicit machine-readable metadata.\n\nC. Incorrect Add a check_refund_eligibility tool that must be called before process_refund to prevent\nbusiness rule violations.\n\nThis may reduce some business errors, but it adds an extra call to every refund request and does not solve the\ngeneral problem of distinguishing retriable and non-retriable failures.\n\nD. Correct Return structured error responses with \"retriable\": false for business errors and a customer-\nfriendly explanation for Claude to use.\n\nStructured errors give the agent explicit control-flow information:\n\nTechnical errors: retriable: true\nBusiness errors: retriable: false\n\nIncluding a customer-friendly explanation allows Claude to respond clearly and empathetically without\nwasting turns on impossible retries.\n\nFinal Answer: D"
+  },
+  {
+    "id": 174,
+    "question": "During testing, you find that when a customer says \"I need a refund for my recent purchase,\" the agent calls process_refund immediately � but populates the required 'order_id' parameter with a plausible-looking but fabricated value instead of first calling lookup_order to retrieve the actual order ID. The refund call fails because the fabricated ID doesn't exist. Which change directly addresses the root cause of the agent fabricating the 'order_id' value?",
+    "options": {
+      "A": "Switch 'tool_choice' from \"auto\" to \"any\" to force the agent to make a tool call on every turn.",
+      "B": "Pre-parse incoming customer messages to extract any order IDs mentioned, and inject them into the conversation context before passing to Claude.",
+      "C": "Update the 'process_refund' tool description to explicitly state that 'order_id' must be obtained from a prior 'lookup_order' call and must never be assumed or invented.",
+      "D": "Add server-side validation that checks whether the 'order_id' exists in your database before executing or to the agent if not."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Switch 'tool_choice' from \"auto\" to \"any\" to force the agent to make a tool call on every\nturn.\n\nThis would ensure a tool is called, but it would not prevent the agent from fabricating an order_id when calling\nprocess_refund.\n\nB. Incorrect Pre-parse incoming customer messages to extract any order IDs mentioned, and inject them\ninto the conversation context before passing to Claude.\n\nThis helps only when the customer actually provides an order ID. In the example, no order ID was mentioned.\n\nC. Correct Update the 'process_refund' tool description to explicitly state that 'order_id' must be\nobtained from a prior 'lookup_order' call and must never be assumed or invented.\n\nThe root cause is that the model is treating order_id as a required parameter that it can plausibly infer. Making\nthe dependency explicit in the tool contract teaches the agent the correct workflow: first retrieve the order\nthrough lookup_order, then pass the real identifier to process_refund.\n\nD. Incorrect Add server-side validation that checks whether the 'order_id' exists in your database before\nexecuting the refund and returns an error to the agent if not.\n\nValidation is important for safety, but it only catches the fabricated ID after the incorrect behavior has already\noccurred. It does not address the root cause of the fabrication.\n\nFinal Answer: C"
+  }
+]

@@ -104,7 +104,8 @@ app.post('/api/scores', requireAuth, async (req, res) => {
   const score = Number(req.body?.score);
   const total = Number(req.body?.total);
   const answersInput = req.body?.answers;
-  const isValidTestId = (testId >= 1 && testId <= 7) || testId === FINAL_EXAM_TEST_ID;
+  // 1-7: sequential practice tests. 8-12: section-focused practice exams.
+  const isValidTestId = (testId >= 1 && testId <= 12) || testId === FINAL_EXAM_TEST_ID;
   if (
     !isValidTestId ||
     !Number.isInteger(score) || score < 0 ||

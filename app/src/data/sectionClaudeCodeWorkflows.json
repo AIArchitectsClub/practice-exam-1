@@ -1,0 +1,410 @@
+[
+  {
+    "id": 97,
+    "question": "You're building a security scanning workflow. When engineers need to locate all occurrences of a dangerous function like eval() across a large codebase, which tool should your agent use for content search?",
+    "options": {
+      "A": "Use Grep to search for the pattern \"eval(\" across all files in the codebase.",
+      "B": "Use Glob with a pattern like **/*eval to find files, then Read each matching file.",
+      "C": "Use Bash to run ls -R | grep eval to recursively list files containing eval.",
+      "D": "Read the project's main entry file and follow import statements to trace where eval might be used."
+    },
+    "answer": "A",
+    "explanation": "A. Use Grep to search for the pattern \"eval(\" across all files in the codebase. (Correct)\nGrep is specifically designed for content searching within files. It can efficiently scan a large codebase and\nlocate every occurrence of a pattern such as eval(, making it the most appropriate tool for security analysis\nand code auditing.\n\nB. Use Glob with a pattern like **/*eval to find files, then Read each matching file. (Incorrect)\n\nGlob searches file names and paths, not file contents. It would miss occurrences of eval( inside files whose\nnames do not contain \"eval\".\n\nC. Use Bash to run ls -R | grep eval to recursively list files containing eval. (Incorrect)\n\nThis searches file names returned by ls, not the contents of files.\n\nD. Read the project's main entry file and follow import statements to trace where eval might be used. \n(Incorrect)\n\nThis is inefficient and unreliable for finding all occurrences across a large codebase. It may miss many uses of\neval()."
+  },
+  {
+    "id": 98,
+    "question": "agent has identified that caching logic spans 15 files including decorators, middleware, and service classes (~8,000 lines total). What's next step for building understanding while managing context constraints?",
+    "options": {
+      "A": "Use Glob to find files matching common caching patterns (cache.py, caching/), prioritize the largest files by reading them first, then check smaller files for gaps.",
+      "B": "Use the Read tool to sequentially load all 15 files, building complete understanding across the full caching implementation.",
+      "C": "Use Grep to search for \"invalidate\" and \"expire\" patterns across all files, then Read only those specific line ranges with minimal surrounding context.",
+      "D": "Analyze imports and class hierarchies to identify the base cache class, Read that file to understand the interface, then trace specific invalidation implementations."
+    },
+    "answer": "D",
+    "explanation": "D. Analyze imports and class hierarchies to identify the base cache class, Read that file to understand the\ninterface, then trace specific invalidation implementations. (Correct)\n\nWhen the logic spans many files (~8,000 lines), the goal is to build understanding efficiently while respecting\ncontext limits. Starting with the core abstraction (the base cache class or interface) provides a high-level\nunderstanding of how the caching system is structured. From there, you can trace the specific\nimplementations and invalidation paths that matter, rather than reading thousands of lines indiscriminately.\n\nA. Use Glob to find files matching common caching patterns, prioritize the largest files by reading them\nfirst, then check smaller files for gaps. (Incorrect)\n\nFile size is not a reliable indicator of importance. Large files may contain unrelated logic.\n\nB. Use the Read tool to sequentially load all 15 files, building complete understanding across the full\ncaching implementation. (Incorrect)\n\nThis is inefficient and likely to exceed context constraints. Understanding should be built incrementally.\n\nC. Use Grep to search for \"invalidate\" and \"expire\" patterns across all files, then Read only those specific\nline ranges with minimal surrounding context. (Incorrect)\n\nWhile useful for targeted investigation, this can miss the broader architecture and relationships needed to\nunderstand the caching system correctly."
+  },
+  {
+    "id": 99,
+    "question": "Today she wants to continue that specific investigation. She's worked on three other codebases since then and knows the session was dive\". How should she resume?",
+    "options": {
+      "A": "Start fresh and re-read the same files",
+      "B": "Use --resume auth-deep-dive to load that specific session by name",
+      "C": "Use --continue to pick up where the most recent conversation left off",
+      "D": "Use --session-id with the UUID from yesterday's session transcript file"
+    },
+    "answer": "B",
+    "explanation": "B. Use --resume auth-deep-dive to load that specific session by name (Correct)\n\nWhen returning to a specific investigation after working on other projects, using --resume with the session\nname is the most direct way to continue that exact context. It restores the relevant conversation and state\nassociated with the named session.\n\nA. Start fresh and re-read the same files (Incorrect)\n\nThis discards existing context and wastes time rebuilding understanding.\nC. Use --continue to pick up where the most recent conversation left off (Incorrect)\n--continue resumes the most recent session, which may be one of the other codebases worked on since then.\nD. Use --session-id with the UUID from yesterday's session transcript file (Incorrect)\nWhile a session ID could identify a session, the question specifically indicates the session is already known by\nname, making --resume auth-deep-dive the appropriate approach."
+  },
+  {
+    "id": 100,
+    "question": "\"You're the Lead Data Scientist/Engineer on a critical project. Something is not completely right with technical details or the data, and it negative impacts expected outputs. They need to independently develop both approaches to evaluation data... How do you manage this scenario?\"",
+    "options": {
+      "A": "Start two fresh sessions, having each re-read the relevant source files before beginning.",
+      "B": "Continue in the original session, developing end-to-end tests first, then snapshot tests sequentially.",
+      "C": "Resume the analysis session with fork_session enabled, creating a separate branch for each testing strategy.",
+      "D": "Export the analysis session's key findings to a file, then create two new sessions that reference this file."
+    },
+    "answer": "C",
+    "explanation": "C. Resume the analysis session with fork_session enabled, creating a separate branch for each testing\nstrategy. (Correct)\n\nForking the existing session allows both testing strategies to start from the same investigation context and\nunderstanding of the codebase. Each branch can then evolve independently, making it easy to compare\napproaches without losing prior analysis or mixing the reasoning paths.\n\nA. Start two fresh sessions, having each re-read the relevant source files before beginning. (Incorrect)\n\nThis duplicates work and loses the benefit of the existing analysis context.\n\nB. Continue in the original session, developing end-to-end tests first, then snapshot tests sequentially. \n(Incorrect)\n\nSequential development makes comparison harder and mixes the reasoning for the two approaches.\n\nD. Export the analysis session's key findings to a file, then create two new sessions that reference this file.\n (Incorrect)\n\nWhile possible, it is less efficient than directly forking the existing session and maintaining full contextual\ncontinuity."
+  },
+  {
+    "id": 101,
+    "question": "A security audit requires updating your authentication library from v2 to v3. The migration guide documents breaking changes: authenticate() now returns a Promise instead of accepting a callback, the User type has restructured fields, and three deprecated methods were removed. Grep shows the library is imported in 45 files across several modules. What's the most effective approach?",
+    "options": {
+      "A": "Paste the migration guide's breaking changes into your prompt and use direct execution to update all usages across the 45 files.",
+      "B": "Enter plan mode to explore library usage across modules, map affected code paths, then create a migration strategy before implementing.",
+      "C": "Update the dependency version, run the test suite, and use Claude Code to fix each failure as it appears.",
+      "D": "Create a custom slash command encapsulating the migration transformations, then execute it against each file without prior codebase exploration."
+    },
+    "answer": "B",
+    "explanation": "B. Enter plan mode to explore library usage across modules, map affected code paths, then create a\nmigration strategy before implementing. (Correct)\n\nA major library upgrade with breaking changes affecting 45 files should be approached systematically. Plan\nmode helps analyze how the authentication library is used across the codebase, identify callback-based\nimplementations that must be converted to Promises, understand dependencies on the restructured User\ntype, and locate uses of deprecated methods. Creating a migration strategy before making changes reduces\nrisk and ensures consistency across all modules.\n\nA. Paste the migration guide's breaking changes into your prompt and use direct execution to update all\nusages across the 45 files. (Incorrect)\n\nDirectly modifying dozens of files without first understanding usage patterns can introduce widespread errors\nand inconsistent implementations.\n\nC. Update the dependency version, run the test suite, and use Claude Code to fix each failure as it appears.\n (Incorrect)\n\nThis is a reactive approach that depends on test coverage and may miss affected code paths that are not\nexercised by tests.\n\nD. Create a custom slash command encapsulating the migration transformations, then execute it against\neach file without prior codebase exploration. (Incorrect)\n\nAutomating changes without understanding the codebase can apply incorrect transformations and create\nadditional issues."
+  },
+  {
+    "id": 103,
+    "question": "old_string parameter cannot find unique text to match -- the file has repetitive docstrings, variable names, and structural patterns. What is a reliable way to complete this insertion?",
+    "options": {
+      "A": "Use Edit with an extremely long old_string capturing 30+ lines of context to guarantee uniqueness",
+      "B": "Use Read to load the file, add the function at the appropriate location, then Write the updated file",
+      "C": "Use Edit's replace_all parameter to target a common pattern and embed the new function in the replacement text",
+      "D": "Use Bash to append the function definition to the end of the file using heredoc syntax"
+    },
+    "answer": "B",
+    "explanation": "B. Use Read to load the file, add the function at the appropriate location, then Write the updated file \n(Correct)\n\nWhen old_string cannot uniquely identify a match due to repetitive patterns, the most reliable approach is to\nfirst read the full file, understand its structure, and then rewrite or update the file explicitly. This avoids\nambiguity and ensures the insertion happens in the correct location without relying on fragile string matching.\n\nA. Use Edit with an extremely long old_string capturing 30+ lines of context to guarantee uniqueness \n(Incorrect)\n\nThis is brittle and error-prone; large context strings still may not guarantee uniqueness in repetitive files.\n\nC. Use Edit's replace_all parameter to target a common pattern and embed the new function in the\nreplacement text (Incorrect)\nUsing replace_all on common patterns risks unintended modifications across multiple unrelated locations.\n\nD. Use Bash to append the function definition to the end of the file using heredoc syntax (Incorrect)\nBlindly appending code can place the function in an incorrect location and break file structure or\ndependencies."
+  },
+  {
+    "id": 104,
+    "question": "You need to add a date validation check ensuring event dates are in the future. This requires adding a conditional statement to one existing function in a single file. What is the most appropriate approach?",
+    "options": {
+      "A": "Enter plan mode to analyze how the validation might impact other parts of the reservation flow",
+      "B": "Start with extended thinking mode enabled to ensure thorough reasoning about the validation logic",
+      "C": "Use direct execution to make the change",
+      "D": "Enter plan mode first to create a detailed implementation strategy before making the change"
+    },
+    "answer": "C",
+    "explanation": "C. Use direct execution to make the change (Correct)\n\nSince this is a small, localized change (adding a single validation check inside one existing function in one\nfile), it does not require broader architectural analysis or a multi-step plan. Direct execution is appropriate for\nquick, low-risk modifications.\n\nA. Enter plan mode to analyze how the validation might impact other parts of the reservation flow \n(Incorrect)\n\nThis is unnecessary overhead for a simple, isolated validation change.\n\nB. Start with extended thinking mode enabled to ensure thorough reasoning about the validation logic \n(Incorrect)\n\nWhile reasoning is useful, extended planning modes are not needed for a straightforward conditional check.\n\nD. Enter plan mode first to create a detailed implementation strategy before making the change \n(Incorrect)\n\nPlanning is better suited for multi-file or system-wide changes, not a single-function update."
+  },
+  {
+    "id": 105,
+    "question": "Your team's CLAUDE.md includes a rule: \"Use 4-space indentation and always run Prettier formatting.\" Despite this, code reviews reveal that roughly 30% of files Claude Code generates use inconsistent formatting -- sometimes 2-space indentation, sometimes missing trailing commas. Adding emphasis (\"IMPORTANT: You MUST use Prettier formatting\") reduces violations to about 15%, but doesn't eliminate them. What is the most effective way to ensure all generated code is consistently formatted?",
+    "options": {
+      "A": "Extract the formatting rules into a dedicated skill that Claude loads automatically when generating code, with more detailed examples of correct formatting.",
+      "B": "Add a Stop hook with a prompt-based check that evaluates whether generated code follows formatting standards and prompts Claude to fix violations.",
+      "C": "Configure a Post ToolUse hook with an Edit|Write matcher that automatically runs Prettier on each file Claude modifies.",
+      "D": "Split the formatting rules into path-scoped .claude/rules/ files that load when Claude works on matching file types."
+    },
+    "answer": "C",
+    "explanation": "C. Configure a Post ToolUse hook with an Edit|Write matcher that automatically runs Prettier on each file\nClaude modifies. (Correct)\n\nThe most reliable way to enforce consistent formatting is to remove reliance on the model remembering\nrules and instead enforce formatting through an automatic post-processing step. A Post ToolUse hook that\nruns Prettier guarantees every modified file is formatted correctly, regardless of how the code was\ngenerated.\n\nA. Extract the formatting rules into a dedicated skill that Claude loads automatically when generating\ncode, with more detailed examples of correct formatting. (Incorrect)\n\nMore instructions and examples improve compliance slightly but do not guarantee consistent formatting.\n\nB. Add a Stop hook with a prompt-based check that evaluates whether generated code follows formatting\nstandards and prompts Claude to fix violations. (Incorrect)\n\nThis adds extra reasoning cycles but is still LLM-dependent and not deterministic.\n\nD. Split the formatting rules into path-scoped .claude/rules/ files that load when Claude works on matching\nfile types. (Incorrect)\n\nThis improves organization but does not enforce formatting automatically or reliably."
+  },
+  {
+    "id": 106,
+    "question": "You've asked Claude Code to build a PDF report generation feature. The initial implementation queries the database correctly, but the output has formatting issues: table columns are too narrow causing content truncation, dates display without proper formatting, and page break handling is incorrect. You've noticed these issues interact -- changing column widths affects how dates render, and page breaks depend on content height. What's the most effective approach for iterating toward a working solution?",
+    "options": {
+      "A": "Address the column width issue first with specific measurements, verify it works, then fix date formatting within the corrected columns, then adjust page breaks-- testing after each change.",
+      "B": "Provide all three issues in a single detailed message with exact specifications for each, allowing Claude to address them together in one update.",
+      "C": "Show Claude an example of a correctly formatted report and ask it to match that output, rather than listing the specific technical issues.",
+      "D": "Start fresh with a detailed prompt specifying all formatting requirements upfront."
+    },
+    "answer": "A",
+    "explanation": "A. Address the column width issue first with specific measurements, verify it works, then fix date\nformatting within the corrected columns, then adjust page breaks-- testing after each change. (Correct)\n\nWhen issues are interdependent (layout, formatting, and pagination affecting each other), the most\neffective strategy is iterative isolation. Fixing one constraint at a time (starting with structural layout like\ncolumn widths) prevents cascading side effects and makes it easier to understand what each change impacts\nbefore moving to the next issue.\n\nB. Provide all three issues in a single detailed message with exact specifications for each, allowing Claude\nto address them together in one update. (Incorrect)\n\nThis can lead to unstable results because multiple interacting constraints are modified at once, making\ndebugging harder.\n\nC. Show Claude an example of a correctly formatted report and ask it to match that output, rather than\nlisting the specific technical issues. (Incorrect)\n\nExample-based prompting helps, but it does not resolve underlying structural dependencies in layout logic.\n\nD. Start fresh with a detailed prompt specifying all formatting requirements upfront. (Incorrect)\n\nRestarting loses iteration context and still doesn't address the need for step-by-step validation of\ninterdependent issues."
+  },
+  {
+    "id": 107,
+    "question": "You're implementing a caching layer for API responses to speed up the /products endpoint. You have a rough idea --Redis with a 5-minute TTL--but you're new to production caching and aren't sure what other considerations a robust implementation requires. What's the most effective way to start your iterative workflow?",
+    "options": {
+      "A": "Ask Claude to interview you about the caching requirements before implementing, surfacing considerations like invalidation strategies, cache layers, consistency guarantees, and failure modes.",
+      "B": "Use plan mode to analyze the current/products endpoint implementation, then provide your caching requirements once Claude explains how the existing code is structured.",
+      "C": "Start with a minimal request: \"Add Redis caching to/products with 5-minute TTL.\" Add features and fix issues through follow-up prompts as problems surface during testing.",
+      "D": "Write a specification with your known requirements and \"TBD\" markers for uncertain areas, having Claude propose solutions for each TBD as it implements."
+    },
+    "answer": "A",
+    "explanation": "A. Ask Claude to interview you about the caching requirements before implementing, surfacing\nconsiderations like invalidation strategies, cache layers, consistency guarantees, and failure modes. \n(Correct)\n\nWhen you're unsure about production-grade caching design, the most effective starting point is to first\nsurface missing requirements and constraints. An interactive clarification step helps uncover critical\nconsiderations like cache invalidation, stale data handling, consistency models, key design, TTL trade-offs,\nand failure modes before any implementation begins. This leads to a more robust and less error-prone design.\n\nB. Use plan mode to analyze the current /products endpoint implementation, then provide your caching\n\nrequirements once Claude explains how the existing code is structured. (Incorrect)\n\nUnderstanding the endpoint is useful, but jumping into code analysis before clarifying caching requirements\ncan miss key architectural decisions.\n\nC. Start with a minimal request: \"Add Redis caching to /products with 5-minute TTL.\" Add features and fix\nissues through follow-up prompts as problems surface during testing. (Incorrect)\n\nThis reactive approach often leads to brittle caching logic and repeated rework.\n\nD. Write a specification with your known requirements and \"TBD\" markers for uncertain areas, having\nClaude propose solutions for each TBD as it implements. (Incorrect)\n\nWhile structured, it still assumes you already know what to specify, which is not true in this scenario."
+  },
+  {
+    "id": 108,
+    "question": "You're implementing a complex graph traversal algorithm with specific performance requirements and edge cases to handle (disconnected nodes, cycles, weighted edges). You want to structure your workflow for efficient iterative refinement with Claude. What approach will most effectively enable progressive improvement across multiple iterations?",
+    "options": {
+      "A": "Write a test suite covering expected behavior, edge cases, and performance requirements before implementation. Ask Claude to write code that passes the tests, then iterate by sharing test failures with each refinement request.",
+      "B": "Provide Claude with a detailed natural language specification of the algorithm, including all requirements and edge cases. Review each output manually and provide descriptive feedback on what behavior needs to change.",
+      "C": "Provide Claude with a reference implementation from documentation, then ask it to rewrite the code to match your codebase style and add the required edge case handling, comparing outputs against the reference.",
+      "D": "Have Claude extensively research the algorithm and create a detailed implementation plan using extended thinking, then implement the complete solution based on that plan."
+    },
+    "answer": "A",
+    "explanation": "A. Write a test suite covering expected behavior, edge cases, and performance requirements before\nimplementation. Ask Claude to write code that passes the tests, then iterate by sharing test failures with\neach refinement request. (Correct)\n\nFor a complex graph traversal problem with edge cases like cycles, disconnected nodes, and weighted edges,\nthe most effective workflow is test-driven iteration. Defining a test suite upfront creates a precise\ncorrectness target, ensures all edge cases are explicitly covered, and allows each iteration to be validated\nobjectively. This reduces ambiguity and makes progressive refinement efficient and measurable.\n\nB. Provide Claude with a detailed natural language specification of the algorithm, including all\nrequirements and edge cases. Review each output manually and provide descriptive feedback on what\nbehavior needs to change. (Incorrect)\n\nThis relies too heavily on subjective interpretation and manual review, making iteration slower and less\nprecise than test-driven validation.\n\nC. Provide Claude with a reference implementation from documentation, then ask it to rewrite the code to\nmatch your codebase style and add the required edge case handling, comparing outputs against the\nreference. (Incorrect)\n\nA reference implementation helps, but it does not guarantee correctness for custom edge cases or\nperformance constraints.\n\nD. Have Claude extensively research the algorithm and create a detailed implementation plan using\nextended thinking, then implement the complete solution based on that plan. (Incorrect)\n\nPlanning is useful, but without executable tests, correctness across iterations is harder to validate and refine."
+  },
+  {
+    "id": 109,
+    "question": "Your team is configuring MCP servers in Claude Code. You want to add a shared venue lookup server that all team members should have access to, and you personally want to add an experimental music playlist server that only you are testing. Which configuration approach correctly applies MCP server scopes?",
+    "options": {
+      "A": "Add venue server to .mcp.json and playlist server to ~/.claude.json",
+      "B": "Add both servers to the project-level .mcp.json file",
+      "C": "Add venue server to ~/.claude.json and playlist server to .mcp.json",
+      "D": "Add both servers to your local ~/.claude.json"
+    },
+    "answer": "A",
+    "explanation": "A. Add venue server to .mcp.json and playlist server to ~/.claude.json (Correct)\nProject-level configuration (.mcp.json) is used for shared team servers, ensuring everyone working in the\nrepository has access to the same MCP tools (like the venue lookup server). User-level configuration\n(~/.claude.json) is used for personal or experimental servers, such as a music playlist server that only you\nwant to test locally.\n\nB. Add both servers to the project-level .mcp.json file (Incorrect)\nThis would expose the experimental playlist server to the entire team, which is not intended.\n\nC. Add venue server to ~/.claude.json and playlist server to .mcp.json (Incorrect)\nThis reverses the correct scoping: shared tools should not be user-only, and experimental tools should not be\nproject-wide.\n\nD. Add both servers to your local ~/.claude.json (Incorrect)\nThis would prevent the team from accessing the shared venue server, breaking collaboration."
+  },
+  {
+    "id": 110,
+    "question": "Your infrastructure-as-code repository includes Terraform modules (/terraform/), Kubernetes manifests (/kubernetes/), and CI/CD pipeline scripts (/pipelines/). Each requires different conventions, but your single root CLAUDE.md has grown to 500+ lines. When developers work on Kubernetes files, Terraform-specific rules load into context unnecessarily, consuming tokens. What is the best approach to reorganize so only relevant guidance loads when editing specific file types?",
+    "options": {
+      "A": "Restructure the root CLAUDE.md into clearly labeled sections with headers (e.g., \"## Terraform Conventions\"), improving organization and readability.",
+      "B": "Split content into subdirectory CLAUDE.md files (/terraform/CLAUDE.md, /kubernetes/CLAUDE.md), so Claude loads directory-specific guidance.",
+      "C": "Keep the root CLAUDE.md and use @path/to/import syntax to modularly include tool-specific guidance files from separate documents.",
+      "D": "Create files in .claude/rules/ with YAML frontmatter path-scoping (e.g., paths: [\"terraform/**/*\"]), loading rules only when editing matching files."
+    },
+    "answer": "D",
+    "explanation": "D. Create files in .claude/rules/ with YAML frontmatter path-scoping (e.g., paths: [\"terraform/**/*\"]), loading\nrules only when editing matching files. (Correct)\n\nThis approach enables context-aware rule loading, ensuring that only relevant guidance is injected based on\nthe files being edited. Terraform rules apply only in /terraform, Kubernetes rules only in /kubernetes, and CI/CD\nrules only in /pipelines, which significantly reduces unnecessary token usage while keeping governance\nprecise and scalable.\n\nA. Restructure the root CLAUDE.md into clearly labeled sections with headers (e.g., \"## Terraform\nConventions\"), improving organization and readability. (Incorrect)\n\nThis improves readability but does not solve the core issue of unnecessary context loading.\n\nB. Split content into subdirectory CLAUDE.md files (/terraform/CLAUDE.md, /kubernetes/CLAUDE.md), so\nClaude loads directory-specific guidance. (Incorrect)\n\nWhile modular, it does not guarantee selective loading based on file type or path matching.\n\nC. Keep the root CLAUDE.md and use @path/to/import syntax to modularly include tool-specific guidance\nfiles from separate documents. (Incorrect)\n\nThis still risks pulling unrelated context into memory even when it is not needed."
+  },
+  {
+    "id": 111,
+    "question": "Your team frequently migrates React components to Vue. You've written a step-by-step workflow for Claude Code to follow during each migration, and you want every developer on the team to invoke it by typing /migrate- component. The workflow should stay in sync as the team iterates on it. Where should you place the skill file?",
+    "options": {
+      "A": "In ~/.claude/skills/migrate-component/SKILL.md on each developer's machine",
+      "B": "In the project's .claude/settings.json using a skillOverrides entry to register and define the workflow",
+      "C": "In .claude/skills/migrate-component/SKILL.md at the project root, committed to version control",
+      "D": "As a detailed instruction block in the project's root CLAUDE.md file"
+    },
+    "answer": "C",
+    "explanation": "C. In .claude/skills/migrate-component/SKILL.md at the project root, committed to version control \n(Correct)\n\nA shared team workflow like /migrate-component should live in the project-level skills directory under version\ncontrol. This ensures:\n\nEvery developer automatically gets the same workflow\nUpdates are tracked via git\nThe skill stays consistent and evolves with the codebase\nThe /migrate-component command is available project-wide\n\nA. In ~/.claude/skills/migrate-component/SKILL.md on each developer's machine (Incorrect)\n\nThis makes the workflow local and inconsistent across the team, and it won't stay in sync.\n\nB. In .claude/settings.json using a skillOverrides entry to register and define the workflow (Incorrect)\n\nSettings files are for configuration, not defining reusable workflow skills.\n\nD. As a detailed instruction block in the project's root CLAUDE.md file (Incorrect)\nCLAUDE.md is for general guidance, not structured, reusable slash-command skills."
+  },
+  {
+    "id": 112,
+    "question": "A critical bug is affecting production users. Error logs show exceptions in the OrderProcessing module with a clear stack trace pointing to a specific function. You haven't worked with this module before. What's the most effective approach?",
+    "options": {
+      "A": "Start with direct execution to gather initial information, then switch to plan mode to design a comprehensive solution before implementing any changes.",
+      "B": "Use plan mode to analyze the error in context of the module's design, enumerate potential root causes, and prioritize fixes systematically.",
+      "C": "Enter plan mode to explore the module's architecture and dependencies before attempting any fixes.",
+      "D": "Use direct execution to examine the stack trace, read the relevant code, and implement a fix once you identify the root cause."
+    },
+    "answer": "D",
+    "explanation": "D. Use direct execution to examine the stack trace, read the relevant code, and implement a fix once you\nidentify the root cause. (Correct)\n\nSince the issue already has a clear stack trace pointing to a specific function, the fastest and most effective\napproach is to directly investigate the referenced code path, understand the failure, and apply a targeted fix.\nThis minimizes overhead and is appropriate when the failure location is already well-identified.\n\nA. Start with direct execution to gather initial information, then switch to plan mode to design a\ncomprehensive solution before implementing any changes. (Incorrect)\n\nThis adds unnecessary planning overhead for a bug that already has a clearly identified source.\n\nB. Use plan mode to analyze the error in context of the module's design, enumerate potential root causes,\nand prioritize fixes systematically. (Incorrect)\n\nOver-analysis is unnecessary because the stack trace already localizes the issue.\n\nC. Enter plan mode to explore the module's architecture and dependencies before attempting any fixes. \n(Incorrect)\n\nArchitecture-level exploration is too broad for a clearly localized production bug."
+  },
+  {
+    "id": 113,
+    "question": "You're implementing a new payment processing module that must follow your project's established patterns for database transactions, error handling, and audit logging. You've identified three existing modules that exemplify these patterns: db_utils.py, error_handlers.py, and audit_logger.py. This is a one-off integration task--these patterns are well-documented in your team wiki and don't need additional project-level documentation. What's the most effective approach?",
+    "options": {
+      "A": "Describe the patterns from the three modules in natural language in your prompt, explaining the transaction handling approach, error format, and logging conventions Claude should follow.",
+      "B": "Use @references to include the three modules directly in your prompt, giving Claude concrete code examples of the patterns to follow.",
+      "C": "Ask Claude to explore your codebase to find and understand the transaction, error handling, and logging patterns before generating the new module.",
+      "D": "Add documentation of each pattern to your CLAUDE.md file, establishing them as project conventions that Claude will apply automatically."
+    },
+    "answer": "B",
+    "explanation": "B. Use @references to include the three modules directly in your prompt, giving Claude concrete code\nexamples of the patterns to follow. (Correct)\n\nFor a one-off implementation that must strictly follow existing patterns, the most effective approach is to\nprovide direct, concrete code references. Including db_utils.py, error_handlers.py, and audit_logger.py ensures\nClaude can accurately replicate transaction handling, error formats, and logging conventions without relying\non abstraction or interpretation.\n\nA. Describe the patterns from the three modules in natural language in your prompt, explaining the\ntransaction handling approach, error format, and logging conventions Claude should follow. (Incorrect)\n\nNatural language descriptions are prone to ambiguity and may miss subtle implementation details present in\nthe actual code.\n\nC. Ask Claude to explore your codebase to find and understand the transaction, error handling, and logging\npatterns before generating the new module. (Incorrect)\n\nWhile exploration helps, it is less precise and less reliable than explicitly providing the canonical examples.\n\nD. Add documentation of each pattern to your CLAUDE.md file, establishing them as project conventions\nthat Claude will apply automatically. (Incorrect)\n\nThis is unnecessary overhead for a one-off task and does not guarantee accurate replication of nuanced\nimplementation details."
+  },
+  {
+    "id": 114,
+    "question": "You've asked Claude to write a data migration script, but the initial output doesn't correctly handle records with null values in required fields. What's the most effective way to iterate toward a working solution?",
+    "options": {
+      "A": "Provide a test case with example input containing null values and the expected output, then ask Claude to fix it.",
+      "B": "Manually edit the generated code to fix the null handling, then continue working with Claude on other parts.",
+      "C": "Describe the null value problem in detail and ask Claude to regenerate the entire script with improved edge case handling.",
+      "D": "Add \"think harder about edge cases\" to your prompt and request a complete rewrite of the migration logic."
+    },
+    "answer": "A",
+    "explanation": "A. Provide a test case with example input containing null values and the expected output, then ask Claude\nto fix it. (Correct)\n\nThe most effective iterative approach is to make the failure explicit and verifiable. By providing concrete\ninput/output examples for null-handling edge cases, you give a precise contract for the expected behavior.\nThis allows Claude to adjust the implementation accurately and testably, rather than relying on vague\ndescriptions or full rewrites.\n\nB. Manually edit the generated code to fix the null handling, then continue working with Claude on other\nparts. (Incorrect)\n\nManual fixes break the iterative feedback loop and make it harder for Claude to learn from structured\ncorrection signals.\n\nC. Describe the null value problem in detail and ask Claude to regenerate the entire script with improved\nedge case handling. (Incorrect)\n\nRegenerating the full script is inefficient and risks introducing regressions in already correct parts of the\nlogic.\n\nD. Add \"think harder about edge cases\" to your prompt and request a complete rewrite of the migration\nlogic. (Incorrect)\n\nThis is too vague and does not provide actionable guidance or measurable correctness criteria."
+  },
+  {
+    "id": 115,
+    "question": "You've documented API error handling conventions in a CLAUDE.md file at your project root, specifying that endpoint handlers should use a custom ApiError class. After several sessions, you notice Claude Code sometimes follows these conventions and sometimes uses generic try/catch blocks with string messages. The inconsistency appears random across different coding sessions. What's the most efficient first diagnostic step?",
+    "options": {
+      "A": "Add more detailed code examples to your CLAUDE.md showing the exact ApiError usage pattern for different endpoint types.",
+      "B": "Run /memory to check which memory files are loaded and verify your CLAUDE.md is included.",
+      "C": "Search for conflicting instructions in ~/.claude/CLAUDE.md or ~/.claude/rules/ that might override your project conventions.",
+      "D": "Create path-specific rules in claude/rules/handlers.md with YAML frontmatter scoping the error handling instructions to your API handler files."
+    },
+    "answer": "B",
+    "explanation": "B. Run /memory to check which memory files are loaded and verify your CLAUDE.md is included. \n\n(Correct)\n\nThe first and most efficient diagnostic step is to confirm whether the expected project-level context is\nactually being loaded. Since behavior is inconsistent across sessions, the most likely issue is not the rule\ncontent itself but context loading or memory inclusion. Checking /memory verifies whether CLAUDE.md and\nother relevant rules are being applied in the current session.\n\nA. Add more detailed code examples to your CLAUDE.md showing the exact ApiError usage pattern for\ndifferent endpoint types. (Incorrect)\n\nThis addresses rule clarity, but the issue is not necessarily lack of detail--it may be missing or conflicting\ncontext.\n\nC. Search for conflicting instructions in ~/.claude/CLAUDE.md or ~/.claude/rules/ that might override your\nproject conventions. (Incorrect)\n\nThis is a valid next step, but premature before confirming whether the project rules are even being loaded.\n\nD. Create path-specific rules in claude/rules/handlers.md with YAML frontmatter scoping the error\nhandling instructions to your API handler files. (Incorrect)\n\nThis is a structural fix, not a diagnostic step. You should first identify why the inconsistency is happening."
+  },
+  {
+    "id": 116,
+    "question": "Your monorepo contains shared coding standards in /docs/standards/security-rules.md (for services handling user data), testing-patterns.md (for all packages), and api-conventions.md (for API-facing services). Your 15 packages are organized by feature domain (/packages/auth/, /packages/billing/, /packages/notifications/, etc.) without naming conventions indicating which handle user data or expose APIs. Package maintainers are expected to configure their own local development settings, as they understand their package's domain requirements. Currently, all package CLAUDE.md files duplicate all three standards, applying irrelevant guidance. What's the most effective approach?",
+    "options": {
+      "A": "Create claude/rules/ files for each standard with YAML frontmatter paths listing every package directory where that standard should apply.",
+      "B": "Create a shared-standards.nd that uses @imports to combine all three standards, then have each package's CLAUDE.md import that combined file.",
+      "C": "Put all standards in the root CLAUDE.md with override instructions like \"ignore security-rules.md when working in packages that don't handle user data.\"",
+      "D": "Use @imports in each package's CLAUDE.md to reference only the specific standard files relevant to that package, based on the maintainer's domain knowledge."
+    },
+    "answer": "D",
+    "explanation": "D. Use @imports in each package's CLAUDE.md to reference only the specific standard files relevant to\nthat package, based on the maintainer's domain knowledge. (Correct)\n\nSince the package structure does not inherently indicate which standards apply, and maintainers are\nexpected to understand their package's requirements, the most effective approach is for each package's\nCLAUDE.md to import only the relevant standards. This eliminates duplication, keeps guidance targeted, and\navoids loading irrelevant instructions while leveraging the maintainers' domain expertise.\n\nA. Create .claude/rules/ files for each standard with YAML frontmatter paths listing every package\ndirectory where that standard should apply. (Incorrect)\n\nThis requires centrally maintaining package-to-standard mappings, which is difficult when applicability\ndepends on domain knowledge rather than directory structure.\n\nB. Create a shared-standards.md that uses @imports to combine all three standards, then have each\npackage's CLAUDE.md import that combined file. (Incorrect)\n\nThis continues loading irrelevant standards into every package, which is the problem being solved.\n\nC. Put all standards in the root CLAUDE.md with override instructions like \"ignore security-rules.md when\nworking in packages that don't handle user data.\" (Incorrect)\n\nThis increases context size and complexity, forcing Claude to process and ignore unnecessary guidance\nrather than loading only what is needed."
+  },
+  {
+    "id": 132,
+    "question": "Your agent has analyzed a complex service module--reading 23 source files, tracing request flows, and identifying error handling patterns. A developer needs to develop two testing strategies before committing to one: end-to-end tests with mocked external services vs. snapshot tests capturing expected outputs. The developer needs to independently develop both approaches to evaluate trade-offs. How should you manage the sessions?",
+    "options": {
+      "A": "Resume the analysis session with fork_session enabled, creating a separate branch for each testing strategy.",
+      "B": "Export the analysis session's key findings to a file, then create two new sessions that reference this file.",
+      "C": "Continue in the original session, developing end-to-end tests first, then snapshot tests sequentially.",
+      "D": "Start two fresh sessions, having each re-read the relevant source files before beginning."
+    },
+    "answer": "A",
+    "explanation": "A. Resume the analysis session with fork_session enabled, creating a separate branch for each testing\nstrategy. (Correct)\n\nForking the session is the most effective way to support parallel, independent exploration while preserving\nthe full analysis context in-memory. Since the agent has already completed a heavy analysis phase (23\nsource files, request flows, error handling), that state should not be recomputed or exported--it should be\nreused directly.\n\nWith fork_session, each branch inherits the same authoritative context and can independently explore end-to-\nend tests vs snapshot tests without interference, ordering bias, or redundant reprocessing. This makes it ideal\nfor evaluating trade-offs under identical starting conditions.\n\nB. Export the analysis session's key findings to a file, then create two new sessions that reference this file.\n(Incorrect)\n\nThis introduces unnecessary serialization and reconstruction overhead. It also risks losing subtle contextual\nrelationships present in the live session state.\n\nC. Continue in the original session, developing end-to-end tests first, then snapshot tests sequentially.\n(Incorrect)\n\nSequential execution prevents independent evaluation and introduces bias from the order of exploration.\n\nD. Start two fresh sessions, having each re-read the relevant source files before beginning. (Incorrect)\n\nThis wastes computation by repeating the expensive 23-file analysis instead of reusing already established\ncontext."
+  },
+  {
+    "id": 134,
+    "question": "An engineer used the agent yesterday to analyze a legacy authentication module, identifying two distinct refactoring approaches: extracting a microservice versus refactoring in-place. Today, they want to explore both approaches in depth--having the agent propose specific code changes for each--before deciding which to implement. What's the most effective way to structure this exploration?",
+    "options": {
+      "A": "Use fork_session to create two branches from yesterday's analysis, exploring one approach in each fork.",
+      "B": "Resume yesterday's session and explore both approaches sequentially within the same conversation thread.",
+      "C": "Resume yesterday's session to explore the first approach, then start a new session for the second, manually recreating the original context.",
+      "D": "Start two fresh sessions, manually providing a summary of yesterday's analysis findings to establish context."
+    },
+    "answer": "B",
+    "explanation": "A. Use fork_session to create two branches from yesterday's analysis, exploring one approach in each fork.\n(Incorrect)\n\nForking is best when you need parallel exploration of competing directions without shared context. In this\ncase, both refactoring approaches are being evaluated from the same analytical baseline and are meant to be\ncompared within a single continuous reasoning flow. Forking adds unnecessary fragmentation.\n\nB. Resume yesterday's session and explore both approaches sequentially within the same conversation\nthread. Correct)\n\nThis preserves full historical context from the original analysis while allowing structured, step-by-step\ncomparison of both refactoring strategies. Since both approaches depend on the same prior findings, keeping\nthem in one session ensures consistency, reduces duplication, and makes trade-off evaluation easier.\n\nC. Resume yesterday's session to explore the first approach, then start a new session for the second,\nmanually recreating the original context. (Incorrect)\n\nThis introduces avoidable overhead and risks inconsistencies when manually reconstructing context. It also\nbreaks continuity, making it harder to directly compare the two approaches under identical assumptions.\n\nD. Start two fresh sessions, manually providing a summary of yesterday's analysis findings to establish\ncontext. (Incorrect)\n\nThis is the least efficient option. It relies entirely on manual summarization, which can omit important details\nand lead to context drift. It also duplicates effort and reduces reliability compared to continuing the original\nsession."
+  },
+  {
+    "id": 135,
+    "question": "An engineer asks your agent to add comprehensive tests to a legacy codebase with 200 files and minimal existing test coverage. The engineer hasn't spent much time on the codebase, so they ask for help identifying which modules to prioritize. How should the agent decompose this open-ended task?",
+    "options": {
+      "A": "Use Glob and Grep to map codebase structure, identify heavily-coupled modules, create a prioritized plan for high-impact areas, and revise as dependencies are discovered.",
+      "B": "Create a fixed testing schedule upfront based on directory structure, allocating equal effort to each top- level directory regardless of code complexity or importance.",
+      "C": "Systematically read all 200 files to create a complete function inventory before writing any tests, ensuring the testing plan accounts for everything from the beginning.",
+      "D": "Start writing tests for the first module alphabetically, using test failures and imports to discover related files organically."
+    },
+    "answer": "A",
+    "explanation": "A. Use Glob and Grep to map codebase structure, identify heavily-coupled modules, create a prioritized\nplan for high-impact areas, and revise as dependencies are discovered. (Correct)\n\nThis is the most effective decomposition strategy because it uses lightweight exploration tools first to\nunderstand structure and coupling, then prioritizes testing based on impact and dependency density. It is\niterative and adapts as new relationships between modules are discovered, which is essential in large, poorly\ntested codebases.\n\nB. Create a fixed testing schedule upfront based on directory structure, allocating equal effort to each top-\nlevel directory regardless of code complexity or importance. (Incorrect)\n\nThis ignores differences in module complexity, risk, and coupling. Treating all directories equally leads to\ninefficient allocation of testing effort and misses high-risk areas that need deeper coverage.\n\nC. Systematically read all 200 files to create a complete function inventory before writing any tests,\nensuring the testing plan accounts for everything from the beginning. (Incorrect)\n\nWhile thorough, this is not scalable and delays actual testing work. It front-loads too much analysis and\ndefeats the purpose of incremental discovery, especially in large legacy systems.\n\nD. Start writing tests for the first module alphabetically, using test failures and imports to discover related\nfiles organically. (Incorrect)\n\nThis is an unstructured and arbitrary approach. Alphabetical ordering has no relation to system importance or\ndependency structure, so it risks focusing effort on low-impact areas first and missing critical modules early."
+  },
+  {
+    "id": 137,
+    "question": "You are setting up a non-interactive automated code review pipeline using Claude Code. You want Claude to analyze a pulled Git diff (git diff) against the main branch and apply a custom set of code review instructions. However, you notice that when you run the pipeline, Claude only looks at the raw diff text itself and completely stops using its file-reading or code navigation tools. As a result, it fails to inspect the broader codebase repository context, which is critical because the diff modifies a core function called by many other external modules. Which change to the CLI invocation will cause Claude to read related files in the repository while still successfully applying your custom review instructions?",
+    "options": {
+      "A": "Replace --system-prompt with --append-system-prompt so your review instructions are added to Claude Code's default prompt instead of overwriting the built-in guidance for using file-reading and code navigation tools.",
+      "B": "Keep --system-prompt and add --allowedTools \"Read, Glob, Grep\" so that the non-interactive mode permits file system tools that it otherwise disables.",
+      "C": "Stop piping the diff via stdin and instead embed the diff contents inside the prompt string, so Claude Code treats the invocation as an agentic session rather than a stream-processing one.",
+      "D": "Remove --system-prompt entirely and place the review instructions in a CLAUDE.md file at the repo root, since --system-prompt is incompatible with tool use under -p."
+    },
+    "answer": "A",
+    "explanation": "A. Replace --system-prompt with --append-system-prompt so your review instructions are added to Claude\nCode's default prompt instead of overwriting the built-in guidance for using file-reading and code\nnavigation tools. Correct\nWhy A is correct:\n\n--system-prompt replaces Claude Code's default system instructions, which include guidance for using file-\nreading and code navigation tools. --append-system-prompt preserves those built-in instructions while adding\nyour custom review rules, allowing Claude to inspect related repository files.\n\nB. Keep --system-prompt and add --allowedTools \"Read, Glob, Grep\" Incorrect\n\nTools may be permitted, but replacing the default system prompt can remove the instructions that tell Claude\nto use them.\n\nC. Stop piping the diff via stdin and instead embed the diff contents inside the prompt string Incorrect\nChanging how the diff is provided does not restore the missing tool-use guidance.\n\nD. Remove --system-prompt entirely and place the review instructions in a CLAUDE.md file at the repo root\n Incorrect\n\n--system-prompt is not inherently incompatible with tool use; the issue is overwriting the default prompt."
+  },
+  {
+    "id": 138,
+    "question": "Your development team is using Claude Code to automate test generation across a large codebase. However, developers are frequently rejecting the generated test suites because Claude creates a high volume of trivial assertions or tests that merely maximize line coverage without validating meaningful behavioral logic or edge cases. You want to guide Claude to generate high-quality, production-ready tests directly without introducing high latency or modifying the core pipeline script. Which strategy best ensures that high-quality, meaningful tests are generated in the first place?",
+    "options": {
+      "A": "Restrict test generation to directories where historical quality metrics show higher acceptance rates, disabling it for areas where generated tests consistently require heavy editing.",
+      "B": "Add post-generation coverage analysis that automatically filters out any generated test that doesn't increase line coverage beyond what existing tests provide.",
+      "C": "Document testing standards in CLAUDE.md including valuable test criteria, available fixtures with intended use cases, and examples distinguishing meaningful behavioral tests from trivial assertions.",
+      "D": "Implement a two-phase generation where a second Claude call scores each test against quality criteria, filtering out low-scoring tests before presenting results to developers."
+    },
+    "answer": "C",
+    "explanation": "C. Document testing standards in CLAUDE.md including valuable test criteria, available fixtures with\nintended use cases, and examples distinguishing meaningful behavioral tests from trivial assertions. \nCorrect\n\nWhy C is correct:\n\nCLAUDE.md provides persistent guidance that shapes test generation from the start. By documenting quality\nstandards, fixtures, and examples of meaningful behavioral tests, Claude is more likely to generate\nproduction-ready tests that validate logic and edge cases instead of chasing line coverage.\n\nA. Restrict test generation to certain directories Incorrect\nLimits where tests are generated but does not improve test quality.\n\nB. Add post-generation coverage analysis Incorrect\nCoverage increases do not guarantee meaningful or high-quality tests.\n\nD. Implement a second scoring call Incorrect\nCan filter poor tests but adds latency and modifies the pipeline, which the requirements explicitly avoid."
+  },
+  {
+    "id": 139,
+    "question": "A developer uses Claude Code to refactor a function during their development session. Before committing, they ask the same Claude session to review the code for issues. Later, a separate automated CI review catches several bugs that the same-session review missed. What best explains this discrepancy?",
+    "options": {
+      "A": "The CI environment has access to the full codebase context while the local session only sees the current file",
+      "B": "The CI review uses a more specific prompt tailored for catching bugs, while the developer's request was too general",
+      "C": "Claude retains context about its prior reasoning in the session, making it less likely to question its own decisions",
+      "D": "The extended session length caused the context window to fill with conversation history, leaving less room for thorough analysis"
+    },
+    "answer": "C",
+    "explanation": "C. Claude retains context about its prior reasoning in the session, making it less likely to question its own\ndecisions. Correct\n\nWhy C is correct:\n\nWhen Claude reviews code in the same session where it created or refactored the code, it retains its earlier\nreasoning and assumptions. This can lead to confirmation bias, making it less likely to critically re-evaluate its\nown changes. A fresh CI review starts with no prior attachment to those decisions and may identify issues that\nthe same-session review misses.\n\nA. The CI environment has access to the full codebase context while the local session only sees the current\nfile Incorrect\n\nLocal sessions can also access the codebase using file-reading and navigation tools; this is not the primary\nreason for the discrepancy.\n\nB. The CI review uses a more specific prompt tailored for catching bugs, while the developer's request was\ntoo general Incorrect\n\nPrompt quality can affect results, but the key issue described is reviewing code within the same session that\ngenerated it.\n\nD. The extended session length caused the context window to fill with conversation history, leaving less\nroom for thorough analysis Incorrect\n\nLong conversations may affect context management, but this is not the main explanation for missing bugs\nthat a fresh review catches."
+  },
+  {
+    "id": 142,
+    "question": "An engineer sees an unfamiliar error message \"SYNC_CONFLICT: entity version mismatch detected\" in production logs but doesn't know which of the 12 services in the codebase generates it. They ask the agent to help locate the source code. What exploration approach will most efficiently find the responsible code?",
+    "options": {
+      "A": "Use Grep to search for distinctive text from the error message (like \"SYNC_CONFLICT\" or \"entity version mismatch\"), then Read the matching files to understand context.",
+      "B": "Use Glob to find files in directories commonly associated with error handling (such as errors/, exceptions/, or handlers/) across services, then Read each matching file.",
+      "C": "Use Grep to find all files that import the project's error handling module, then Read those files to locate custom error definitions.",
+      "D": "Read the project's README and service configuration files to understand the architecture, then systematically Read source files in service directory."
+    },
+    "answer": "A",
+    "explanation": "A. Use Grep to search for distinctive text from the error message (like \"SYNC_CONFLICT\" or \"entity\nversion mismatch\"), then Read the matching files to understand context. Correct\nWhy A is correct:\n\nSearching for unique strings in the error message is the fastest and most direct way to locate the source code\nthat generates the error. Grep quickly identifies matching files, and Read provides the surrounding context to\ndetermine which service is responsible.\n\nB. Use Glob to find files in error-related directories Incorrect\nError messages may not be defined in dedicated error directories, making this approach inefficient and\nincomplete.\n\nC. Use Grep to find all files that import the project's error handling module Incorrect\nMany files may import the error module, creating numerous irrelevant matches and increasing investigation\ntime.\n\nD. Read the project's README and service configuration files Incorrect\nProvides architectural context but is a slow, indirect approach for locating a specific error message."
+  },
+  {
+    "id": 150,
+    "question": "You are integrating Claude Code into your Continuous Integration/Continuous Deployment (CI/CD) pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide actionable feedback and minimize false positives. Your automated review jobs take 18 seconds to initialize before Claude begins analyzing code. Profiling reveals that the delay results from automatically discovering hooks, MCP servers, plugins, skills, and multiple nested CLAUDE.md files throughout the monorepo. You need to reduce startup time while ensuring reviews still enforce the coding standards documented in the root- level CLAUDE.md file. What is the most effective approach?",
+    "options": {
+      "A": "Replace the default prompt using --system-prompt-file ./CLAUDE.md, which bypasses default prompt assembly and loads only the project rules.",
+      "B": "Run in --bare mode and pass --append-system-prompt-file ./CLAUDE.md to load the required project standards explicitly while skipping automatic discovery.",
+      "C": "Run in --bare mode and repeat all review criteria directly in the -p prompt for every invocation.",
+      "D": "Keep the default initialization and add --exclude-dynamic-system-prompt-sections to improve prompt-cache reuse across CI runners."
+    },
+    "answer": "B",
+    "explanation": "A. Incorrect -- Replace the default prompt entirely\nUsing --system-prompt-file replaces Claude Code's default system prompt and built-in review behavior. This\nmay remove important coding-assistant instructions and reduce review quality. The goal is to keep the\nstandard behavior while avoiding expensive automatic discovery.\n\nB. Correct -- Bare mode + append the root CLAUDE.md\n--bare skips automatic discovery of hooks, MCP servers, plugins, skills, and nested CLAUDE.md files, which is\n\nthe main source of the 18-second startup delay. Adding --append-system-prompt-file ./CLAUDE.md explicitly\nloads the root-level coding standards you still want enforced. This gives the best balance of fast startup,\npreserved default behavior, and consistent project standards.\n\nC. Incorrect -- Repeat rules in every prompt\n\nThis avoids discovery overhead, but it duplicates policy text in every invocation, increases maintenance\nburden, and makes prompts harder to keep consistent with the canonical CLAUDE.md.\n\nD. Incorrect -- Exclude dynamic sections only\n\nThis may help prompt-cache reuse, but it does not eliminate the expensive discovery of hooks, MCP servers,\nplugins, skills, and nested CLAUDE.md files. Startup time would improve far less than with --bare.\n\nFinal Answer\n\n B. Run in --bare mode and pass --append-system-prompt-file ./CLAUDE.md to load the required project\nstandards explicitly while skipping automatic discovery."
+  },
+  {
+    "id": 151,
+    "question": "You are building developer productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks. It uses the built-in tools (Read, Write, Bash, Grep, Glob) and integrates with Model Context Protocol (MCP) servers. An engineer submits two requests: Request A: \"Rename the getUserData function to fetchUserProfile everywhere it's used.\" Request B: \"Improve error handling throughout the data processing module--add try/catch blocks, meaningful error messages, and ensure failures don't silently corrupt data.\" For which request does specifying an explicit multi-phase workflow (such as analyze propose implement with review) most improve outcome quality?",
+    "options": {
+      "A": "Neither request benefits significantly",
+      "B": "Request A, the function rename task",
+      "C": "Both requests benefit equally",
+      "D": "Request B, the error handling task"
+    },
+    "answer": "D",
+    "explanation": "A. Incorrect Neither request benefits significantly\nRequest B is a complex, judgment-heavy change that benefits substantially from a structured workflow.\nB. Incorrect Request A, the function rename task\nA global function rename is usually a relatively mechanical refactor. Tools like Grep, language-aware rename\nfeatures, and tests often make this straightforward.\nC. Incorrect Both requests benefit equally\nWhile both can benefit from planning, the improvement in quality is much greater for Request B.\nD. Correct Request B, the error handling task\nImproving error handling requires understanding control flow, identifying failure points, preserving data\nintegrity, avoiding unintended side effects, and designing consistent error messages and recovery behavior. A\n\nmulti-phase workflow such as analyze propose implement review helps the agent reason about the\nmodule before making broad changes, leading to higher-quality and safer results.\n\nFinal Answer: D"
+  },
+  {
+    "id": 152,
+    "question": "You are integrating Claude Code into your Continuous Integration/Continuous Deployment (CI/CD) pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide actionable feedback and minimize false positives. A developer uses Claude Code to refactor a function during a development session. Before committing, the developer asks the same Claude session to review the code for issues. Later, a separate automated CI review catches several bugs that the same-session review missed. What best explains this discrepancy?",
+    "options": {
+      "A": "Claude retains the implementation context and prior decisions in the session, making it less likely to challenge assumptions underlying its own changes.",
+      "B": "The session's context window necessarily became full, leaving insufficient capacity for meaningful review.",
+      "C": "The CI review must have used a more specific prompt, while the developer's review request was too general.",
+      "D": "The CI environment can access the full repository, while a local Claude Code session can access only the current file."
+    },
+    "answer": "A",
+    "explanation": "A. Correct Claude retains the implementation context and prior decisions in the session, making it less\nlikely to challenge assumptions underlying its own changes.\n\nWhen the same Claude session performs both the refactor and the review, it carries forward the reasoning,\nassumptions, and implementation choices that led to the changes. This can reduce the likelihood of critically\nquestioning those decisions, making the review less independent.\n\nB. Incorrect The session's context window necessarily became full, leaving insufficient capacity for\nmeaningful review.\n\nA full context window is not the most likely explanation, and the question does not provide evidence that the\ncontext limit was reached.\n\nC. Incorrect The CI review must have used a more specific prompt, while the developer's review request\nwas too general.\n\nPrompt quality can affect results, but the key distinction in the scenario is the difference between a same-\nsession self-review and a separate automated review.\n\nD. Incorrect The CI environment can access the full repository, while a local Claude Code session can\naccess only the current file.\n\nClaude Code can access multiple files and the repository context when used locally; it is not limited to the\ncurrent file.\n\nFinal Answer: A"
+  },
+  {
+    "id": 153,
+    "question": "You are integrating Claude Code into your Continuous Integration/Continuous Deployment (CI/CD) pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide actionable feedback and minimize false positives. Your pipeline includes a release-notes generation step that classifies and summarizes approximately 200 commits at the end of each weekly release cycle. Each commit is currently sent as a separate Messages API request using a Sonnet-tier Claude model. The release notes are not needed until the following morning, providing approximately 12 hours of acceptable latency. Your team must reduce the per-token API cost while retaining the same model, prompts, and output quality. Which approach satisfies all these constraints?",
+    "options": {
+      "A": "Issue the 200 Messages API requests concurrently because parallel execution reduces the per-token price.",
+      "B": "Submit the 200 requests through the Message Batches API with unique custom_id values and retrieve the results after the batch finishes.",
+      "C": "Concatenate all 200 commit messages into one Messages API request because reducing the number of requests always reduces token costs.",
+      "D": "Replace the Sonnet-tier model with a Haiku-tier model to obtain a lower per-token price."
+    },
+    "answer": "B",
+    "explanation": "A. Incorrect Issue the 200 Messages API requests concurrently because parallel execution reduces the\nper-token price.\n\nConcurrency may reduce total wall-clock time, but it does not reduce the per-token API cost.\n\nB. Correct Submit the 200 requests through the Message Batches API with unique custom_id values\nand retrieve the results after the batch finishes.\n\nThe Message Batches API is designed for large numbers of independent requests where latency is not critical.\nIt allows you to keep the same model, prompts, and output quality while reducing cost for high-volume\nasynchronous workloads such as release-note generation.\n\nC. Incorrect Concatenate all 200 commit messages into one Messages API request because reducing\nthe number of requests always reduces token costs.\n\nCombining all commits into one request changes the task structure, can affect output quality, may increase\ncontext complexity, and does not guarantee lower token usage.\n\nD. Incorrect Replace the Sonnet-tier model with a Haiku-tier model to obtain a lower per-token price.\n\nThis violates the requirement to retain the same model and preserve output quality.\n\nFinal Answer: B"
+  },
+  {
+    "id": 160,
+    "question": "In addition to your CI pipeline, your organization has enabled Claude's managed Code Review through the Claude GitHub App on this repository, and reviews run automatically on every pull request. Reviews average 18 findings per pull request. Developer feedback reveals three categories of unwanted noise: (1) style and formatting issues already enforced by your CI linter, (2) findings on automatically generated template code under src/gen/*, and (3) rendering-helper patterns that are intentional project conventions but are flagged because they resemble common anti-patterns. Only approximately four findings per pull request are genuine logic bugs. What is the most effective way to reduce this noise while preserving the detection of real issues?",
+    "options": {
+      "A": "Create a REVIEW.md file at the repository root containing skip rules for CI-enforced checks and generated files, together with a verification requirement that rendering-related findings cite a specific line demonstrating incorrect behavior.",
+      "B": "Configure separate GitHub Actions workflow files for each code area: one for generated code with findings suppressed, one for rendering code with custom instructions, and one general workflow for everything else.",
+      "C": "Add custom review instructions to a GitHub Actions workflow file, using the action's prompt parameter to suppress duplicate lint findings, ignore generated template code, and impose stricter evidence requirements on rendering-related issues.",
+      "D": "Add detailed explanations to the project's CLAUDE.md describing intentional patterns, stating that CI handles linting, and identifying src/gen/ as automatically generated code."
+    },
+    "answer": "A",
+    "explanation": "A. Correct Create a REVIEW.md file at the repository root containing skip rules for CI-enforced checks\nand generated files, together with a verification requirement that rendering-related findings cite a specific\nline demonstrating incorrect behavior.\n\nThis is the most effective option because it gives the managed review system review-specific instructions:\n\nignore issues already enforced by CI,\nskip generated code under src/gen/*,\nand require stronger evidence before flagging intentional rendering patterns.\n\nThese targeted review constraints reduce noise while preserving detection of real logic bugs.\n\nB. Incorrect Configure separate GitHub Actions workflow files for each code area: one for generated\ncode with findings suppressed, one for rendering code with custom instructions, and one general workflow\nfor everything else.\n\nThis adds workflow complexity and does not directly control the behavior of the managed code review\nsystem.\n\nC. Incorrect Add custom review instructions to a GitHub Actions workflow file, using the action's prompt\nparameter to suppress duplicate lint findings, ignore generated template code, and impose stricter\nevidence requirements on rendering-related issues.\n\nThis applies to a workflow-based review integration, not the managed review configuration described in the\nquestion.\n\nD. Incorrect Add detailed explanations to the project's CLAUDE.md describing intentional patterns,\nstating that CI handles linting, and identifying src/gen/ as automatically generated code.\n\nCLAUDE.md provides general repository guidance, but it is less precise for controlling review-time\nsuppression and evidence requirements than a dedicated review-configuration file.\n\nFinal Answer: A"
+  },
+  {
+    "id": 161,
+    "question": "You are using Claude Code to accelerate software development. Your team uses it for code generation, refactoring, debugging, and documentation. You need to integrate it into your development workflow with custom slash commands, CLAUDE.md configurations, and understand when to use plan mode vs direct execution. Your team has connected a custom MCP server that provides DevOps workflow templates. The server exposes several MCP prompts (such as deploy_checklist and incident_response ) in addition to tools. How do these MCP prompts become accessible within Claude Code?",
+    "options": {
+      "A": "They are automatically prepended to every conversation as additional system-level context, influencing Claude's behavior throughout the session.",
+      "B": "They are added to Claude Code's tool registry alongside the server's tools, invoked automatically by the model when relevant to the task.",
+      "C": "They are surfaced as @ -mentionable resources alongside files, fetched and attached to your message when referenced.",
+      "D": "They appear as slash commands (e.g., /mcp__servername__deploy_checklist ) that you can invoke, with arguments passed after the command name."
+    },
+    "answer": "D",
+    "explanation": "A. Incorrect They are automatically prepended to every conversation as additional system-level\ncontext, influencing Claude's behavior throughout the session.\n\nMCP prompts are not injected automatically into every conversation.\n\nB. Incorrect They are added to Claude Code's tool registry alongside the server's tools, invoked\nautomatically by the model when relevant to the task.\n\nMCP tools can be invoked by the model, but MCP prompts are not tools.\n\nC. Incorrect They are surfaced as @-mentionable resources alongside files, fetched and attached to\nyour message when referenced.\n\nThis describes resource attachment behavior, not MCP prompts.\n\nD. Correct They appear as slash commands (e.g., /mcp__servername__deploy_checklist) that you can\ninvoke, with arguments passed after the command name.\n\nIn Claude Code, MCP prompts are exposed as slash commands. You invoke them explicitly, and any\narguments are provided after the command name.\n\nFinal Answer: D"
+  },
+  {
+    "id": 162,
+    "question": "Your pipeline includes a release-notes generation step that classifies and summarizes approximately 200 commits at the end of each weekly release cycle. Each commit is currently sent as a separate Messages API call using a Sonnet-tier Claude model. The release notes are not needed until the following morning, so results have approximately 12 hours of acceptable latency. Your team needs to reduce per-token API cost for this step while keeping the same model and prompts, with no change to the model tier or output quality. Which approach satisfies all these constraints?",
+    "options": {
+      "A": "Concatenate all 200 commit messages into a single Messages API request and have the model return all summaries in one response, because fewer requests always reduce total token cost.",
+      "B": "Issue the 200 Messages API requests in parallel using concurrent connections, because concurrency lowers the per-token price charged by the API.",
+      "C": "Submit the 200 requests to the Message Batches API with unique custom_id values and retrieve the results after the batch finishes, which applies a 50% discount to all input and output tokens.",
+      "D": "Switch the summarization calls from the Sonnet-tier model to a Haiku-tier model to take advantage of Haiku's lower per-token rates."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Concatenate all 200 commit messages into a single Messages API request and have the\nmodel return all summaries in one response, because fewer requests always reduce total token cost.\n\nFewer requests do not guarantee lower token usage. Combining all commits can increase context complexity,\nreduce output quality, and may use a similar or larger number of tokens overall.\n\nB. Incorrect Issue the 200 Messages API requests in parallel using concurrent connections, because\nconcurrency lowers the per-token price charged by the API.\n\nConcurrency can reduce total processing time, but it does not change the per-token pricing.\n\nC. Correct Submit the 200 requests to the Message Batches API with unique custom_id values and\nretrieve the results after the batch finishes, which applies a 50% discount to all input and output tokens.\n\nThe Message Batches API is designed for large asynchronous workloads where latency is not critical. It\npreserves the same model, prompts, and output quality while reducing cost through the batch pricing\ndiscount.\n\nD. Incorrect Switch the summarization calls from the Sonnet-tier model to a Haiku-tier model to take\nadvantage of Haiku's lower per-token rates.\n\nThis violates the requirement to keep the same model tier and maintain the same output quality.\n\nFinal Answer: C"
+  },
+  {
+    "id": 167,
+    "question": "You are integrating Claude Code into your Continuous Integration/Continuous Deployment (CI/CD) pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide actionable feedback and minimize false positives. During initial testing of the automated review pipeline, you notice that reviews on large pull requests containing more than 50 changed files sometimes take over 20 minutes and cost $8�$12 per run because of extensive agentic loops. Claude reads files, runs analysis tools, and iterates many times. Your team needs each invocation to abort once it reaches both a fixed iteration count and a fixed dollar amount, enforced by Claude Code itself rather than by the surrounding job runner. Which configuration change directly enforces both per-invocation caps?",
+    "options": {
+      "A": "Switch the --model flag to a smaller, less expensive model so each iteration uses fewer tokens and has a lower per-call cost.",
+      "B": "Set timeout-minutes: 5 on the GitHub Actions job step and monitor per-run costs through the Anthropic Console usage dashboard.",
+      "C": "Add --max-turns 10 --max-budget-usd 2.00 to the claude -p invocation to cap iterations and spending.",
+      "D": "Set --permission-mode dontAsk to automatically deny tool-permission requests not included in the explicitly allowed set."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Switch the --model flag to a smaller, less expensive model so each iteration uses fewer\ntokens and has a lower per-call cost.\n\nThis may reduce the average cost per run, but it does not enforce hard limits on either the number of\niterations or the total amount spent.\n\nB. Incorrect Set timeout-minutes: 5 on the GitHub Actions job step and monitor per-run costs through\nthe Anthropic Console usage dashboard.\n\nA GitHub Actions timeout stops the workflow externally. The question specifically requires the limits to be\nenforced by Claude Code itself.\n\nC. Correct Add --max-turns 10 --max-budget-usd 2.00 to the claude -p invocation to cap iterations and\nspending.\n\nThese flags directly enforce a maximum number of agentic turns and a maximum dollar budget for that\nspecific invocation, which satisfies both requirements.\n\nD. Incorrect Set --permission-mode dontAsk to automatically deny tool-permission requests not\nincluded in the explicitly allowed set.\n\nThis controls tool-permission behavior, not the number of iterations or the spending limit.\n\nFinal Answer: C"
+  }
+]

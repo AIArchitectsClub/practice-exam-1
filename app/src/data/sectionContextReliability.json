@@ -1,0 +1,374 @@
+[
+  {
+    "id": 14,
+    "question": "After the web search agent finds 25 sources (120K tokens of raw content), the document analysis agent extracts key insights (15K tokens), and the synthesis agent produces a coherent narrative draft (3K tokens), the coordinator must pass context to the report generation agent for the final output with proper source citations. What context- passing strategy provides the best balance of completeness and efficiency?",
+    "options": {
+      "A": "Pass only the synthesis draft and have a separate post-processing pipeline match claims to sources and insert citations after the report is generated.",
+      "B": "Pass the full accumulated context from all prior agents.",
+      "C": "Pass the synthesis draft along with a structured source index that maps key claims to their source URLs and ant Irant excerpts.",
+      "D": "Pass a condensed summary of all prior stages that preserves the main findings and attributes them to sources by name only."
+    },
+    "answer": "C",
+    "explanation": "A. Pass only the synthesis draft and have a separate post-processing pipeline match claims to sources and\n insert citations after the report is generated. Incorrect.\n\n This relies on post-hoc reconstruction, which is error-prone and can lead to incorrect or missing citations.\n\n B. Pass the full accumulated context from all prior agents. Incorrect.\n\n This ensures completeness but is highly inefficient (120K+ tokens) and risks exceeding context limits.\n\n C. Pass the synthesis draft along with a structured source index that maps key claims to their source URLs\n and relevant excerpts. Correct.\n\n This provides the best balance of completeness and efficiency--retaining precise attribution while keeping\n context size manageable.\n\n D. Pass a condensed summary of all prior stages that preserves the main findings and attributes them to\n sources by name only. Incorrect.\n\n This loses granularity and makes precise citation mapping difficult, reducing attribution fidelity."
+  },
+  {
+    "id": 38,
+    "question": "Your system has been operating with 100% human review for 3 months. Analysis shows that extractions with model confidence >90% have 97% accuracy overall. To reduce reviewer workload, you plan to automate high- confidence extractions. Before deploying, what validation step is most critical?",
+    "options": {
+      "A": "Verify that 97% accuracy meets requirements for all downstream systems that consume the extracted data.",
+      "B": "Analyze accuracy by document type and field to verify high-confidence extractions perform consistently across all segments, not just in aggregate.",
+      "C": "Compare accuracy at different confidence thresholds (85%, 90%, 95%) to find the optimal cutoff that maximizes automation while minimizing errors.",
+      "D": "Run a two-week pilot routing 25% of high-confidence extractions directly to downstream systems and monitor error reports."
+    },
+    "answer": "B",
+    "explanation": "A. Verify that 97% accuracy meets requirements for all downstream systems that consume the extracted\ndata. Incorrect.\n\nImportant, but it doesn't ensure the confidence signal is reliable across different cases--it only checks\noverall acceptability.\n\nB. Analyze accuracy by document type and field to verify high-confidence extractions perform consistently\nacross all segments, not just in aggregate. Correct.\n\nAggregate accuracy can hide weak spots. You need to ensure confidence >90% is trustworthy across all\nsegments, otherwise automation may introduce systematic errors.\n\nC. Compare accuracy at different confidence thresholds (85%, 90%, 95%) to find the optimal cutoff that\nmaximizes automation while minimizing errors. Incorrect.\n\nUseful for tuning, but only after confirming the confidence signal is consistent and reliable across segments.\n\nD. Run a two-week pilot routing 25% of high-confidence extractions directly to downstream systems and\nmonitor error reports. Incorrect.\n\nA pilot is valuable, but deploying without validating segment-level reliability first introduces avoidable risk."
+  },
+  {
+    "id": 39,
+    "question": "Your extraction system uses tool_use with a JSON schema containing 12 fields and detailed descriptions, totaling approximately 2,500 tokens for the complete tool definition. Processing documents under 150K tokens yields 98% accuracy. For documents between 175-190K tokens, accuracy drops to 71%, with information from the final third consistently missed. The model's context window is 200K tokens. What is the most likely cause?",
+    "options": {
+      "A": "Tool definitions consume input context tokens. Combined with system prompts and document content, the total approaches the context limit, degrading end-of-document processing.",
+      "B": "Very long documents exceed the model's effective attention span regardless of context limits, causing accuracy degradation for content farther from the prompt instructions.",
+      "C": "The model distributes attention proportionally across input length, causing fields mentioned only once near the document's end to receive insufficient processing focus.",
+      "D": "Schemas exceeding 8-10 fields increase decision complexity during parameter generation, reducing extraction accuracy independent of document length."
+    },
+    "answer": "A",
+    "explanation": "A. Tool definitions consume input context tokens. Combined with system prompts and document content,\n\nthe total approaches the context limit, degrading end-of-document processing. Correct.\n\nThe tool schema (~2,500 tokens) plus system prompts and large documents push total input close to the\n200K context limit, causing truncation or reduced attention to the final portion--hence missed information in\nthe last third.\n\nB. Very long documents exceed the model's effective attention span regardless of context limits, causing\naccuracy degradation for content farther from the prompt instructions. Incorrect.\n\nWhile attention can vary, the sharp drop near the context boundary strongly indicates a context limit issue,\nnot general attention decay.\n\nC. The model distributes attention proportionally across input length, causing fields mentioned only once\nnear the document's end to receive insufficient processing focus. Incorrect.\n\nThis is a weaker effect and does not explain the consistent failure in the final third tied to document size\nthresholds.\n\nD. Schemas exceeding 8�10 fields increase decision complexity during parameter generation, reducing\nextraction accuracy independent of document length. Incorrect.\n\nSchema size is constant across cases; it does not explain why accuracy drops only for longer documents."
+  },
+  {
+    "id": 44,
+    "question": "After three months of weekly sessions, your conversation history has grown to 85,000 tokens. When users ask \"What did we conclude about the theme of isolation?\", the assistant provides generic literary analysis rather than referencing the group's specific insights from earlier sessions. Discussions often build on previous meetings' conclusions, so maintaining narrative context is important. What's the most effective approach?",
+    "options": {
+      "A": "Add structured XML tags to mark significant discussion conclusions throughout the conversation history.",
+      "B": "Use semantic embedding to index the full conversation history and retrieve only relevant past exchanges for each user query, replacing the linear conversation format with retrieved segments.",
+      "C": "Implement rolling window truncation to keep only the most recent 25,000 tokens.",
+      "D": "Implement progressive summarization where older conversation blocks are replaced with concise summaries that explicitly extract key conclusions, decisions, and recurring themes, keeping recent exchanges verbatim."
+    },
+    "answer": "D",
+    "explanation": "A. Add structured XML tags to mark significant discussion conclusions throughout the conversation\nhistory. Incorrect.\n\nTagging helps organization, but it doesn't solve the context length limitation or ensure relevant retrieval at\nquery time.\n\nB. Use semantic embedding to index the full conversation history and retrieve only relevant past\nexchanges for each user query, replacing the linear conversation format with retrieved segments. \nIncorrect.\n\nPowerful for retrieval, but replacing the conversation entirely loses narrative continuity, which is important\nfor ongoing discussions.\n\nC. Implement rolling window truncation to keep only the most recent 25,000 tokens. Incorrect.\n\nThis discards earlier insights, which are critical for referencing past conclusions.\n\nD. Implement progressive summarization where older conversation blocks are replaced with concise\n\nsummaries that explicitly extract key conclusions, decisions, and recurring themes, keeping recent\nexchanges verbatim. Correct.\n\nThis preserves long-term context and key insights while staying within token limits, enabling the assistant to\nreference past conclusions effectively."
+  },
+  {
+    "id": 45,
+    "question": "After a 40-minute session helping plan a dinner party, the conversation has grown to 78,000 tokens. The history includes: (1) the user mentioning a guest has a severe shellfish allergy, (2) measurements for scaling recipes to 8 servings, (3) the user's clarification that \"room temperature butter\" means 68�F in their kitchen, and (4) general back-and-forth about meal timing and presentation. You need to implement context management before the window limit is reached. What approach best balances information preservation with token reduction?",
+    "options": {
+      "A": "Summarize the entire conversation history into a concise summary capturing main topics discussed, then append new messages going forward.",
+      "B": "Implement a sliding window retaining only the most recent 20,000 tokens relying on users to re-state important information when relevant.",
+      "C": "Store the full conversation externally and use semantic search to retrieve relevant portions for each turn, loading only matching segments into context.",
+      "D": "Extract critical structured data (allergies, serving counts, user-defined terms) into a compact reference section, summarize general discussion, and retain recent exchanges verbatim."
+    },
+    "answer": "D",
+    "explanation": "A. Summarize the entire conversation history into a concise summary capturing main topics discussed, then\nappend new messages going forward. Incorrect.\n\nThis risks losing critical details like allergies and precise measurements that must remain exact.\n\nB. Implement a sliding window retaining only the most recent 20,000 tokens relying on users to re-state\nimportant information when relevant. Incorrect.\n\nThis discards essential context (e.g., allergy info), which is unsafe and unreliable.\n\nC. Store the full conversation externally and use semantic search to retrieve relevant portions for each\nturn, loading only matching segments into context. Incorrect.\n\nHelpful for retrieval, but may miss important persistent constraints (like allergies) if not explicitly retrieved\nevery time.\n\nD. Extract critical structured data (allergies, serving counts, user-defined terms) into a compact reference\nsection, summarize general discussion, and retain recent exchanges verbatim. Correct.\n\nThis preserves high-priority facts exactly, reduces tokens efficiently, and maintains conversational\ncontinuity."
+  },
+  {
+    "id": 46,
+    "question": "You're Implementing a feature where users refine their playlist preferences through multiple conversation turns. After deploying, you notice Claude's responses don't reflect what us earlier in the same conversation--for example, a user says they love jazz, but two messages later Claude asks what genres they enjoy. What is the most likely cause?",
+    "options": {
+      "A": "The model's context window has been exceeded by the conversation length",
+      "B": "The Claude API requires a session_id parameter that you haven't configured",
+      "C": "Claude requires a vector database connection to maintain conversation memory",
+      "D": "Your application isn't including prior messages in the messages array"
+    },
+    "answer": "D",
+    "explanation": "A. The model's context window has been exceeded by the conversation length Incorrect.\n This would only happen in very long conversations, and the issue appears early within just a few turns.\n B. The Claude API requires a session_id parameter that you haven't configured Incorrect.\n There is no required session_id--context must be explicitly managed by the application.\n C. Claude requires a vector database connection to maintain conversation memory Incorrect.\n A vector database is optional for retrieval, not required for basic conversation memory.\n D. Your application isn't including prior messages in the messages array Correct.\n Claude does not retain memory between calls--if previous messages aren't included, it cannot recall earlier\n user preferences."
+  },
+  {
+    "id": 48,
+    "question": "During initial testing, you notice that Claude doesn't seem to remember vocabulary words from earlier in the conversation. When a student asks \"Can you quiz me on those words?\", responds as if no words have been discussed. What is the most likely explanation?",
+    "options": {
+      "A": "Your system prompt needs explicit instructions telling Claude to remember information from earlier turns.",
+      "B": "You're not including prior messages in each API request--the stateless API doesn't retain conversation history.",
+      "C": "You need to enable conversation persistence by passing a session ID parameter with each API call.",
+      "D": "The model's context window has filled up, causing earlier conversation content to be dropped."
+    },
+    "answer": "B",
+    "explanation": "A. Your system prompt needs explicit instructions telling Claude to remember information from earlier\nturns. Incorrect.\nInstructions alone don't give the model memory--context must be provided with each request.\n\nB. You're not including prior messages in each API request--the stateless API doesn't retain conversation\nhistory. Correct.\nClaude is stateless. If earlier messages aren't passed in the request, it has no awareness of prior vocabulary.\n\nC. You need to enable conversation persistence by passing a session ID parameter with each API call. \nIncorrect.\n\nThere's no required session ID--memory is handled by including past messages.\n\nD. The model's context window has filled up, causing earlier conversation content to be dropped. \nIncorrect.\n\nThis would only happen in very long conversations, not typical early testing scenarios."
+  },
+  {
+    "id": 49,
+    "question": "Your home renovation planning assistant uses a system prompt defining an expert contractor persona with specific guidelines: always ask about budget, suggest alternatives at multiple price points, and confirm timeline requirements. During testing, responses follow these guidelines for turns 1-4, but by turn 7, the assistant gives generic advice without asking about budget or timeline. The conversation totals only 2,500 tokens. What is the most likely cause?",
+    "options": {
+      "A": "System prompts only establish initial behavior and don't persist across all turns.",
+      "B": "The system prompt is only sent with the first API request.",
+      "C": "The assistant's accumulated responses are diluting the system prompt's influence.",
+      "D": "The model's attention on system prompt instructions naturally weakens as turns accumulate."
+    },
+    "answer": "C",
+    "explanation": "A. System prompts only establish initial behavior and don't persist across all turns. Incorrect.\nSystem prompts do persist as long as they are included in each request.\n\nB. The system prompt is only sent with the first API request. Incorrect.\nIf this were the case, the behavior would degrade immediately after the first turn--not gradually by turn 7.\n\nC. The assistant's accumulated responses are diluting the system prompt's influence. Correct.\nAs the conversation grows, the model must balance more context. Even within a small token count, recent\nconversational patterns can outweigh earlier instructions, causing drift from the original system prompt.\n\nD. The model's attention on system prompt instructions naturally weakens as turns accumulate. \nIncorrect.\n\nThis is too vague--it's not just \"natural weakening,\" but specifically the increasing influence of\nconversational context relative to the system prompt."
+  },
+  {
+    "id": 50,
+    "question": "Users report that during extended conversations, the AI loses track of specific topics, examples, and preferences they mentioned earlier in the session. Your current implementation uses a sliding window that keeps only the most recent 25 message pairs to stay within context limits. What's the most effective approach to maintain awareness of earlier conversation content while managing context size?",
+    "options": {
+      "A": "Replace the sliding window with a hybrid approach: summarize older messages while keeping recent messages verbatim.",
+      "B": "Implement vector similarity search over the full conversation history, retrieving relevant past messages for each user query.",
+      "C": "Increase the window size to 50 message pairs to retain more conversation history before truncation.",
+      "D": "Add a separate API call each turn to summarize messages being dropped, prepending this running summary to the conversation."
+    },
+    "answer": "A",
+    "explanation": "A. Replace the sliding window with a hybrid approach: summarize older messages while keeping recent\nmessages verbatim. Correct.\n\nThis preserves long-term context in a compressed form while keeping recent interactions intact, maintaining\ncontinuity without exceeding token limits.\n\nB. Implement vector similarity search over the full conversation history, retrieving relevant past messages\nfor each user query. Incorrect.\n\nWhile powerful, this is more complex and better suited for large-scale or cross-session retrieval, not\nnecessarily the most direct fix for in-session context loss.\n\nC. Increase the window size to 50 message pairs to retain more conversation history before truncation. \nIncorrect.\n\nThis only delays the issue and increases token usage without fundamentally solving it.\n\nD. Add a separate API call each turn to summarize messages being dropped, prepending this running\nsummary to the conversation. Incorrect.\n\nThis can lead to summary drift and compounding errors, reducing reliability over time."
+  },
+  {
+    "id": 52,
+    "question": "During QA testing, you notice that Claude follows your system prompt guidelines consistently in the first 10-15 turns, but by turn 25-30, responses begin deviating--using informal tone when formality was specified, occasionally skipping required formatting, or providing information types the guidelines restrict. Conversation length is well within context limits (typically 30,000 tokens out of 200,000 available). What's the most effective approach to maintain consistent behavior throughout extended conversations?",
+    "options": {
+      "A": "Insert user-role messages that reinforce critical guidelines at natural conversation breakpoints, especially before complex requests.",
+      "B": "Implement post-response validation that regenerates each response until it conforms to the specified guidelines.",
+      "C": "Automatically start a new conversation after 20 turns, passing a summary of the prior context to maintain continuity.",
+      "D": "Move behavioral guidelines from the system prompt into the first user message."
+    },
+    "answer": "A",
+    "explanation": "A. Insert user-role messages that reinforce critical guidelines at natural conversation breakpoints,\nespecially before complex requests. Correct.\n\nThis combats instruction drift by periodically refreshing key constraints within the active context, keeping\nbehavior aligned over long conversations.\n\nB. Implement post-response validation that regenerates each response until it conforms to the specified\nguidelines. Incorrect.\n\nThis is costly and reactive, and can create loops without addressing the root cause of drift.\n\nC. Automatically start a new conversation after 20 turns, passing a summary of the prior context to\nmaintain continuity. Incorrect.\n\nSummarization can lose detail and doesn't directly reinforce behavioral rules.\n\nD. Move behavioral guidelines from the system prompt into the first user message. Incorrect.\n\nUser messages carry less weight than system prompts and are more likely to be overridden during the\nconversation."
+  },
+  {
+    "id": 53,
+    "question": "Performance analysis reveals your context is composed of accumulated RAG results from all previous queries, which is crowding out conversation history and causing coherence degradation after 15+ turns. Which approach best addresses this issue?",
+    "options": {
+      "A": "Implement semantic deduplication to identify and remove redundant information across the accumulated RAG results and conversation turns",
+      "B": "Implement a sliding window for RAG results from the last 2-3 queries while preserving conversation history",
+      "C": "Shift context budget to favor RAG results while reducing conversation history allocation",
+      "D": "Compress all RAG results into a consolidated summary document that updates incrementally after each retrieval"
+    },
+    "answer": "B",
+    "explanation": "A. Implement semantic deduplication to identify and remove redundant information across the\n accumulated RAG results and conversation turns Incorrect.\n\n This reduces redundancy but doesn't solve the core issue of unbounded accumulation of RAG context.\n\n B. Implement a sliding window for RAG results from the last 2�3 queries while preserving conversation\n history Correct.\n\n This directly addresses context crowding by limiting RAG growth while keeping conversation continuity\n intact.\n\n C. Shift context budget to favor RAG results while reducing conversation history allocation Incorrect.\n\n This worsens coherence by sacrificing conversation context.\n\n D. Compress all RAG results into a consolidated summary document that updates incrementally after each\n retrieval Incorrect.\n\n This can introduce information loss and summary drift, especially across many turns."
+  },
+  {
+    "id": 55,
+    "question": "During a conversation about order tracking, your external system receives a webhook indicating the user's package has shipped. The user is actively chatting and will likely send a follow-up message soon. You want the assistant to naturally incorporate this status change in its next response. What's the most effective approach?",
+    "options": {
+      "A": "Immediately send an API request with the update as a synthetic user message, generating an unsolicited assistant response.",
+      "B": "Append the status update as a prefix to the next user message before calling the API.",
+      "C": "Configure the assistant to call a get_order_status tool at the start of every response.",
+      "D": "Add the current shipping status to the system prompt before the next API call."
+    },
+    "answer": "D",
+    "explanation": "A. Immediately send an API request with the update as a synthetic user message, generating an unsolicited\nassistant response. Incorrect.\nThis creates an unsolicited interruption, which can feel unnatural and confusing in an active conversation.\nB. Append the status update as a prefix to the next user message before calling the API. Incorrect.\nThis pollutes the user message and mixes system state with user intent, which can lead to misinterpretation.\nC. Configure the assistant to call a get_order_status tool at the start of every response. Incorrect.\nThis is inefficient and unnecessary, especially when you already have the update via webhook.\nD. Add the current shipping status to the system prompt before the next API call. Correct.\nThis cleanly injects up-to-date system state into context, allowing the assistant to naturally incorporate it\ninto the next response without disrupting the conversation flow."
+  },
+  {
+    "id": 60,
+    "question": "Your agent has called lookup_order multiple times while investigating a customer's return requests. Each response includes 40+ fields (items, shipping details, payment inf outputs now represent the majority of the conversation's context. The customer mentions two more orders they want to discuss. What's the most effective approach before lookups?",
+    "options": {
+      "A": "Move all tool responses to a vector database with semantic indexing, retrieving relevant portions as the conversation continues",
+      "B": "Extract only return-relevant fields (items, purchase date, return window, status) from each existing order response, removing verbose details",
+      "C": "Have the model generate a natural language summary of each order's key details, replacing structured responses with prose descriptions",
+      "D": "Proceed with additional lookups without modifying the existing tool output context"
+    },
+    "answer": "B",
+    "explanation": "A. Move all tool responses to a vector database with semantic indexing, retrieving relevant portions as the\nconversation continues Incorrect.\n\nThis adds unnecessary infrastructure complexity for a short-lived conversational context problem.\n\nB. Extract only return-relevant fields (items, purchase date, return window, status) from each existing\norder response, removing verbose details Correct.\n\nThis preserves the information needed for the current task while significantly reducing context bloat before\nadditional lookups.\n\nC. Have the model generate a natural language summary of each order's key details, replacing structured\nresponses with prose descriptions Incorrect.\n\nNatural language summaries are less compact and may omit structured details needed for accurate return\nhandling.\n\nD. Proceed with additional lookups without modifying the existing tool output context Incorrect.\n\nThis worsens context crowding and increases the risk of degraded performance."
+  },
+  {
+    "id": 61,
+    "question": "During a billing dispute resolution, your agent successfully retrieves customer info via get_customer and order details via lookup_order, but when attempting to call process_refund, the tool returns a timeout error. The agent has enough information to explain the charges and verify refund eligibility, but cannot actually process the refund due to the backend failure. What approach best balances first-contact resolution with appropriate error handling?",
+    "options": {
+      "A": "Confirm the refund will be processed and close the conversation, since the system has all necessary information to complete it automatically",
+      "B": "Explain the billing, confirm refund eligibility, acknowledge the system issue preventing immediate processing, and offer escalation or retry later",
+      "C": "Escalate immediately to a human agent since the refund action cannot be completed",
+      "D": "Implement automatic retries with exponential backoff for process_refund, keeping the conversation open until the refund is successfully processed"
+    },
+    "answer": "B",
+    "explanation": "A. Confirm the refund will be processed and close the conversation, since the system has all necessary\ninformation to complete it automatically Incorrect.\n\nThe refund was not actually processed. Confirming success would be inaccurate and misleading.\n\nB. Explain the billing, confirm refund eligibility, acknowledge the system issue preventing immediate\nprocessing, and offer escalation or retry later Correct.\n\nThis maximizes first-contact value by resolving what can be resolved, while transparently handling the\nbackend failure.\n\nC. Escalate immediately to a human agent since the refund action cannot be completed Incorrect.\n\nEscalation may be unnecessary if the issue is temporary and the agent can still provide useful assistance.\n\nD. Implement automatic retries with exponential backoff for process_refund, keeping the conversation\nopen until the refund is successfully processed Incorrect.\n\nRetries are useful for transient failures, but indefinitely blocking the conversation creates poor user\nexperience and doesn't guarantee success."
+  },
+  {
+    "id": 62,
+    "question": "Your agent is handling a billing dispute. After calling get_customer and lookup_order, it identifies that the dispute involves a promotional pricing error requiring manager approval--beyond the agent's authorization level. How should the workflow handle this mid-process escalation?",
+    "options": {
+      "A": "Persist the complete conversation and tool response history to a database, then call escalate_to_human with a reference ID.",
+      "B": "Call escalate_to_human passing only the customer's original message.",
+      "C": "Attempt the refund with process_refund anyway, escalating only if the system rejects the transaction.",
+      "D": "Compile a structured handoff with customer details, order info, and the identified issue before calling escalate_to_human."
+    },
+    "answer": "D",
+    "explanation": "A. Persist the complete conversation and tool response history to a database, then call escalate_to_human\n with a reference ID. Incorrect.\n Useful operationally, but the human agent still needs a concise, actionable summary rather than raw logs\n alone.\n\n B. Call escalate_to_human passing only the customer's original message. Incorrect.\n This loses the investigation work already completed and forces the human agent to repeat steps.\n\n C. Attempt the refund with process_refund anyway, escalating only if the system rejects the transaction.\n Incorrect.\n This violates authorization boundaries and business policy.\n\n D. Compile a structured handoff with customer details, order info, and the identified issue before calling\n escalate_to_human. Correct.\n A structured handoff preserves context, reduces repetition, and enables efficient continuation by the human\n agent."
+  },
+  {
+    "id": 64,
+    "question": "A customer raises three separate issues during one session: a refund inquiry (turns 1-15), a subscription question (turns 16-30), and a payment method update (turns 31-45). At turn 48, the customer asks \"What happened with my refund?\" The conversation is approaching context limits. What strategy best maintains the agent's ability to address all issues throughout the session?",
+    "options": {
+      "A": "Implement sliding window context that retains the most recent 30 turns.",
+      "B": "Extract and persist structured issue data (order IDs, amounts, statuses) into a separate context layer.",
+      "C": "Rely on MCP tools to re-fetch relevant information on demand when the customer references earller issues.",
+      "D": "Summarize earlier turns into a narrative description, preserving full message history only for the active issue."
+    },
+    "answer": "B",
+    "explanation": "A. Implement sliding window context that retains the most recent 30 turns. Incorrect.\n\nThis would likely drop the earlier refund discussion entirely, preventing accurate follow-up handling.\n\nB. Extract and persist structured issue data (order IDs, amounts, statuses) into a separate context layer. \nCorrect.\n\nStructured persistence preserves critical state across multiple concurrent issues while minimizing context\nusage and enabling reliable recall later in the session.\n\nC. Rely on MCP tools to re-fetch relevant information on demand when the customer references earlier\nissues. Incorrect.\n\nTools can retrieve system data, but not the conversational context, decisions, or prior explanations from\nearlier turns.\n\nD. Summarize earlier turns into a narrative description, preserving full message history only for the active\nissue. Incorrect.\n\nNarrative summaries may omit important structured details needed to accurately resume earlier issues."
+  },
+  {
+    "id": 71,
+    "question": "Your conversation history includes two types of content: persistent story elements (character backgrounds, plot structure, world rules) that must remain consistent throughout, and extensive brainstorming discussion that's mostly ephemeral. After 40+ turns, you're hitting context limits and users report the assistant \"forgets\" established character traits, breaking narrative consistency. Which approach best ensures persistent story elements remain available to the model while reclaiming context space?",
+    "options": {
+      "A": "Separate persistent story elements into a retained \"story bible\" section at context start, applying trimming or summarization only to brainstorming discussion.",
+      "B": "Store all history in a vector database and retrieve semantically similar passages for each new message, replacing conversation history with retrieved chunks.",
+      "C": "Apply a sliding-window approach keeping only the most recent 25 turns, relying on the model to infer earlier context from recent discussion flow.",
+      "D": "Summarize the entire conversation history into a condensed synopsis every 20 turns, replacing the full history to free up tokens."
+    },
+    "answer": "A",
+    "explanation": "A. Separate persistent story elements into a retained \"story bible\" section at context start, applying\n trimming or summarization only to brainstorming discussion. Correct.\n\n This directly solves the problem by preserving high-value, invariant narrative constraints (characters, rules,\n canon) while allowing lower-value conversational content to be compressed. It maintains continuity without\n losing essential story logic.\n\n B. Store all history in a vector database and retrieve semantically similar passages for each new message,\n replacing conversation history with retrieved chunks. Incorrect.\n\n This risks missing globally important story rules because retrieval is similarity-based, not constraint-aware.\n Core canon details may not always be retrieved.\n\n C. Apply a sliding-window approach keeping only the most recent 25 turns, relying on the model to infer\n earlier context from recent discussion flow. Incorrect.\n\n This will almost certainly break long-range consistency, since key character and world rules will be dropped.\n\n D. Summarize the entire conversation history into a condensed synopsis every 20 turns, replacing the full\n history to free up tokens. Incorrect.\n\n General summarization tends to lose fine-grained canonical details, which are exactly what must remain\n stable for narrative consistency."
+  },
+  {
+    "id": 73,
+    "question": "Users frequently refine their search criteria mid-conversation. You notice a pattern: when users say things like \"Actually, let's raise the budget to $650K\" or \"I'd prefer a condo now instead of a house,\" the assistant sometimes continues referencing the original preferences in later responses--even though the updates are clearly present in the conversation history. Context usage is only at 35% capacity. Which solution most reliably ensures the model uses the current preferences?",
+    "options": {
+      "A": "Maintain a structured state object with current preferences, update it on changes, and include it in each request.",
+      "B": "Implement conversation pruning to remove turns containing outdated preferences, ensuring only current ones remain in context.",
+      "C": "Include few-shot examples showing the assistant correctly acknowledging and applying preference changes in responses.",
+      "D": "Add system prompt instructions emphasizing that the model should always prioritize the most recently stated preferences over earlier ones."
+    },
+    "answer": "A",
+    "explanation": "A. Maintain a structured state object with current preferences, update it on changes, and include it in each\nrequest. Correct.\n\nThis is the most reliable solution because it externalizes \"truth\" into a single authoritative state, preventing\nthe model from having to infer which preference is current across many turns.\n\nB. Implement conversation pruning to remove turns containing outdated preferences, ensuring only current\n\nones remain in context. Incorrect.\n\nPruning is risky because earlier messages may still contain important constraints or rationale; removing them\ncan break continuity and lead to unintended loss of context.\n\nC. Include few-shot examples showing the assistant correctly acknowledging and applying preference\nchanges in responses. Incorrect.\n\nExamples help behavior, but they do not guarantee consistent override of earlier conflicting context in long\nconversations.\n\nD. Add system prompt instructions emphasizing that the model should always prioritize the most recently\nstated preferences over earlier ones. Incorrect.\n\nThis is helpful but not reliable enough on its own--models can still misinterpret or fail to consistently resolve\nconflicts without a structured state."
+  },
+  {
+    "id": 83,
+    "question": "The agent verifies customer identity through a multi-step process before resetting passwords. During testing, you notice that after the customer answers the third verification question, the agent asks them to provide their name again, as if the earlier exchange never happened. What's the most likely cause of this behavior?",
+    "options": {
+      "A": "Claude's memory retention is limited to two conversational turns by default, requiring explicit configuration to extend it.",
+      "B": "The prompt lacks instructions telling Claude to remember information across multiple exchanges.",
+      "C": "The verification tool is clearing the agent's internal state after each successful validation step.",
+      "D": "The conversation history isn't being passed in subsequent API requests."
+    },
+    "answer": "D",
+    "explanation": "A. Claude's memory retention is limited to two conversational turns by default, requiring explicit\nconfiguration to extend it. Incorrect.\n\nThere is no fixed \"two-turn memory limit\" like this; context is determined by what the application sends, not a\nbuilt-in short memory window.\n\nB. The prompt lacks instructions telling Claude to remember information across multiple exchanges. \nIncorrect.\n\nSystem prompts don't control memory persistence. The model does not \"forget\" within context unless\ninformation is missing from input.\n\nC. The verification tool is clearing the agent's internal state after each successful validation step. \nIncorrect.\n\nTools do not automatically reset conversational context unless explicitly designed to do so--and that would\nbe an application-level bug, not the most likely general cause.\n\nD. The conversation history isn't being passed in subsequent API requests. Correct.\n\nThis is the most likely cause. The model is stateless, so if prior messages aren't included in each request, it\nbehaves as if earlier verification steps never happened--leading to repeated questions like asking for the\nname again."
+  },
+  {
+    "id": 89,
+    "question": "The system routes documents with extraction confidence below 85% to human review. A quarterly audit reveals that 12% of high-confidence extractions (>85%) also contain errors--cases where the model finds plausible-but- incorrect values. Error sources vary: comparison tables showing competitor specs, appendices referencing different product variants, and ambiguous phrasing the model misinterprets. You need a sustainable strategy to catch these high-confidence errors and measure whether improvements reduce the error rate over time. What approach is most effective?",
+    "options": {
+      "A": "Implement heuristic rules that flag documents containing comparison tables or appendices for review regardless of confidence score.",
+      "B": "Implement stratified random sampling reviewing a fixed percentage of high-confidence extractions weekly, enabling error rate measurement and novel pattern detection.",
+      "C": "Add a verification pass that re-extracts from each high-confidence document, flagging cases where the two extraction attempts produce different results.",
+      "D": "Lower the confidence threshold from 85% to 70%, routing a larger volume of extractions to human review."
+    },
+    "answer": "B",
+    "explanation": "A. Implement heuristic rules that flag documents containing comparison tables or appendices for review\n regardless of confidence score. Incorrect.\n\n This targets only currently known failure patterns and will miss new classes of high-confidence errors over\n time.\n\n B. Implement stratified random sampling reviewing a fixed percentage of high-confidence extractions\n weekly, enabling error rate measurement and novel pattern detection. Correct.\n\n This is the most sustainable and statistically sound approach. It both:\n\n measures the true ongoing error rate in \"trusted\" outputs, and\n surfaces emerging failure patterns that confidence scores miss.\n\n It creates a continuous quality-monitoring feedback loop rather than patching isolated issues.\n\n C. Add a verification pass that re-extracts from each high-confidence document, flagging cases where the\n two extraction attempts produce different results. Incorrect.\n\n Useful for detecting instability, but repeated extraction can still confidently reproduce the same wrong\n answer.\n\n D. Lower the confidence threshold from 85% to 70%, routing a larger volume of extractions to human\n review. Incorrect.\n\n This increases operational cost dramatically without specifically addressing hidden high-confidence errors."
+  },
+  {
+    "id": 95,
+    "question": "Your research assistant helps users analyze academic papers over extended conversations. User testing reveals a recurring issue: after conversations exceed 60K tokens, users ask follow-up questions requiring precise numerical details from papers discussed earlier--sample sizes, exact p-values, specific inclusion criteria. Your current approach summarizes paper discussions after 8 turns to stay within context limits. Users report that responses to these precision-dependent questions are often hedged or inaccurate. What's the most effective architectural change?",
+    "options": {
+      "A": "Implement retrieval that re-injects relevant paper sections when the user's question suggests they need specific numerical details.",
+      "B": "Maintain a structured database of key facts extracted from each paper (sample sizes, statistics, methods) and retrieve relevant entries into context when precision-dependent questions are detected.",
+      "C": "Keep source text from methodology and results sections in context permanently, while summarizing only the conversational discussion and interpretation portions.",
+      "D": "Use a separate Claude call with explicit instructions to generate higher-fidelity summaries that preserve all numerical details and statistical values."
+    },
+    "answer": "B",
+    "explanation": "A. Implement retrieval that re-injects relevant paper sections when the user's question suggests they need\nspecific numerical details. Incorrect\n\nThis helps, but it is reactive and depends on correct detection at query time; it doesn't ensure consistent\navailability of critical structured facts across the session.\n\nB. Maintain a structured database of key facts extracted from each paper (sample sizes, statistics,\n\nmethods) and retrieve relevant entries into context when precision-dependent questions are detected. \nCorrect\n\nThis is the most effective architectural change. It separates stable factual data (structured facts store) from\nconversational history, ensuring that precise values like p-values and sample sizes remain accessible even\nafter summarization or long-context drift.\n\nC. Keep source text from methodology and results sections in context permanently, while summarizing\nonly the conversational discussion and interpretation portions. Incorrect\n\nThis is inefficient and quickly exhausts context window limits, especially across many papers.\n\nD. Use a separate Claude call with explicit instructions to generate higher-fidelity summaries that preserve\nall numerical details and statistical values. Incorrect\n\nEven high-fidelity summaries can introduce omission or distortion; it is not as reliable as structured fact\nextraction and storage."
+  },
+  {
+    "id": 102,
+    "question": "During testing, you observe that in extended exploration sessions (30+ minutes), the agent starts giving inconsistent answers about context discussed earlier. Engineers report having to repeat context about modules they've already explored. What's the most effective approach to address this?",
+    "options": {
+      "A": "Create summaries of all source files before exploration begins, loading only these compressed representations into context.",
+      "B": "Switch to a higher-capacity model tier to provide more context window space for accumulated exploration data.",
+      "C": "Implement automatic context clearing every 15 minutes to ensure the agent starts with fresh, uncontaminated context.",
+      "D": "Have the agent maintain a scratchpad file that records key findings, referencing it for subsequent questions."
+    },
+    "answer": "D",
+    "explanation": "D. Have the agent maintain a scratchpad file that records key findings, referencing it for subsequent\nquestions. (Correct)\n\nIn long exploration sessions, context window limitations can cause earlier discoveries to be forgotten or\nsummarized away. Maintaining a persistent scratchpad of important findings, module relationships, decisions,\nand observations allows the agent to consistently reference prior work without requiring engineers to\nrepeatedly provide the same context.\n\nA. Create summaries of all source files before exploration begins, loading only these compressed\nrepresentations into context. (Incorrect)\n\nSummaries can omit important implementation details and are not a complete substitute for maintaining\nevolving investigation knowledge.\n\nB. Switch to a higher-capacity model tier to provide more context window space for accumulated\nexploration data. (Incorrect)\n\nA larger context window may help temporarily, but it does not solve the underlying problem of managing\nknowledge across lengthy investigations.\n\nC. Implement automatic context clearing every 15 minutes to ensure the agent starts with fresh,\nuncontaminated context. (Incorrect)\n\nClearing context would worsen the problem by causing the agent to lose even more information from the\nongoing investigation."
+  },
+  {
+    "id": 126,
+    "question": "Your agent is handling a billing dispute. After calling get_customer and lookup_order, it identifies that the dispute involves a promotional pricing ero approval--beyond the agent's authorization level. How should the workflow handle this mid-process escalation?",
+    "options": {
+      "A": "Persist the complete conversation and tool response history to a database, then call escalate_to_human with a reference ID.",
+      "B": "Compile a structured handoff with customer details, order info, and the identified issue before calling escalate_to_human",
+      "C": "Attempt the refund with process refund anyway, escalating only if the system rejects the transaction.",
+      "D": "Call escalate_to_human passing only the customer's original message."
+    },
+    "answer": "B",
+    "explanation": "B. Compile a structured handoff with customer details, order info, and the identified issue before calling\nescalate_to_human. (Correct)\n\nWhen an agent determines that a case requires human approval or exceeds its authorization level, it should\ncreate a structured handoff containing all relevant context gathered during the investigation. This enables\nthe human agent to continue from the current state without repeating work and ensures a smooth transition.\n\nA. Persist the complete conversation and tool response history to a database, then call escalate_to_human\nwith a reference ID. (Incorrect)\n\nWhile storing history may be useful, providing only a reference ID does not ensure the human agent receives a\nclear summary of the issue or the investigation already performed.\n\nC. Attempt the refund with process_refund anyway, escalating only if the system rejects the transaction.\n (Incorrect)\n\nThe scenario states that the refund amount exceeds the agent's authorization level. The agent should respect\nauthorization boundaries and escalate rather than attempting the action.\n\nD. Call escalate_to_human passing only the customer's original message. (Incorrect)\n\nPassing only the original message omits the customer information, order details, and findings already\ncollected, forcing the human agent to repeat the investigation."
+  },
+  {
+    "id": 127,
+    "question": "Your agent has called lookup_order multiple times while investigating a customer's return requests. Each response includes 40+ fields (items, shipping details, payment info, status history). Tool outputs now represent the majority of the conversation's context. The customer mentions two more orders they want to discuss. What's the effective approach before making additional lookups?97",
+    "options": {
+      "A": "Extract only return-relevant fields (items, purchase date, return window, status) from each existing order response, removing verbose details",
+      "B": "Proceed with additional lookups without modifying the existing tool output context",
+      "C": "Move all tool responses to a vector database with semantic indexing, retrieving relevant portions as the conversation continues",
+      "D": "Have the model generate a natural language summary of each order's key details, replacing structured responses with prose descriptions"
+    },
+    "answer": "A",
+    "explanation": "A. Extract only return-relevant fields (items, purchase date, return window, status) from each existing\n order response, removing verbose details. (Correct)\n\n As tool outputs begin to dominate the context window, the best approach is to compress and retain only the\n information relevant to the current task. Since the conversation is focused on return requests, fields such as\n items, purchase date, return eligibility, and order status should be preserved, while unrelated details like\n payment information, full shipping records, and extensive status history can be removed. This maintains the\n necessary context while conserving tokens for future interactions and tool calls.\n\n B. Proceed with additional lookups without modifying the existing tool output context. (Incorrect)\n\n Continuing to accumulate large tool responses wastes context window space and increases the risk of losing\n important information later in the conversation.\n\n C. Move all tool responses to a vector database with semantic indexing, retrieving relevant portions as the\n conversation continues. (Incorrect)\n\n While retrieval systems can be useful for long-term memory, this is a more complex solution than necessary.\n The immediate issue is excessive tool output, which can be addressed more effectively through targeted\n context reduction.\n\n D. Have the model generate a natural language summary of each order's key details, replacing structured\n responses with prose descriptions. (Incorrect)\n\n Natural language summaries may omit important fields and are generally less reliable than retaining a\n compact, structured representation of the relevant data."
+  },
+  {
+    "id": 141,
+    "question": "Your codebase exploration tool stores session IDs to allow engineers to continue investigations across work sessions. An engineer spent an hour yesterday analyzing a legacy authentication module, building context about its architecture and dependencies. They want to continue today. The session ID is valid, but version control shows 3 of the 12 files the agent previously read were modified overnight by a teammate's merge. What approach best balances efficiency and accuracy?",
+    "options": {
+      "A": "Resume the session and immediately have the agent re-read all 12 previously analyzed files to ensure complete alignment.",
+      "B": "Resume the session without informing the agent about the changed files, allowing it to naturally detect discrepancies during execution.",
+      "C": "Resume the session and inform the agent which specific files changed for targeted re-analysis while retaining context on the unchanged files.",
+      "D": "Start a fresh session to ensure the agent works with current codebase state without stale assumptions from the previous day."
+    },
+    "answer": "C",
+    "explanation": "C. Resume the session and inform the agent which specific files changed for targeted re-analysis while\nretaining context on the unchanged files. Correct\n\nWhy C is correct:\n\nThis approach preserves the valuable context built during the previous session while ensuring accuracy by re-\nanalyzing only the files that changed. It balances efficiency and correctness by avoiding unnecessary re-\nreading of unchanged files and preventing stale assumptions.\n\nA. Resume the session and immediately have the agent re-read all 12 previously analyzed files to ensure\n\ncomplete alignment. Incorrect\nEnsures freshness but is inefficient because nine files remain unchanged.\n\nB. Resume the session without informing the agent about the changed files, allowing it to naturally detect\ndiscrepancies during execution. Incorrect\nRisks relying on outdated assumptions and missing the impact of recent changes.\n\nD. Start a fresh session to ensure the agent works with current codebase state without stale assumptions\nfrom the previous day. Incorrect\nGuarantees fresh context but discards an hour of useful analysis and is unnecessarily inefficient."
+  },
+  {
+    "id": 148,
+    "question": "You're implementing the escalation logic for when the agent should call a human. Your team processes for different approaches for triggering escalation. Which approach will most reliably identify cases that genuinely require human intervention?",
+    "options": {
+      "A": "Instruct the agent to escalate when the customer requests a human. When the issue requires policy exceptions, or the agent can not make meaningful progress.",
+      "B": "Configure the agent to escalate after three consecutive tools fails to resolve the customer's stated issue, ensuring a reasonable attempt before involving a human.",
+      "C": "Build a rules engine that maps specific issue types, customer segments and product categories to escalation decisions, removing the need for model judgment calls.",
+      "D": "Implement sentiment analysis that monitors for frustration indicators (e.g., all-caps, repeated questions, exclamations) and trigger escalation when the frustration score exceeds a configured threshold."
+    },
+    "answer": "A",
+    "explanation": "A. Instruct the agent to escalate when the customer requests a human, when the issue requires policy\nexceptions, or when the agent cannot make meaningful progress. Correct\n\nWhy A is correct:\n\nThis approach directly identifies situations that genuinely require human intervention. It covers customer\npreference, requests that need policy exceptions or discretionary decisions, and cases where the agent is\nunable to make meaningful progress. It provides a balanced and reliable escalation strategy.\n\nB. Configure the agent to escalate after three consecutive tool failures Incorrect\n\nTool failures do not always mean a human is needed, and some cases require immediate escalation without\nwaiting for multiple failures.\n\nC. Build a rules engine that maps issue types, customer segments, and product categories to escalation\ndecisions Incorrect\n\nA rigid rules engine is difficult to maintain and cannot capture all situations that require human judgment or\ncustomer preference.\n\nD. Implement sentiment analysis that triggers escalation based on frustration indicators Incorrect\n\nFrustration may indicate dissatisfaction, but it is not a reliable indicator that human intervention is necessary."
+  },
+  {
+    "id": 169,
+    "question": "An AI agent running in Claude Code (or similar agentic harness with tools like Read, Write, Bash, Grep, Glob, and Model Context Protocol servers) is investigating a large payment processing module spanning 45 files. After reading the first 8 source files, the agent's responses are becoming noticeably less accurate--it is forgetting previously discussed code patterns and hasn't yet located all test files or traced critical payment flows. What is the most effective approach to complete this investigation without exceeding context limits or causing context degradation?",
+    "options": {
+      "A": "Clear context with /clear, then selectively re-read only the most critical files discovered so far, writing key findings to a scratchpad file that persists between context resets.",
+      "B": "Document all current findings in a summary report, clear context completely, then use that report as the sole reference for continuing the investigation.",
+      "C": "Spawn subagents (or sub-tasks) to investigate specific questions (e.g., \"find all test files for payment processing,\" \"trace refund flow dependencies\") while the main agent coordinates findings and preserves high- level context.",
+      "D": "Continue reading the remaining files in the main session, relying on Claude's extended context window to auto-truncate earlier messages as new files are loaded."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Clear context with /clear, then selectively re-read only the most critical files discovered so\nfar, writing key findings to a scratchpad file that persists between context resets.\n\nThis can help in some situations, but it interrupts the investigation and requires repeated re-reading of files,\nwhich is inefficient for a large, multi-question codebase analysis.\n\nB. Incorrect Document all current findings in a summary report, clear context completely, then use that\nreport as the sole reference for continuing the investigation.\n\nA summary alone is usually too lossy for complex investigations involving control flow, dependencies, and\ntests spread across many files.\n\nC. Correct Spawn subagents (or sub-tasks) to investigate specific questions (e.g., \"find all test files for\npayment processing,\" \"trace refund flow dependencies\") while the main agent coordinates findings and\npreserves high-level context.\n\nThis is the most effective approach. Specialized subagents can explore different parts of the codebase\nindependently, keeping each context focused and small. The main agent maintains the overall investigation\nstate and integrates the findings without overloading a single context window.\n\nD. Incorrect Continue reading the remaining files in the main session, relying on Claude's extended\ncontext window to auto-truncate earlier messages as new files are loaded.\n\nAllowing earlier information to be truncated is exactly what causes the observed degradation in accuracy and\nloss of important patterns.\n\nFinal Answer: C"
+  },
+  {
+    "id": 170,
+    "question": "You are building developer productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks using built-in tools (Read, Write, Bash, Grep, Glob) and Model Context Protocol (MCP) servers. Your agent has spent significant context exploring the rendering subsystem--reading shader code, buffer management, and frame synchronization logic. An engineer now asks it to understand how the physics engine integrates with rendering for collision debug overlays. You notice recent responses reference \"typical rendering patterns\" rather than the specific VulkanPipeline and FrameGraph classes it discovered earlier. What's the most effective approach to handle this transition while preserving accuracy?",
+    "options": {
+      "A": "Spawn a sub-agent to explore physics independently, then manually synthesize its findings with the rendering knowledge accumulated in the main conversation.",
+      "B": "Use /clear to reset context completely, then start fresh with physics exploration using file paths from the project's CLAUDE.md.",
+      "C": "Continue in the current context with more targeted prompts referencing the specific classes by name.",
+      "D": "Summarize key rendering findings (including specific class names and architectural patterns), clear or reset the main context window (or delegate to a sub-agent seeded with that summary), then proceed with the physics integration exploration."
+    },
+    "answer": "D",
+    "explanation": "A. Incorrect Spawn a sub-agent to explore physics independently, then manually synthesize its findings\nwith the rendering knowledge accumulated in the main conversation.\n\nThis helps with separation of concerns, but it does not address the fact that the main conversation is already\nsuffering from context degradation.\n\nB. Incorrect Use /clear to reset context completely, then start fresh with physics exploration using file\npaths from the project's CLAUDE.md.\n\nResetting without preserving the important rendering discoveries risks losing the specific VulkanPipeline and\nFrameGraph knowledge needed for accurate integration analysis.\n\nC. Incorrect Continue in the current context with more targeted prompts referencing the specific\nclasses by name.\n\nThe symptoms indicate that the current context is already becoming degraded. Adding more targeted\nprompts may not reliably restore the lost precision.\n\nD. Correct Summarize key rendering findings (including specific class names and architectural\npatterns), clear or reset the main context window (or delegate to a sub-agent seeded with that summary),\n\nthen proceed with the physics integration exploration.\n\nThis preserves the high-value, project-specific rendering knowledge while freeing context capacity for the\nnew investigation. Seeding the next exploration with a concise architectural summary maintains accuracy\nacross the subsystem transition.\n\nFinal Answer: D"
+  },
+  {
+    "id": 171,
+    "question": "You are building developer productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks using built-in tools (Read, Write, Bash, Grep, Glob) and Model Context Protocol (MCP) servers. Your agent has spent significant context exploring the rendering subsystem--reading shader code, buffer management, and frame synchronization logic. An engineer now asks it to understand how the physics engine integrates with rendering for collision debug overlays. You notice recent responses reference \"typical rendering patterns\" rather than the specific VulkanPipeline and FrameGraph classes it discovered earlier. What's the most effective approach to handle this transition while preserving accuracy?",
+    "options": {
+      "A": "Spawn a sub-agent to explore physics independently, then manually synthesize its findings with the rendering knowledge accumulated in the main conversation.",
+      "B": "Use /clear to reset context completely, then start fresh with physics exploration using file paths from the project's CLAUDE.md.",
+      "C": "Continue in the current context with more targeted prompts referencing the specific classes by name.",
+      "D": "Summarize key rendering findings (including specific class names and architectural patterns), clear or reset the main context window (or delegate to a sub-agent seeded with that summary), then proceed with the physics integration exploration."
+    },
+    "answer": "D",
+    "explanation": "A. Incorrect Spawn a sub-agent to explore physics independently, then manually synthesize its findings\nwith the rendering knowledge accumulated in the main conversation.\n\nThis helps divide the work, but it does not solve the underlying problem that the main context is already\nbecoming degraded and losing project-specific accuracy.\n\nB. Incorrect Use /clear to reset context completely, then start fresh with physics exploration using file\npaths from the project's CLAUDE.md.\n\nResetting without preserving the important rendering discoveries risks losing the specific knowledge about\nVulkanPipeline, FrameGraph, and the architectural relationships already uncovered.\n\nC. Incorrect Continue in the current context with more targeted prompts referencing the specific\nclasses by name.\n\nThe observed behavior indicates that the context is already overloaded. Simply adding more targeted prompts\nis unlikely to reliably restore the lost precision.\n\nD. Correct Summarize key rendering findings (including specific class names and architectural\npatterns), clear or reset the main context window (or delegate to a sub-agent seeded with that summary),\nthen proceed with the physics integration exploration.\n\nThis is the most effective approach because it preserves the high-value, project-specific rendering knowledge\nwhile freeing context capacity for the new investigation. A concise architectural summary acts as a durable\n\nbridge between the rendering and physics explorations and helps maintain accuracy during the transition.\nFinal Answer: D"
+  },
+  {
+    "id": 172,
+    "question": "An engineer's exploration subagent spent 30 minutes analyzing a legacy payment system, reading 47 files and documenting data flows. The session was interrupted when the engineer's connection dropped. While away, a teammate merged a PR that renamed two utility functions. The engineer wants to continue the same exploration. What is the most effective approach to handle this situation?",
+    "options": {
+      "A": "Launch a fresh subagent and include the prior transcript in the initial prompt for context.",
+      "B": "Resume the subagent from its previous transcript without mentioning the changes--the architecture understanding remains valid.",
+      "C": "Launch a fresh subagent with a summary of prior findings.",
+      "D": "Resume the subagent from its previous transcript and inform it about the renamed functions."
+    },
+    "answer": "D",
+    "explanation": "A. Incorrect Launch a fresh subagent and include the prior transcript in the initial prompt for context.\n\nReinserting the entire transcript is inefficient and may consume a large amount of context with redundant\ndetails.\n\nB. Incorrect Resume the subagent from its previous transcript without mentioning the changes--the\narchitecture understanding remains valid.\n\nThe codebase changed while the engineer was away. Omitting the renamed functions risks inconsistent\nreferences and incorrect conclusions.\n\nC. Incorrect Launch a fresh subagent with a summary of prior findings.\n\nA summary can preserve high-level understanding, but it loses the detailed state accumulated during the 30-\nminute investigation across 47 files.\n\nD. Correct Resume the subagent from its previous transcript and inform it about the renamed functions.\n\nThis preserves the rich investigation context already built by the subagent while updating it with the relevant\ncode changes introduced by the merged PR. The architecture and data-flow analysis remain valuable, and the\nrenamed utilities can be reconciled with the existing exploration.\n\nFinal Answer: D"
+  },
+  {
+    "id": 175,
+    "question": "A customer returns 4 hours after their initiar session about the same billing dispute. The previous 32-turn session contains lookup_order results showing \"Status: PENDING, Expected resolution: 24-48 hours.\" In testing, you observe that when resuming sessions with stale tool results, the agent often references the outdated data in responses (e.g., \"I see your refund is still being processed\") even after subsequent fresh tool calls return different information. What approach most reliably handles returning customers?",
+    "options": {
+      "A": "Resume with full history but filter out previous tool_result messages before resuming, keeping only the human/assistant turns so the agent must re-fetch needed data.",
+      "B": "Resume with full history and add a system prompt instruction telling the agent to always prefer the most recent tool results when multiple calls to thesame tool exist in context.",
+      "C": "Start a new session, inject a structured summary of the previous interaction (issue type, actions taken, resolution status), then make fresh tool calls before engaging.",
+      "D": "Resume with full history and configure the agent to automatically re-call all previously used tools at session start to ensure data freshness."
+    },
+    "answer": "C",
+    "explanation": "A. Incorrect Resume with full history but filter out previous tool_result messages before resuming,\nkeeping only the human/assistant turns so the agent must re-fetch needed data.\n\nThis removes stale data, but it also removes important structured information and may leave the conversation\nwithout a reliable record of what actions were previously taken.\n\nB. Incorrect Resume with full history and add a system prompt instruction telling the agent to always\nprefer the most recent tool results when multiple calls to the same tool exist in context.\n\nThis helps somewhat, but long histories still create confusion and increase the risk that outdated information\ninfluences the response.\n\nC. Correct Start a new session, inject a structured summary of the previous interaction (issue type,\nactions taken, resolution status), then make fresh tool calls before engaging.\n\nThis is the most reliable approach because it preserves the important business context while ensuring that all\noperational data comes from fresh tool calls. It minimizes stale-state contamination and reduces context-\nwindow clutter.\n\nD. Incorrect Resume with full history and configure the agent to automatically re-call all previously\nused tools at session start to ensure data freshness.\n\nFresh data helps, but the old tool results remain in context and can still bias the model toward outdated\nconclusions.\n\nFinal Answer: C\n\n Thank you\n\n Thank you for being so interested in the premium exam material.\n I'm glad to hear that you found it informative and helpful.\n\n If you have any feedback or thoughts on the bumps, I would love to hear them.\nYour insights can help me improve our writing and better understand our readers.\n\n Best of Luck\n\nYou have worked hard to get to this point, and you are well-prepared for the exam\n Keep your head up, stay positive, and go show that exam what you're made of!\n\nFeedback More Papers\n\nTotal: 175 Questions\n\nLink: https://examheist.com/papers/anthropic/claude-certified-architect"
+  }
+]

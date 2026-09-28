@@ -1,0 +1,702 @@
+[
+  {
+    "id": 1,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 2,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 3,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 4,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 5,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 6,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 7,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 8,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 9,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 10,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 11,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 12,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 13,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 14,
+    "section": "context_reliability"
+  },
+  {
+    "id": 15,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 16,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 17,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 18,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 19,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 20,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 21,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 22,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 23,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 24,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 25,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 26,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 27,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 28,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 29,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 30,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 31,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 32,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 33,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 34,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 35,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 36,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 37,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 38,
+    "section": "context_reliability"
+  },
+  {
+    "id": 39,
+    "section": "context_reliability"
+  },
+  {
+    "id": 40,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 41,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 42,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 43,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 44,
+    "section": "context_reliability"
+  },
+  {
+    "id": 45,
+    "section": "context_reliability"
+  },
+  {
+    "id": 46,
+    "section": "context_reliability"
+  },
+  {
+    "id": 47,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 48,
+    "section": "context_reliability"
+  },
+  {
+    "id": 49,
+    "section": "context_reliability"
+  },
+  {
+    "id": 50,
+    "section": "context_reliability"
+  },
+  {
+    "id": 51,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 52,
+    "section": "context_reliability"
+  },
+  {
+    "id": 53,
+    "section": "context_reliability"
+  },
+  {
+    "id": 54,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 55,
+    "section": "context_reliability"
+  },
+  {
+    "id": 56,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 57,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 58,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 59,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 60,
+    "section": "context_reliability"
+  },
+  {
+    "id": 61,
+    "section": "context_reliability"
+  },
+  {
+    "id": 62,
+    "section": "context_reliability"
+  },
+  {
+    "id": 63,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 64,
+    "section": "context_reliability"
+  },
+  {
+    "id": 65,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 66,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 67,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 68,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 69,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 70,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 71,
+    "section": "context_reliability"
+  },
+  {
+    "id": 72,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 73,
+    "section": "context_reliability"
+  },
+  {
+    "id": 74,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 75,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 76,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 77,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 78,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 79,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 80,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 81,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 82,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 83,
+    "section": "context_reliability"
+  },
+  {
+    "id": 84,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 85,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 86,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 87,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 88,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 89,
+    "section": "context_reliability"
+  },
+  {
+    "id": 90,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 91,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 92,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 93,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 94,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 95,
+    "section": "context_reliability"
+  },
+  {
+    "id": 96,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 97,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 98,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 99,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 100,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 101,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 102,
+    "section": "context_reliability"
+  },
+  {
+    "id": 103,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 104,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 105,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 106,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 107,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 108,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 109,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 110,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 111,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 112,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 113,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 114,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 115,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 116,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 117,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 118,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 119,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 120,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 121,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 122,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 123,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 124,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 125,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 126,
+    "section": "context_reliability"
+  },
+  {
+    "id": 127,
+    "section": "context_reliability"
+  },
+  {
+    "id": 128,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 129,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 130,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 131,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 132,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 133,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 134,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 135,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 136,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 137,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 138,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 139,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 140,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 141,
+    "section": "context_reliability"
+  },
+  {
+    "id": 142,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 143,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 144,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 145,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 146,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 147,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 148,
+    "section": "context_reliability"
+  },
+  {
+    "id": 149,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 150,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 151,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 152,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 153,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 154,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 155,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 156,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 157,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 158,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 159,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 160,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 161,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 162,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 163,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 164,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 165,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 166,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 167,
+    "section": "claude_code_workflows"
+  },
+  {
+    "id": 168,
+    "section": "agentic_orchestration"
+  },
+  {
+    "id": 169,
+    "section": "context_reliability"
+  },
+  {
+    "id": 170,
+    "section": "context_reliability"
+  },
+  {
+    "id": 171,
+    "section": "context_reliability"
+  },
+  {
+    "id": 172,
+    "section": "context_reliability"
+  },
+  {
+    "id": 173,
+    "section": "prompt_structured_output"
+  },
+  {
+    "id": 174,
+    "section": "tool_mcp"
+  },
+  {
+    "id": 175,
+    "section": "context_reliability"
+  }
+]

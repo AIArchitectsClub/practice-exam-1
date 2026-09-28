@@ -4,8 +4,9 @@ import { tests } from '../data/testsIndex';
 import { FINAL_EXAM_TEST_ID } from '../data/constants';
 import AdminStudentInsights from './AdminStudentInsights';
 
-// The 7 practice tests together partition the full 175-question bank, so any
-// question id (including ones served in a final exam preset) can be found here.
+// The 7 sequential practice tests together partition the full 175-question bank, so any
+// question id (including ones served in a final exam preset or a section-focused exam,
+// which reuse the same ids) can be found here.
 const questionsById = new Map(tests.flatMap((t) => t.questions).map((q) => [q.id, q]));
 
 function testTitle(testId) {
@@ -59,7 +60,7 @@ export default function AdminStudentDetail({ studentId, onBack }) {
         </button>
         <div className="test-runner-title">{student.username}</div>
         <div className="progress-indicator">
-          {totalAttempts} attempt{totalAttempts === 1 ? '' : 's'} · {testsAttempted}/7 tests tried
+          {totalAttempts} attempt{totalAttempts === 1 ? '' : 's'} · {testsAttempted}/{tests.length} tests tried
           {totalAttempts > 0 ? ` · avg ${avgPct}%` : ''}
         </div>
       </div>

@@ -1,8 +1,36 @@
 import { tests } from '../data/testsIndex';
 import { FINAL_EXAM_TEST_ID, FINAL_EXAM_PASS_PCT } from '../data/constants';
 
+function TestGrid({ list, onSelectTest, results }) {
+  return (
+    <div className="test-grid">
+      {list.map((t) => {
+        const prevResult = results[t.id];
+        return (
+          <button
+            key={t.id}
+            className="test-button"
+            onClick={() => onSelectTest(t.id)}
+          >
+            <span className="test-button-title">{t.title}</span>
+            <span className="test-button-meta">{t.questions.length} questions</span>
+            {prevResult && (
+              <span className="test-button-score">
+                Last score: {prevResult.score}/{prevResult.total}
+                {prevResult.best > prevResult.score ? ` (best: ${prevResult.best})` : ''}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function Portal({ onSelectTest, onStartFinalExam, results, username, onLogout }) {
   const finalExamResult = results[FINAL_EXAM_TEST_ID];
+  const sequentialTests = tests.filter((t) => t.kind === 'sequential');
+  const sectionTests = tests.filter((t) => t.kind === 'section');
 
   return (
     <div className="portal">
@@ -14,29 +42,20 @@ export default function Portal({ onSelectTest, onStartFinalExam, results, userna
       </div>
       <header className="portal-header">
         <h1>Claude Certified Architect — Practice Exams</h1>
-        <p>Choose a practice test to begin. Each test has 25 questions.</p>
+        <p>Choose a practice test to begin.</p>
       </header>
-      <div className="test-grid">
-        {tests.map((t) => {
-          const prevResult = results[t.id];
-          return (
-            <button
-              key={t.id}
-              className="test-button"
-              onClick={() => onSelectTest(t.id)}
-            >
-              <span className="test-button-title">{t.title}</span>
-              <span className="test-button-meta">{t.questions.length} questions</span>
-              {prevResult && (
-                <span className="test-button-score">
-                  Last score: {prevResult.score}/{prevResult.total}
-                  {prevResult.best > prevResult.score ? ` (best: ${prevResult.best})` : ''}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+
+      <h2 className="portal-group-title">Sequential Practice Tests</h2>
+      <p className="portal-group-subtitle">
+        25 questions each, drawn in original source order across the full question bank.
+      </p>
+      <TestGrid list={sequentialTests} onSelectTest={onSelectTest} results={results} />
+
+      <h2 className="portal-group-title">Section-Focused Practice Exams</h2>
+      <p className="portal-group-subtitle">
+        One exam per exam-blueprint section, covering only that section's questions.
+      </p>
+      <TestGrid list={sectionTests} onSelectTest={onSelectTest} results={results} />
 
       <div className="final-exam-card">
         <div className="final-exam-info">
