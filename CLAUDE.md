@@ -108,6 +108,22 @@ No ORM, no migration tool. `server/db.js`'s `ensureSchema()` just runs `server/s
 startup. `GET /api/scores` uses `DISTINCT ON` + a window function to return, per `test_id`, the most
 recent attempt's score alongside the best score ever achieved for that `test_id`.
 
+### Per-student test access control
+
+`users.allowed_tests` (`INTEGER[]`, nullable) restricts which `test_id`s a student may see/attempt.
+`NULL` means unrestricted (every current and future test id) — this is the default for every existing
+row and every newly-created student, so introducing this column changed nobody's access. Admins are
+always treated as unrestricted regardless of their own `allowed_tests` value
+(`effectiveAllowedTests()` in `server/index.js`). `/api/login` and `/api/me` both return the caller's
+effective `allowedTests`; `Portal.jsx` filters the test grids and the Final Exam card against it.
+Enforcement isn't just cosmetic: `POST /api/scores` independently checks `canAccessTest()` server-side
+and 403s a disallowed `test_id`, so hiding a button isn't the only thing stopping a revoked test from
+being recorded. Note this does **not** hide question content itself — all question JSON ships in the
+client bundle regardless of access (see "Question data" above), so access control governs what a
+student can navigate to and get credit for, not what's technically downloadable from the bundle.
+Admins manage this per-student from `AdminStudentDetail.jsx`'s "Test Access" tab
+(`AdminStudentAccess.jsx`), via `PUT /api/admin/users/:id/access` (`{ allowedTests: null | number[] }`).
+
 ### Deployment
 
 `render.yaml` defines a single Render web service (see the build gotcha above). Env vars needed:

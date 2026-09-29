@@ -15,6 +15,20 @@ const USERNAME_RE = /^[a-zA-Z0-9_-]{2,32}$/;
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 // Must match FINAL_EXAM_TEST_ID in app/src/data/constants.js
 const FINAL_EXAM_TEST_ID = 999;
+// 1-7: sequential practice tests. 8-12: section-focused practice exams. 999: Final Exam.
+const ALL_TEST_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, FINAL_EXAM_TEST_ID];
+
+// null allowed_tests means unrestricted (admins are always unrestricted,
+// regardless of their own allowed_tests value, since that column only
+// governs student access).
+function effectiveAllowedTests(user) {
+  return user.role === 'admin' ? null : user.allowed_tests;
+}
+
+function canAccessTest(user, testId) {
+  const allowed = effectiveAllowedTests(user);
+  return allowed === null || allowed.includes(testId);
+}
 
 app.use(express.json());
 app.use(cookieParser(COOKIE_SECRET));
@@ -29,7 +43,9 @@ function getUserId(req) {
 async function requireAuth(req, res, next) {
   const userId = getUserId(req);
   if (!userId) return res.status(401).json({ error: 'Not logged in' });
-  const { rows } = await pool.query('SELECT id, username, role FROM users WHERE id = $1', [userId]);
+  const { rows } = await pool.query('SELECT id, username, role, allowed_tests FROM users WHERE id = $1', [
+    userId,
+  ]);
   if (!rows[0]) return res.status(401).json({ error: 'Not logged in' });
   req.user = rows[0];
   next();
@@ -53,9 +69,10 @@ function setSessionCookie(res, userId) {
 app.post('/api/login', async (req, res) => {
   const username = String(req.body?.username || '').trim();
   const password = String(req.body?.password || '');
-  const { rows } = await pool.query('SELECT id, username, password_hash, role FROM users WHERE username = $1', [
-    username,
-  ]);
+  const { rows } = await pool.query(
+    'SELECT id, username, password_hash, role, allowed_tests FROM users WHERE username = $1',
+    [username]
+  );
   const user = rows[0];
   if (!user) return res.status(401).json({ error: 'Invalid username or password' });
 
@@ -63,7 +80,7 @@ app.post('/api/login', async (req, res) => {
   if (!valid) return res.status(401).json({ error: 'Invalid username or password' });
 
   setSessionCookie(res, user.id);
-  res.json({ username: user.username, role: user.role });
+  res.json({ username: user.username, role: user.role, allowedTests: effectiveAllowedTests(user) });
 });
 
 app.post('/api/logout', (req, res) => {
@@ -74,9 +91,15 @@ app.post('/api/logout', (req, res) => {
 app.get('/api/me', async (req, res) => {
   const userId = getUserId(req);
   if (!userId) return res.json({ username: null, role: null });
-  const { rows } = await pool.query('SELECT username, role FROM users WHERE id = $1', [userId]);
+  const { rows } = await pool.query('SELECT username, role, allowed_tests FROM users WHERE id = $1', [
+    userId,
+  ]);
   if (!rows[0]) return res.json({ username: null, role: null });
-  res.json({ username: rows[0].username, role: rows[0].role });
+  res.json({
+    username: rows[0].username,
+    role: rows[0].role,
+    allowedTests: effectiveAllowedTests(rows[0]),
+  });
 });
 
 app.get('/api/scores', requireAuth, async (req, res) => {
@@ -104,8 +127,7 @@ app.post('/api/scores', requireAuth, async (req, res) => {
   const score = Number(req.body?.score);
   const total = Number(req.body?.total);
   const answersInput = req.body?.answers;
-  // 1-7: sequential practice tests. 8-12: section-focused practice exams.
-  const isValidTestId = (testId >= 1 && testId <= 12) || testId === FINAL_EXAM_TEST_ID;
+  const isValidTestId = ALL_TEST_IDS.includes(testId);
   if (
     !isValidTestId ||
     !Number.isInteger(score) || score < 0 ||
@@ -114,6 +136,9 @@ app.post('/api/scores', requireAuth, async (req, res) => {
     !Array.isArray(answersInput)
   ) {
     return res.status(400).json({ error: 'Invalid score payload' });
+  }
+  if (!canAccessTest(req.user, testId)) {
+    return res.status(403).json({ error: 'You do not have access to this test.' });
   }
   const answers = answersInput
     .filter((a) => a && Number.isInteger(a.id))
@@ -133,7 +158,7 @@ app.post('/api/scores', requireAuth, async (req, res) => {
 
 app.get('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
   const { rows } = await pool.query(
-    `SELECT u.id, u.username, u.role, u.created_at,
+    `SELECT u.id, u.username, u.role, u.created_at, u.allowed_tests,
        COALESCE(COUNT(t.id), 0)::int AS attempts
      FROM users u
      LEFT JOIN test_results t ON t.user_id = u.id
@@ -141,7 +166,7 @@ app.get('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
      GROUP BY u.id
      ORDER BY u.created_at DESC`
   );
-  res.json(rows);
+  res.json(rows.map((r) => ({ ...r, allowedTests: r.allowed_tests, allowed_tests: undefined })));
 });
 
 app.post('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
@@ -172,7 +197,7 @@ app.get('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
   if (!Number.isInteger(id)) return res.status(400).json({ error: 'Invalid user id' });
 
   const userRes = await pool.query(
-    "SELECT id, username, created_at FROM users WHERE id = $1 AND role = 'student'",
+    "SELECT id, username, created_at, allowed_tests FROM users WHERE id = $1 AND role = 'student'",
     [id]
   );
   const student = userRes.rows[0];
@@ -190,6 +215,7 @@ app.get('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
     id: student.id,
     username: student.username,
     createdAt: student.created_at,
+    allowedTests: student.allowed_tests,
     attempts: attemptsRes.rows.map((r) => ({
       id: r.id,
       testId: r.test_id,
@@ -206,6 +232,34 @@ app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) =
   if (!Number.isInteger(id)) return res.status(400).json({ error: 'Invalid user id' });
   await pool.query("DELETE FROM users WHERE id = $1 AND role = 'student'", [id]);
   res.json({ ok: true });
+});
+
+// Set (or clear) which tests a student may access. `allowedTests: null` clears
+// the restriction (unrestricted); an array is stored as an explicit allowlist,
+// including an empty array to revoke every test.
+app.put('/api/admin/users/:id/access', requireAuth, requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.status(400).json({ error: 'Invalid user id' });
+
+  const input = req.body?.allowedTests;
+  let allowedTests;
+  if (input === null) {
+    allowedTests = null;
+  } else if (
+    Array.isArray(input) &&
+    input.every((t) => Number.isInteger(t) && ALL_TEST_IDS.includes(t))
+  ) {
+    allowedTests = [...new Set(input)];
+  } else {
+    return res.status(400).json({ error: 'allowedTests must be null or an array of valid test ids.' });
+  }
+
+  const { rows } = await pool.query(
+    "UPDATE users SET allowed_tests = $1 WHERE id = $2 AND role = 'student' RETURNING id, allowed_tests",
+    [allowedTests, id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Student not found' });
+  res.json({ id: rows[0].id, allowedTests: rows[0].allowed_tests });
 });
 
 // Serve the built React app (app/dist) in production. Any non-API route falls

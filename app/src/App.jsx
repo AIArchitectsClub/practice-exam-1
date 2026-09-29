@@ -109,6 +109,7 @@ export default function App() {
           results={results}
           username={user.username}
           onLogout={handleLogout}
+          allowedTests={user.allowedTests ?? null}
         />
       )}
       {view === 'test' && activeTest && (

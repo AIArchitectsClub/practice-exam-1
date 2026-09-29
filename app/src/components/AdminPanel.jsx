@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import AdminStudentDetail from './AdminStudentDetail';
+import { ALL_TEST_OPTIONS } from '../data/testsIndex';
+
+function accessSummary(allowedTests) {
+  if (allowedTests === null) return 'All tests';
+  if (allowedTests.length === 0) return 'None';
+  return `${allowedTests.length}/${ALL_TEST_OPTIONS.length} tests`;
+}
 
 export default function AdminPanel({ onLogout }) {
   const [users, setUsers] = useState([]);
@@ -99,6 +106,7 @@ export default function AdminPanel({ onLogout }) {
               <tr>
                 <th>Username</th>
                 <th>Attempts</th>
+                <th>Access</th>
                 <th>Created</th>
                 <th></th>
                 <th></th>
@@ -109,6 +117,7 @@ export default function AdminPanel({ onLogout }) {
                 <tr key={u.id}>
                   <td>{u.username}</td>
                   <td>{u.attempts}</td>
+                  <td>{accessSummary(u.allowedTests)}</td>
                   <td>{new Date(u.created_at).toLocaleDateString()}</td>
                   <td>
                     <button className="link-button" onClick={() => setSelectedStudentId(u.id)}>

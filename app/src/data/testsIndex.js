@@ -10,6 +10,7 @@ import sectionToolMcp from './sectionToolMcp.json';
 import sectionClaudeCodeWorkflows from './sectionClaudeCodeWorkflows.json';
 import sectionPromptOutput from './sectionPromptOutput.json';
 import sectionContextReliability from './sectionContextReliability.json';
+import { FINAL_EXAM_TEST_ID } from './constants';
 
 export const tests = [
   { id: 1, title: 'Practice Test 1', questions: test1, kind: 'sequential' },
@@ -49,4 +50,12 @@ export const tests = [
     questions: sectionContextReliability,
     kind: 'section',
   },
+];
+
+// Every allocatable test/exam id, for admin access-control UI. Kept separate
+// from `tests` (which only holds question data the Portal/TestRunner load)
+// since the Final Exam has no fixed question set of its own.
+export const ALL_TEST_OPTIONS = [
+  ...tests.map((t) => ({ id: t.id, title: t.title, kind: t.kind })),
+  { id: FINAL_EXAM_TEST_ID, title: 'Final Exam', kind: 'final' },
 ];

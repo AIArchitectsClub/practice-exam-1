@@ -223,6 +223,48 @@
   border-bottom-color: var(--accent);
 }
 
+/* Admin: per-student test access */
+.admin-access-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.secondary-button.danger {
+  color: #e0483e;
+  border-color: #e0483e;
+}
+
+.admin-access-group {
+  margin-bottom: 1.25rem;
+}
+
+.admin-access-group-title {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-access-checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.admin-access-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.admin-access-saved {
+  color: #2f9e56;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
 /* Insights */
 .insights {
   display: flex;

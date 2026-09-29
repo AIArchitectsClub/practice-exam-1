@@ -28,4 +28,6 @@ export const api = {
     request('/api/admin/users', { method: 'POST', body: JSON.stringify({ username, password }) }),
   adminDeleteUser: (id) => request(`/api/admin/users/${id}`, { method: 'DELETE' }),
   adminGetStudent: (id) => request(`/api/admin/users/${id}`),
+  adminSetAccess: (id, allowedTests) =>
+    request(`/api/admin/users/${id}/access`, { method: 'PUT', body: JSON.stringify({ allowedTests }) }),
 };

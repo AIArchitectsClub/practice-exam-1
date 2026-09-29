@@ -3,6 +3,7 @@ import { api } from '../api';
 import { tests } from '../data/testsIndex';
 import { FINAL_EXAM_TEST_ID } from '../data/constants';
 import AdminStudentInsights from './AdminStudentInsights';
+import AdminStudentAccess from './AdminStudentAccess';
 
 // The 7 sequential practice tests together partition the full 175-question bank, so any
 // question id (including ones served in a final exam preset or a section-focused exam,
@@ -23,7 +24,7 @@ export default function AdminStudentDetail({ studentId, onBack }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedAttempt, setExpandedAttempt] = useState(null);
-  const [tab, setTab] = useState('insights'); // 'insights' | 'attempts'
+  const [tab, setTab] = useState(null); // 'insights' | 'attempts' | 'access'
 
   useEffect(() => {
     setLoading(true);
@@ -51,6 +52,7 @@ export default function AdminStudentDetail({ studentId, onBack }) {
   const bestFinalExamScore = finalExamAttempts.length
     ? Math.max(...finalExamAttempts.map((a) => a.score))
     : null;
+  const activeTab = tab ?? (totalAttempts === 0 ? 'access' : 'insights');
 
   return (
     <div className="admin-student-detail">
@@ -65,8 +67,6 @@ export default function AdminStudentDetail({ studentId, onBack }) {
         </div>
       </div>
 
-      {totalAttempts === 0 && <p className="progress-indicator">No attempts yet.</p>}
-
       {lastFinalExam && (
         <div className="final-exam-summary">
           <strong>Final Exam:</strong> last {lastFinalExam.score}/{lastFinalExam.total} (
@@ -78,26 +78,47 @@ export default function AdminStudentDetail({ studentId, onBack }) {
         </div>
       )}
 
-      {totalAttempts > 0 && (
-        <div className="admin-tabs">
-          <button
-            className={`admin-tab ${tab === 'insights' ? 'admin-tab-active' : ''}`}
-            onClick={() => setTab('insights')}
-          >
-            Strengths &amp; Weaknesses
-          </button>
-          <button
-            className={`admin-tab ${tab === 'attempts' ? 'admin-tab-active' : ''}`}
-            onClick={() => setTab('attempts')}
-          >
-            Attempts
-          </button>
-        </div>
+      <div className="admin-tabs">
+        <button
+          className={`admin-tab ${activeTab === 'insights' ? 'admin-tab-active' : ''}`}
+          onClick={() => setTab('insights')}
+        >
+          Strengths &amp; Weaknesses
+        </button>
+        <button
+          className={`admin-tab ${activeTab === 'attempts' ? 'admin-tab-active' : ''}`}
+          onClick={() => setTab('attempts')}
+        >
+          Attempts
+        </button>
+        <button
+          className={`admin-tab ${activeTab === 'access' ? 'admin-tab-active' : ''}`}
+          onClick={() => setTab('access')}
+        >
+          Test Access
+        </button>
+      </div>
+
+      {activeTab === 'insights' &&
+        (totalAttempts > 0 ? (
+          <AdminStudentInsights attempts={student.attempts} />
+        ) : (
+          <p className="progress-indicator">No attempts yet.</p>
+        ))}
+
+      {activeTab === 'access' && (
+        <AdminStudentAccess
+          studentId={student.id}
+          allowedTests={student.allowedTests}
+          onSaved={(allowedTests) => setStudent((s) => ({ ...s, allowedTests }))}
+        />
       )}
 
-      {totalAttempts > 0 && tab === 'insights' && <AdminStudentInsights attempts={student.attempts} />}
+      {activeTab === 'attempts' && totalAttempts === 0 && (
+        <p className="progress-indicator">No attempts yet.</p>
+      )}
 
-      {totalAttempts > 0 && tab === 'attempts' && (
+      {activeTab === 'attempts' && totalAttempts > 0 && (
       <div className="attempt-list">
         {student.attempts.map((attempt) => {
           const pct = Math.round((attempt.score / attempt.total) * 100);

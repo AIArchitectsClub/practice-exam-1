@@ -27,10 +27,21 @@ function TestGrid({ list, onSelectTest, results }) {
   );
 }
 
-export default function Portal({ onSelectTest, onStartFinalExam, results, username, onLogout }) {
+export default function Portal({
+  onSelectTest,
+  onStartFinalExam,
+  results,
+  username,
+  onLogout,
+  allowedTests,
+}) {
   const finalExamResult = results[FINAL_EXAM_TEST_ID];
-  const sequentialTests = tests.filter((t) => t.kind === 'sequential');
-  const sectionTests = tests.filter((t) => t.kind === 'section');
+  const isAllowed = (id) => allowedTests === null || allowedTests.includes(id);
+  const visibleTests = tests.filter((t) => isAllowed(t.id));
+  const sequentialTests = visibleTests.filter((t) => t.kind === 'sequential');
+  const sectionTests = visibleTests.filter((t) => t.kind === 'section');
+  const finalExamAllowed = isAllowed(FINAL_EXAM_TEST_ID);
+  const nothingAssigned = visibleTests.length === 0 && !finalExamAllowed;
 
   return (
     <div className="portal">
@@ -45,37 +56,53 @@ export default function Portal({ onSelectTest, onStartFinalExam, results, userna
         <p>Choose a practice test to begin.</p>
       </header>
 
-      <h2 className="portal-group-title">Sequential Practice Tests</h2>
-      <p className="portal-group-subtitle">
-        25 questions each, drawn in original source order across the full question bank.
-      </p>
-      <TestGrid list={sequentialTests} onSelectTest={onSelectTest} results={results} />
+      {nothingAssigned && (
+        <p className="progress-indicator">
+          No tests have been assigned to your account yet. Ask your admin to grant access.
+        </p>
+      )}
 
-      <h2 className="portal-group-title">Section-Focused Practice Exams</h2>
-      <p className="portal-group-subtitle">
-        One exam per exam-blueprint section, covering only that section's questions.
-      </p>
-      <TestGrid list={sectionTests} onSelectTest={onSelectTest} results={results} />
-
-      <div className="final-exam-card">
-        <div className="final-exam-info">
-          <h2>Final Exam</h2>
-          <p>
-            60 questions drawn from the full question bank, simulating the real exam. Score{' '}
-            {FINAL_EXAM_PASS_PCT}%+ to be considered ready to sit the real thing. A different
-            question set is served each time you launch it.
+      {sequentialTests.length > 0 && (
+        <>
+          <h2 className="portal-group-title">Sequential Practice Tests</h2>
+          <p className="portal-group-subtitle">
+            25 questions each, drawn in original source order across the full question bank.
           </p>
-          {finalExamResult && (
-            <p className="final-exam-last-score">
-              Last attempt: {finalExamResult.score}/{finalExamResult.total}
-              {finalExamResult.best > finalExamResult.score ? ` (best: ${finalExamResult.best})` : ''}
+          <TestGrid list={sequentialTests} onSelectTest={onSelectTest} results={results} />
+        </>
+      )}
+
+      {sectionTests.length > 0 && (
+        <>
+          <h2 className="portal-group-title">Section-Focused Practice Exams</h2>
+          <p className="portal-group-subtitle">
+            One exam per exam-blueprint section, covering only that section's questions.
+          </p>
+          <TestGrid list={sectionTests} onSelectTest={onSelectTest} results={results} />
+        </>
+      )}
+
+      {finalExamAllowed && (
+        <div className="final-exam-card">
+          <div className="final-exam-info">
+            <h2>Final Exam</h2>
+            <p>
+              60 questions drawn from the full question bank, simulating the real exam. Score{' '}
+              {FINAL_EXAM_PASS_PCT}%+ to be considered ready to sit the real thing. A different
+              question set is served each time you launch it.
             </p>
-          )}
+            {finalExamResult && (
+              <p className="final-exam-last-score">
+                Last attempt: {finalExamResult.score}/{finalExamResult.total}
+                {finalExamResult.best > finalExamResult.score ? ` (best: ${finalExamResult.best})` : ''}
+              </p>
+            )}
+          </div>
+          <button className="primary-button final-exam-button" onClick={onStartFinalExam}>
+            Start Final Exam
+          </button>
         </div>
-        <button className="primary-button final-exam-button" onClick={onStartFinalExam}>
-          Start Final Exam
-        </button>
-      </div>
+      )}
     </div>
   );
 }
